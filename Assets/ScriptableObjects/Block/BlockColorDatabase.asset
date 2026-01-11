@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fcc9d6e14834e6da980aeb31c9989dc, type: 3}
+  m_Name: BlockColorDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorDatabase
+  blockColorDataList:
+  - {fileID: 11400000, guid: e2ab46df46de2f54897e3a45f59da281, type: 2}
+  - {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}
+  - {fileID: 11400000, guid: 180b7c875e3835b44bc213f1434ce084, type: 2}
+  - {fileID: 11400000, guid: 8333c7eb57970d84791a4e20b0bea5ec, type: 2}
+  - {fileID: 11400000, guid: a19f1b3d2a93d9b4290104a1bde47b91, type: 2}
+  - {fileID: 11400000, guid: c4db9b491532dd3429dce983b7840476, type: 2}

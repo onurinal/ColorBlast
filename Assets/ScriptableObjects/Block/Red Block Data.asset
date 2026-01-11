@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 148fa390a2cf43a9b6506adeacd13633, type: 3}
+  m_Name: Red Block Data
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
+  colorType: 5
+  defaultIcon: {fileID: 21300000, guid: 60ba5253d682c2f43b1c2f230ffd274f, type: 3}
+  firstIcon: {fileID: 21300000, guid: e0220090eae2f884db8a62e1637fe401, type: 3}
+  secondIcon: {fileID: 21300000, guid: 0b60e98c87c2fa84c89a95b9d9bc74a3, type: 3}
+  thirdIcon: {fileID: 21300000, guid: d10a8641621b53841a7c943b4c56fb04, type: 3}

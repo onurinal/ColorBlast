@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d03e8ec4df44466a5fd938e99356052, type: 3}
+  m_Name: BlockProperties
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockProperties
+  blockPrefab: {fileID: 7525893087664308989, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
+  blockSizeX: 0.45
+  blockSizeY: 0.4
+  spacingX: -0.15
+  spacingY: -0.15
