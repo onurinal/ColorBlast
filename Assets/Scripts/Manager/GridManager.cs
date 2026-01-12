@@ -7,21 +7,27 @@ namespace ColorBlast.Manager
 {
     public class GridManager : MonoBehaviour
     {
-        [SerializeField] private LevelProperties levelProperties;
+        [Header("Grid Configuration")]
         [SerializeField] private BlockProperties blockProperties;
+
+        [Header("References")]
         [SerializeField] private CameraController cameraController;
-        [SerializeField] private Transform blocksParent;
 
         private GridSpawner gridSpawner;
         private GridChecker gridChecker;
+        private LevelProperties levelProperties;
 
         private Block[,] blockGrid;
         private Vector2 blockSize;
 
-        public void Initialize()
+        public GridChecker GridChecker => gridChecker;
+
+        public void Initialize(LevelProperties levelProperties)
         {
+            this.levelProperties = levelProperties;
+
             gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockProperties, levelProperties, blocksParent);
+            gridSpawner.Initialize(blockProperties, levelProperties);
 
             CacheBlockSize();
             CreateGrid();
@@ -30,6 +36,11 @@ namespace ColorBlast.Manager
             gridChecker.Initialize(blockGrid, levelProperties);
 
             cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
+        }
+
+        private void CacheBlockSize()
+        {
+            blockSize = blockProperties.GetBlockSpriteBoundSize();
         }
 
         private void CreateGrid()
@@ -60,11 +71,6 @@ namespace ColorBlast.Manager
 
             Debug.LogError($"Block_{row}_{col} not found");
             return Vector2.zero;
-        }
-
-        private void CacheBlockSize()
-        {
-            blockSize = blockProperties.GetBlockSpriteBoundSize();
         }
     }
 }

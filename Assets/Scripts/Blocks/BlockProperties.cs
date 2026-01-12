@@ -13,11 +13,14 @@ namespace ColorBlast.Blocks
         [SerializeField] private float spacingX;
         [SerializeField] private float spacingY;
 
+        [SerializeField] private float destroyDuration;
+
         public Block BlockPrefab => blockPrefab;
         public float BlockSizeX => blockSizeX;
         public float BlockSizeY => blockSizeY;
         public float SpacingX => spacingX;
         public float SpacingY => spacingY;
+        public float DestroyDuration => destroyDuration;
 
 
         public Vector2 GetBlockSpriteBoundSize()

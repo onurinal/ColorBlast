@@ -14,8 +14,6 @@ namespace ColorBlast.Grid
         private bool[,] visitedBlocks;
         private List<Block> currentGroup;
 
-        private List<List<Block>> testBlockMatches = new List<List<Block>>();
-
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties)
         {
             this.blockGrid = blockGrid;
@@ -127,9 +125,16 @@ namespace ColorBlast.Grid
             }
         }
 
-        private List<Block> GetGroup(int row, int col)
+        public List<Block> GetGroup(int row, int col)
         {
+            if (blockGrid[row, col] == null)
+            {
+                currentGroup.Clear();
+                return currentGroup;
+            }
+
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
+            currentGroup.Clear();
 
             var color = blockGrid[row, col].ColorType;
             TryMatch(new Vector2Int(row, col), color);

@@ -343,6 +343,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35b4bceb47a1467793ee659c1cfff050, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Player.PlayerController
+  blockLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!4 &812123273
 Transform:
   m_ObjectHideFlags: 0
@@ -350,6 +353,52 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 812123270}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &826034684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 826034686}
+  - component: {fileID: 826034685}
+  m_Layer: 0
+  m_Name: ObjectPoolManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &826034685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826034684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1259375cd424ac8a6a1f7c5e64bf115, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.ObjectPoolManager
+  blockPrefab: {fileID: 7525893087664308989, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
+  blockParent: {fileID: 13100945}
+--- !u!4 &826034686
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826034684}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -402,9 +451,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4225b78a355c431e84ab297b5ead0d33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.GameManager
+  objectPoolManager: {fileID: 826034685}
+  playerController: {fileID: 812123272}
   gridManager: {fileID: 2085884745}
   levelManager: {fileID: 1525867607}
-  playerController: {fileID: 812123272}
 --- !u!1 &1525867606
 GameObject:
   m_ObjectHideFlags: 0
@@ -434,6 +484,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0394cc0d54450288c1f75f19f90ef3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.LevelManager
+  levelProperties: {fileID: 11400000, guid: c28098aa7bcfe1e418f98b454268f0f5, type: 2}
 --- !u!4 &1525867608
 Transform:
   m_ObjectHideFlags: 0
@@ -493,10 +544,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1eb34e6570374541940a0bfe9d294cb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.GridManager
-  levelProperties: {fileID: 11400000, guid: c28098aa7bcfe1e418f98b454268f0f5, type: 2}
   blockProperties: {fileID: 11400000, guid: 67b4abd68b90aa24d810e2ff1f3846f7, type: 2}
   cameraController: {fileID: 519420033}
-  blocksParent: {fileID: 13100945}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -506,4 +555,5 @@ SceneRoots:
   - {fileID: 2085884744}
   - {fileID: 1525867608}
   - {fileID: 812123273}
+  - {fileID: 826034686}
   - {fileID: 13100945}

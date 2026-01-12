@@ -1,30 +1,27 @@
 ﻿using ColorBlast.Blocks;
 using ColorBlast.Level;
+using ColorBlast.Manager;
 using UnityEngine;
 
 namespace ColorBlast.Grid
 {
     public class GridSpawner
     {
-        // private Block[,] blockGrid;
         private BlockProperties blockProperties;
         private LevelProperties levelProperties;
 
-        private Transform blocksParent;
 
-        public void Initialize(BlockProperties blockProperties, LevelProperties levelProperties, Transform blocksParent)
+        public void Initialize(BlockProperties blockProperties, LevelProperties levelProperties)
         {
-            // this.blockGrid = blockGrid;
             this.blockProperties = blockProperties;
             this.levelProperties = levelProperties;
-            this.blocksParent = blocksParent;
         }
 
         public Block CreateBlock(int row, int col, Vector2 position)
         {
-            var newBlock = Object.Instantiate(blockProperties.BlockPrefab, position, Quaternion.identity, blocksParent);
-            newBlock.name = $"Block_{row}_{col}";
+            var newBlock = ObjectPoolManager.Instance.GetBlock();
             newBlock.Initialize(row, col, GetRandomColor());
+            newBlock.transform.position = position;
             return newBlock;
         }
 

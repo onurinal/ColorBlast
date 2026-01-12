@@ -34,7 +34,8 @@ namespace ColorBlast.Player
 
         private void HandleTap(InputAction.CallbackContext context)
         {
-            playerController.HandleTap();
+            var position = Pointer.current.position.ReadValue();
+            playerController.HandleTap(position);
         }
     }
 }

@@ -17,3 +17,4 @@ MonoBehaviour:
   blockSizeY: 0.4
   spacingX: -0.15
   spacingY: -0.15
+  destroyDuration: 0.3

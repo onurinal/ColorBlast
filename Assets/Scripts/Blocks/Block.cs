@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿using ColorBlast.Manager;
+using ColorBlast.ObjectPool;
+using DG.Tweening;
+using UnityEngine;
 
 namespace ColorBlast.Blocks
 {
-    public class Block : MonoBehaviour
+    public class Block : MonoBehaviour, IPoolable
     {
         [SerializeField] private BlockProperties blockProperties;
         [SerializeField] private BlockColorDatabase blockColorDatabase;
@@ -13,6 +16,8 @@ namespace ColorBlast.Blocks
         [SerializeField] private int gridY;
         [SerializeField] private BlockColorType colorType;
         [SerializeField] private BlockIconType iconType;
+
+        private Tween destroyTween;
 
         public int GridX => gridX;
         public int GridY => gridY;
@@ -47,6 +52,12 @@ namespace ColorBlast.Blocks
             blockSpriteRenderer.sprite = blockColorDatabase.GetSpriteForType(colorType, iconType);
         }
 
+        private void ResetVisual()
+        {
+            iconType = BlockIconType.Default;
+            UpdateVisual();
+        }
+
         private void UpdateOrderLayer()
         {
             blockSpriteRenderer.sortingOrder = gridY;
@@ -55,6 +66,24 @@ namespace ColorBlast.Blocks
         private void UpdateBlockScale()
         {
             blockModelTransform.localScale = new Vector3(blockProperties.BlockSizeX, blockProperties.BlockSizeY, 1);
+        }
+
+        public void Destroy()
+        {
+            destroyTween =
+                transform.DOScale(new Vector2(0f, 0f), blockProperties.DestroyDuration).SetEase(Ease.InOutBounce).OnComplete(() => ObjectPoolManager.Instance.ReturnBlock(this));
+        }
+
+        public void OnSpawn()
+        {
+            //  scale, alpha etc if needed
+        }
+
+        public void OnDespawn()
+        {
+            // stop tween, reset states, animations if needed
+            ResetVisual();
+            destroyTween?.Kill();
         }
     }
 }

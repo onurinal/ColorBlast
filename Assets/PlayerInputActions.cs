@@ -106,7 +106,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""81a4ac78-3b0d-40b0-8a54-95f57626beea"",
-                    ""path"": ""<Mouse>/press"",
+                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
