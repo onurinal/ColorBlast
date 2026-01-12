@@ -257,7 +257,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da83ec140ad4f568d9a83b74da12a84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Camera.CameraController
-  padding: 1
+  padding: 0
 --- !u!1 &812123270
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,50 +358,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &856467591
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 856467593}
-  - component: {fileID: 856467592}
-  m_Layer: 0
-  m_Name: GridChecker
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &856467592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 856467591}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dca6f5ea2de04a1c819de219107ea71b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Grid.GridChecker
---- !u!4 &856467593
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 856467591}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1263320592
 GameObject:
   m_ObjectHideFlags: 0
@@ -446,6 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4225b78a355c431e84ab297b5ead0d33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.GameManager
+  gridManager: {fileID: 2085884745}
   levelManager: {fileID: 1525867607}
   playerController: {fileID: 812123272}
 --- !u!1 &1525867606
@@ -477,11 +434,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0394cc0d54450288c1f75f19f90ef3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.LevelManager
-  levelProperties: {fileID: 11400000, guid: c28098aa7bcfe1e418f98b454268f0f5, type: 2}
-  gridManager: {fileID: 2085884745}
-  gridChecker: {fileID: 856467592}
-  blockProperties: {fileID: 11400000, guid: 67b4abd68b90aa24d810e2ff1f3846f7, type: 2}
-  cameraController: {fileID: 519420033}
 --- !u!4 &1525867608
 Transform:
   m_ObjectHideFlags: 0
@@ -538,10 +490,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2085884743}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c857c89d66d4c02948aceb583889f28, type: 3}
+  m_Script: {fileID: 11500000, guid: 1eb34e6570374541940a0bfe9d294cb5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Grid.GridSpawner
-  blockParent: {fileID: 13100945}
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.GridManager
+  levelProperties: {fileID: 11400000, guid: c28098aa7bcfe1e418f98b454268f0f5, type: 2}
+  blockProperties: {fileID: 11400000, guid: 67b4abd68b90aa24d810e2ff1f3846f7, type: 2}
+  cameraController: {fileID: 519420033}
+  blocksParent: {fileID: 13100945}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -549,7 +504,6 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 1263320593}
   - {fileID: 2085884744}
-  - {fileID: 856467593}
   - {fileID: 1525867608}
   - {fileID: 812123273}
   - {fileID: 13100945}

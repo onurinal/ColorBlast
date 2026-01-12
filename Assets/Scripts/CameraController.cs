@@ -1,5 +1,5 @@
 ﻿using ColorBlast.Blocks;
-using ColorBlast.Grid;
+using ColorBlast.Manager;
 using UnityEngine;
 
 namespace ColorBlast
@@ -10,15 +10,15 @@ namespace ColorBlast
         [SerializeField] private float padding = 1f;
 
         private Camera mainCamera;
-        private GridSpawner gridSpawner;
+        private GridManager gridManager;
         private BlockProperties blockProperties;
         private int rowCount, columnCount;
 
-        public void Initialize(int row, int col, GridSpawner gridSpawner, BlockProperties blockProperties)
+        public void Initialize(int row, int col, GridManager gridManager, BlockProperties blockProperties)
         {
             rowCount = row;
             columnCount = col;
-            this.gridSpawner = gridSpawner;
+            this.gridManager = gridManager;
             this.blockProperties = blockProperties;
 
             if (mainCamera == null)
@@ -27,17 +27,17 @@ namespace ColorBlast
             }
 
             UpdateCameraPosition();
-            UpdateCameraOrthographicSize();
+            // UpdateCameraOrthographicSize();  For more rows and columns, it will change camera orthographic size
         }
 
         private Vector3 GetCenterPosition()
         {
-            var leftBottomBlockPosition = gridSpawner.GetBlockWorldPosition(0, 0);
-            var leftTopBlockPosition = gridSpawner.GetBlockWorldPosition(0, columnCount - 1);
+            var leftBottomBlockPosition = gridManager.GetBlockWorldPosition(0, 0);
+            var leftTopBlockPosition = gridManager.GetBlockWorldPosition(0, columnCount - 1);
 
             var centerPositionOfVertical = (leftBottomBlockPosition + leftTopBlockPosition) / 2;
 
-            var rightBottomBlockPosition = gridSpawner.GetBlockWorldPosition(rowCount - 1, 0);
+            var rightBottomBlockPosition = gridManager.GetBlockWorldPosition(rowCount - 1, 0);
 
             var centerPositionOfHorizontal = (leftBottomBlockPosition + rightBottomBlockPosition) / 2;
 

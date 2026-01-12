@@ -6,8 +6,8 @@ namespace ColorBlast.Level
     public class LevelProperties : ScriptableObject
     {
         [SerializeField, Range(1, 6)] private int colorCount;
-        [SerializeField] private int rowCount;
-        [SerializeField] private int columnCount;
+        [SerializeField, Range(2, 10)] private int rowCount;
+        [SerializeField] [Range(2, 10)] private int columnCount;
 
         [SerializeField] private int firstIconThreshold;
         [SerializeField] private int secondIconThreshold;
@@ -20,5 +20,22 @@ namespace ColorBlast.Level
         public int FirstIconThreshold => firstIconThreshold;
         public int SecondIconThreshold => secondIconThreshold;
         public int ThirdIconThreshold => thirdIconThreshold;
+
+        private void OnValidate()
+        {
+            // make sure thresholds are positive
+            firstIconThreshold = Mathf.Max(1, firstIconThreshold);
+
+            // A < B < C
+            if (secondIconThreshold <= FirstIconThreshold)
+            {
+                secondIconThreshold = FirstIconThreshold + 1;
+            }
+
+            if (thirdIconThreshold <= SecondIconThreshold)
+            {
+                thirdIconThreshold = SecondIconThreshold + 1;
+            }
+        }
     }
 }

@@ -1,115 +1,147 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ColorBlast.Blocks;
 using ColorBlast.Level;
 using UnityEngine;
 
 namespace ColorBlast.Grid
 {
-    public class GridChecker : MonoBehaviour
+    public class GridChecker
     {
         private LevelProperties levelProperties;
         private Block[,] blockGrid;
 
-        private Dictionary<Vector2Int, int> matchedBlockToGroupID;
-        private Dictionary<int, HashSet<Vector2Int>> matchedGroupToBlocks;
-        private int nextMatchGroupID = 0;
+        private bool[,] visitedBlocks;
+        private List<Block> currentGroup;
 
-        private enum Direction
-        {
-            Horizontal,
-            Vertical
-        }
+        private List<List<Block>> testBlockMatches = new List<List<Block>>();
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties)
         {
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
-            InitializeLists();
 
+            InitializeLists();
             CheckAllGrid();
-            CheckMatchedList();
         }
 
         private void InitializeLists()
         {
-            var maxBlocks = levelProperties.RowCount * levelProperties.ColumnCount;
-            matchedBlockToGroupID = new Dictionary<Vector2Int, int>(maxBlocks);
-            matchedGroupToBlocks = new Dictionary<int, HashSet<Vector2Int>>(maxBlocks / LevelRule.MatchThreshold);
+            visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
+            currentGroup = new List<Block>();
         }
 
         private void CheckAllGrid()
         {
+            Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
+
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    CheckWithDirection(row, col, Direction.Vertical);
-                    CheckWithDirection(row, col, Direction.Horizontal);
+                    if (visitedBlocks[row, col])
+                    {
+                        continue;
+                    }
+
+                    if (blockGrid[row, col] == null)
+                    {
+                        continue;
+                    }
+
+                    currentGroup.Clear();
+                    var blockColor = blockGrid[row, col].ColorType;
+
+                    TryMatch(new Vector2Int(row, col), blockColor);
+
+                    // Update icons based on group size
+                    if (currentGroup.Count > levelProperties.FirstIconThreshold)
+                    {
+                        UpdateGroupIcons(currentGroup);
+                    }
+
+                    // just test add all groups to list print them - REMOVE IT AFTER TESTING
+                    if (currentGroup.Count >= 2)
+                    {
+                        Debug.Log($"Found a new group and count of the group is:  {currentGroup.Count}");
+                        foreach (Block b in currentGroup)
+                        {
+                            Debug.Log(b.gameObject.name);
+                        }
+                    }
                 }
             }
         }
 
-        private void CheckWithDirection(int row, int col, Direction direction)
+        private void TryMatch(Vector2Int startBlock, BlockColorType color)
         {
-            var block1 = new Vector2Int(row, col);
-            var block2 = direction == Direction.Vertical ? new Vector2Int(row, col + 1) : new Vector2Int(row + 1, col);
+            Queue<Vector2Int> group = new Queue<Vector2Int>();
+            group.Enqueue(startBlock);
 
-            if (block2.x >= levelProperties.RowCount || block2.y >= levelProperties.ColumnCount) return;
-
-            TryMatch(block1, block2);
-        }
-
-        private void TryMatch(Vector2Int block1, Vector2Int block2)
-        {
-            if (blockGrid[block1.x, block1.y].ColorType != blockGrid[block2.x, block2.y].ColorType) return;
-
-            bool isBlock1Matched = IsBlockMatched(block1);
-            bool isBlock2Matched = IsBlockMatched(block2);
-
-            if (!isBlock1Matched && !isBlock2Matched)
+            while (group.Count > 0)
             {
-                var newGroupID = nextMatchGroupID++;
-                AddMatchGroup(block1, newGroupID);
-                AddMatchGroup(block2, newGroupID);
-            }
-            else if (isBlock1Matched && !isBlock2Matched)
-            {
-                var groupID = matchedBlockToGroupID[block1];
-                AddMatchGroup(block2, groupID);
-            }
-            else if (!isBlock1Matched)
-            {
-                var groupID = matchedBlockToGroupID[block2];
-                AddMatchGroup(block1, groupID);
+                var currentBlock = group.Dequeue();
+
+                if (!IsInsideGrid(currentBlock)) continue;
+                if (visitedBlocks[currentBlock.x, currentBlock.y]) continue;
+                if (blockGrid[currentBlock.x, currentBlock.y] == null) continue;
+                if (color != blockGrid[currentBlock.x, currentBlock.y].ColorType) continue;
+
+                visitedBlocks[currentBlock.x, currentBlock.y] = true;
+                currentGroup.Add(blockGrid[currentBlock.x, currentBlock.y]);
+
+                group.Enqueue(currentBlock + Vector2Int.up);
+                group.Enqueue(currentBlock + Vector2Int.down);
+                group.Enqueue(currentBlock + Vector2Int.left);
+                group.Enqueue(currentBlock + Vector2Int.right);
             }
         }
 
-        private bool IsBlockMatched(Vector2Int block)
+        private void UpdateGroupIcons(List<Block> group)
         {
-            return matchedBlockToGroupID.ContainsKey(block);
+            var iconType = DetermineBlockIconType(group.Count);
+
+            foreach (var block in group)
+            {
+                block.UpdateIcon(iconType);
+            }
         }
 
-        private void AddMatchGroup(Vector2Int block, int groupID)
+        private BlockIconType DetermineBlockIconType(int groupSize)
         {
-            matchedBlockToGroupID[block] = groupID;
-
-            if (!matchedGroupToBlocks.ContainsKey(groupID))
+            if (groupSize > levelProperties.ThirdIconThreshold)
             {
-                matchedGroupToBlocks.Add(groupID, new HashSet<Vector2Int>());
+                return BlockIconType.ThirdIcon;
             }
-
-            matchedGroupToBlocks[groupID].Add(block);
+            else if (groupSize > levelProperties.SecondIconThreshold)
+            {
+                return BlockIconType.SecondIcon;
+            }
+            else if (groupSize > levelProperties.FirstIconThreshold)
+            {
+                return BlockIconType.FirstIcon;
+            }
+            else
+            {
+                return BlockIconType.Default;
+            }
         }
 
-        private void CheckMatchedList()
+        private List<Block> GetGroup(int row, int col)
         {
-            Debug.Log($"Toplam {matchedBlockToGroupID.Count} blok eşleşti");
-            foreach (var item in matchedBlockToGroupID)
-            {
-                var block = item.Key;
-                var id = item.Value;
-                Debug.Log($"Block: {block}, Group: {id}");
-            }
+            Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
+
+            var color = blockGrid[row, col].ColorType;
+            TryMatch(new Vector2Int(row, col), color);
+
+            return currentGroup;
+        }
+
+        private bool IsInsideGrid(Vector2Int position)
+        {
+            if (position.x >= levelProperties.RowCount || position.y >= levelProperties.ColumnCount || position.x < 0 || position.y < 0) return false;
+
+            return true;
         }
     }
 }

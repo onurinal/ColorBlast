@@ -7,6 +7,7 @@ namespace ColorBlast.Manager
     {
         public static GameManager Instance;
 
+        [SerializeField] private GridManager gridManager;
         [SerializeField] private LevelManager levelManager;
         [SerializeField] private PlayerController playerController;
 
@@ -25,6 +26,7 @@ namespace ColorBlast.Manager
         {
             playerController.Initialize();
             levelManager.Initialize();
+            gridManager.Initialize();
         }
     }
 }
