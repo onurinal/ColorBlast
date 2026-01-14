@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24d8e0c06f3b446f9fecb93d40f8b91a, type: 3}
   m_Name: LevelProperties
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Level.LevelProperties
-  colorCount: 2
-  rowCount: 10
-  columnCount: 10
+  colorCount: 4
+  rowCount: 8
+  columnCount: 8
   firstIconThreshold: 3
   secondIconThreshold: 4
   thirdIconThreshold: 5

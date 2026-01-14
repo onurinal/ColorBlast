@@ -32,12 +32,12 @@ namespace ColorBlast
 
         private Vector3 GetCenterPosition()
         {
-            var leftBottomBlockPosition = gridManager.GetBlockWorldPosition(0, 0);
-            var leftTopBlockPosition = gridManager.GetBlockWorldPosition(0, columnCount - 1);
+            var leftBottomBlockPosition = gridManager.GetCellWorldPosition(0, 0);
+            var leftTopBlockPosition = gridManager.GetCellWorldPosition(0, columnCount - 1);
 
             var centerPositionOfVertical = (leftBottomBlockPosition + leftTopBlockPosition) / 2;
 
-            var rightBottomBlockPosition = gridManager.GetBlockWorldPosition(rowCount - 1, 0);
+            var rightBottomBlockPosition = gridManager.GetCellWorldPosition(rowCount - 1, 0);
 
             var centerPositionOfHorizontal = (leftBottomBlockPosition + rightBottomBlockPosition) / 2;
 

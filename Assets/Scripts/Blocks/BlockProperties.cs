@@ -14,6 +14,9 @@ namespace ColorBlast.Blocks
         [SerializeField] private float spacingY;
 
         [SerializeField] private float destroyDuration;
+        [SerializeField] private float fallDuration; // delay for falling and moving
+        [SerializeField] private float spawnDelayBetweenBlocks; // small delay between block spawn
+        [SerializeField] private float spawnDuration; // delay for all new  block spawn
 
         public Block BlockPrefab => blockPrefab;
         public float BlockSizeX => blockSizeX;
@@ -21,6 +24,9 @@ namespace ColorBlast.Blocks
         public float SpacingX => spacingX;
         public float SpacingY => spacingY;
         public float DestroyDuration => destroyDuration;
+        public float FallDuration => fallDuration;
+        public float SpawnDelayBetweenBlocks => spawnDelayBetweenBlocks;
+        public float SpawnDuration => spawnDuration;
 
 
         public Vector2 GetBlockSpriteBoundSize()

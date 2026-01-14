@@ -1,5 +1,4 @@
 ﻿using ColorBlast.Blocks;
-using ColorBlast.Grid;
 using ColorBlast.Manager;
 using UnityEngine;
 
@@ -9,14 +8,14 @@ namespace ColorBlast.Player
     {
         [SerializeField] private LayerMask blockLayer;
 
-        private GridChecker gridChecker;
         private PlayerInputHandler playerInputHandler;
         private Camera mainCamera;
+        private GridManager gridManager;
 
-        public void Initialize(GridChecker gridChecker)
+        public void Initialize(GridManager gridManager)
         {
-            this.gridChecker = gridChecker;
-
+            this.gridManager = gridManager;
+            
             playerInputHandler = GetComponent<PlayerInputHandler>();
             playerInputHandler.Initialize(this);
 
@@ -29,6 +28,11 @@ namespace ColorBlast.Player
 
         public void HandleTap(Vector2 position)
         {
+            if(gridManager.IsProcessing)
+            {
+                return;
+            }
+            
             var worldPosition = mainCamera.ScreenToWorldPoint(position);
             worldPosition.z = 0f;
 
@@ -37,15 +41,7 @@ namespace ColorBlast.Player
             if (hit != null)
             {
                 var selectedBlock = hit.GetComponentInParent<Block>();
-                var groups = gridChecker.GetGroup(selectedBlock.GridX, selectedBlock.GridY);
-
-                if (groups.Count >= 2)
-                {
-                    foreach (var block in groups)
-                    {
-                        block.Destroy();
-                    }
-                }
+                gridManager.OnBlockClicked(selectedBlock);
             }
         }
     }

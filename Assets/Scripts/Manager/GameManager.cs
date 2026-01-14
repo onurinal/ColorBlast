@@ -28,7 +28,7 @@ namespace ColorBlast.Manager
             levelManager.Initialize();
             objectPoolManager.InitializePool(levelManager.LevelProperties);
             gridManager.Initialize(levelManager.LevelProperties);
-            playerController.Initialize(gridManager.GridChecker);
+            playerController.Initialize(gridManager);
         }
     }
 }

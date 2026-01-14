@@ -1,4 +1,6 @@
-﻿using ColorBlast.Blocks;
+﻿using System.Collections;
+using System.Collections.Generic;
+using ColorBlast.Blocks;
 using ColorBlast.Grid;
 using ColorBlast.Level;
 using UnityEngine;
@@ -15,25 +17,33 @@ namespace ColorBlast.Manager
 
         private GridSpawner gridSpawner;
         private GridChecker gridChecker;
+        private GridRefill gridRefill;
         private LevelProperties levelProperties;
 
         private Block[,] blockGrid;
         private Vector2 blockSize;
 
-        public GridChecker GridChecker => gridChecker;
+        public bool IsProcessing { get; private set; } // prevent multiple clicks during refill,animations,falls
+
+        private List<Block> newSpawnBlocks;
+        private List<Block> movedBlocks;
 
         public void Initialize(LevelProperties levelProperties)
         {
             this.levelProperties = levelProperties;
 
-            gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockProperties, levelProperties);
-
             CacheBlockSize();
             CreateGrid();
 
+            newSpawnBlocks = new List<Block>();
+            movedBlocks = new List<Block>();
+
+            gridSpawner = new GridSpawner();
+            gridSpawner.Initialize(blockGrid, this, levelProperties, blockProperties);
             gridChecker = new GridChecker();
             gridChecker.Initialize(blockGrid, levelProperties);
+            gridRefill = new GridRefill();
+            gridRefill.Initialize(blockGrid, this, levelProperties, blockProperties);
 
             cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
         }
@@ -46,31 +56,70 @@ namespace ColorBlast.Manager
         private void CreateGrid()
         {
             blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
-
-            for (int row = 0; row < levelProperties.RowCount; row++)
-            {
-                for (int col = 0; col < levelProperties.ColumnCount; col++)
-                {
-                    var blockPosition = CalculateBlockWorldPosition(row, col);
-                    blockGrid[row, col] = gridSpawner.CreateBlock(row, col, blockPosition);
-                }
-            }
         }
 
-        private Vector2 CalculateBlockWorldPosition(int row, int col)
+        public Vector2 GetCellWorldPosition(int row, int col)
         {
             return new Vector2(row * (blockSize.x + blockProperties.SpacingX), col * (blockSize.y + blockProperties.SpacingY));
         }
 
-        public Vector2 GetBlockWorldPosition(int row, int col)
+        // private Vector2 GetBlockWorldPosition(int row, int col)
+        // {
+        //     if (blockGrid[row, col] != null)
+        //     {
+        //         return new Vector2(blockGrid[row, col].transform.position.x, blockGrid[row, col].transform.position.y);
+        //     }
+        //
+        //     Debug.LogError($"Block_{row}_{col} not found");
+        //     return Vector2.zero;
+        // }
+
+        public void OnBlockClicked(Block block)
         {
-            if (blockGrid[row, col] != null)
+            var groups = gridChecker.GetGroup(block.GridX, block.GridY);
+
+            if (groups.Count >= 2)
             {
-                return new Vector2(blockGrid[row, col].transform.position.x, blockGrid[row, col].transform.position.y);
+                StartCoroutine(ResolveGrid(groups));
+            }
+        }
+
+        /// <summary>
+        /// Destroy blocks, refill existing block to empty slots, spawn new blocks.
+        /// After that it checks all grid
+        /// </summary>
+        private IEnumerator ResolveGrid(List<Block> blocks)
+        {
+            IsProcessing = true;
+
+            // Destroy blocks with animation
+            yield return DestroyBlocks(blocks);
+
+            // existing blocks fall down
+            yield return gridRefill.StartRefillToEmptySlots(movedBlocks);
+
+            // Spawn new blocks to fill empty slots
+            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks);
+
+            gridChecker.CheckAffectedBlocks(blocks, newSpawnBlocks, movedBlocks);
+
+            IsProcessing = false;
+        }
+
+        private IEnumerator DestroyBlocks(List<Block> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                if (block == null)
+                {
+                    continue;
+                }
+
+                block.Destroy();
+                blockGrid[block.GridX, block.GridY] = null;
             }
 
-            Debug.LogError($"Block_{row}_{col} not found");
-            return Vector2.zero;
+            yield return new WaitForSeconds(blockProperties.DestroyDuration);
         }
     }
 }

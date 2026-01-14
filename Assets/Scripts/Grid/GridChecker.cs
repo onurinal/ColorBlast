@@ -12,7 +12,17 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
 
         private bool[,] visitedBlocks;
+        private Queue<Vector2Int> matchQueue;
         private List<Block> currentGroup;
+        private HashSet<Block> affectedBlocks; // blocks that need update visual
+
+        private static readonly Vector2Int[] Neighbors = new Vector2Int[]
+        {
+            new Vector2Int(1, 0), // up
+            new Vector2Int(-1, 0), // down
+            new Vector2Int(0, 1), // right
+            new Vector2Int(0, -1), // left
+        };
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties)
         {
@@ -26,10 +36,15 @@ namespace ColorBlast.Grid
         private void InitializeLists()
         {
             visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
+            matchQueue = new Queue<Vector2Int>();
             currentGroup = new List<Block>();
+            affectedBlocks = new HashSet<Block>();
         }
 
-        private void CheckAllGrid()
+        /// <summary>
+        /// Full grid scan - only using at initialization
+        /// </summary>
+        public void CheckAllGrid()
         {
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
 
@@ -37,48 +52,30 @@ namespace ColorBlast.Grid
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    if (visitedBlocks[row, col])
-                    {
-                        continue;
-                    }
-
-                    if (blockGrid[row, col] == null)
+                    if (visitedBlocks[row, col] || blockGrid[row, col] == null)
                     {
                         continue;
                     }
 
                     currentGroup.Clear();
                     var blockColor = blockGrid[row, col].ColorType;
-
                     TryMatch(new Vector2Int(row, col), blockColor);
 
+                    //***************************** CHECK IT - IF YOU CAN REDUCE THE COST - APPLY***********************************************************
                     // Update icons based on group size
-                    if (currentGroup.Count > levelProperties.FirstIconThreshold)
-                    {
-                        UpdateGroupIcons(currentGroup);
-                    }
-
-                    // just test add all groups to list print them - REMOVE IT AFTER TESTING
-                    if (currentGroup.Count >= 2)
-                    {
-                        Debug.Log($"Found a new group and count of the group is:  {currentGroup.Count}");
-                        foreach (Block b in currentGroup)
-                        {
-                            Debug.Log(b.gameObject.name);
-                        }
-                    }
+                    UpdateGroupIcons(currentGroup);
                 }
             }
         }
 
         private void TryMatch(Vector2Int startBlock, BlockColorType color)
         {
-            Queue<Vector2Int> group = new Queue<Vector2Int>();
-            group.Enqueue(startBlock);
+            matchQueue.Clear();
+            matchQueue.Enqueue(startBlock);
 
-            while (group.Count > 0)
+            while (matchQueue.Count > 0)
             {
-                var currentBlock = group.Dequeue();
+                var currentBlock = matchQueue.Dequeue();
 
                 if (!IsInsideGrid(currentBlock)) continue;
                 if (visitedBlocks[currentBlock.x, currentBlock.y]) continue;
@@ -88,10 +85,88 @@ namespace ColorBlast.Grid
                 visitedBlocks[currentBlock.x, currentBlock.y] = true;
                 currentGroup.Add(blockGrid[currentBlock.x, currentBlock.y]);
 
-                group.Enqueue(currentBlock + Vector2Int.up);
-                group.Enqueue(currentBlock + Vector2Int.down);
-                group.Enqueue(currentBlock + Vector2Int.left);
-                group.Enqueue(currentBlock + Vector2Int.right);
+                foreach (var offset in Neighbors)
+                {
+                    matchQueue.Enqueue(currentBlock + offset);
+                }
+            }
+        }
+
+        /// <summary>
+        /// It  checks neighbor block which destroyed and new spawned blocks
+        /// </summary>
+        /// <param name="destroyedBlocks">Blocks that were destroyed</param>
+        /// <param name="movedBlocks">Blocks that moved during gravity</param>
+        /// <param name="newSpawnedBlocks">New blocks that spawned from top</param>
+        public void CheckAffectedBlocks(List<Block> destroyedBlocks, List<Block> newSpawnedBlocks, List<Block> movedBlocks)
+        {
+            affectedBlocks.Clear();
+
+            foreach (var block in destroyedBlocks)
+            {
+                if (block == null)
+                {
+                    continue;
+                }
+
+                AddNeighborsToAffectedGroup(block.GridX, block.GridY);
+            }
+
+            foreach (var block in movedBlocks)
+            {
+                if (block == null)
+                {
+                    continue;
+                }
+
+                affectedBlocks.Add(block);
+                AddNeighborsToAffectedGroup(block.PrevGridX, block.PrevGridY);
+            }
+
+            foreach (var block in newSpawnedBlocks)
+            {
+                if (block == null)
+                {
+                    continue;
+                }
+
+                affectedBlocks.Add(block);
+            }
+
+            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
+
+            foreach (var block in affectedBlocks)
+            {
+                if (block == null || visitedBlocks[block.GridX, block.GridY])
+                {
+                    continue;
+                }
+
+                currentGroup.Clear();
+                TryMatch(new Vector2Int(block.GridX, block.GridY), block.ColorType);
+                UpdateGroupIcons(currentGroup);
+            }
+        }
+
+        private void AddNeighborsToAffectedGroup(int row, int col)
+        {
+            TryAddAffectedBlock(row + 1, col);
+            TryAddAffectedBlock(row, col + 1);
+            TryAddAffectedBlock(row, col - 1);
+            TryAddAffectedBlock(row - 1, col);
+        }
+
+        private void TryAddAffectedBlock(int row, int col)
+        {
+            if (row < 0 || row >= levelProperties.RowCount || col < 0 || col >= levelProperties.ColumnCount)
+            {
+                return;
+            }
+
+            var block = blockGrid[row, col];
+            if (block != null)
+            {
+                affectedBlocks.Add(block);
             }
         }
 
@@ -127,7 +202,9 @@ namespace ColorBlast.Grid
 
         public List<Block> GetGroup(int row, int col)
         {
-            if (blockGrid[row, col] == null)
+            var block = blockGrid[row, col];
+
+            if (block == null)
             {
                 currentGroup.Clear();
                 return currentGroup;
@@ -136,7 +213,7 @@ namespace ColorBlast.Grid
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
             currentGroup.Clear();
 
-            var color = blockGrid[row, col].ColorType;
+            var color = block.ColorType;
             TryMatch(new Vector2Int(row, col), color);
 
             return currentGroup;

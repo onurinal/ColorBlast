@@ -24,21 +24,30 @@ namespace ColorBlast.Blocks
         public BlockColorType ColorType => colorType;
         public BlockIconType IconType => iconType;
 
-        public void Initialize(int gridX, int gridY, BlockColorType colorType)
-        {
-            SetIndices(gridX, gridY);
-            this.colorType = colorType;
-            iconType = BlockIconType.Default;
+        // for tracking neighbors
+        public int PrevGridX { get; private set; }
+        public int PrevGridY { get; private set; }
 
+        private void Awake()
+        {
             UpdateBlockScale();
-            UpdateVisual();
-            UpdateOrderLayer();
         }
 
-        public void SetIndices(int gridX, int gridY)
+        public void Initialize(int gridX, int gridY, BlockColorType colorType)
         {
+            SetGridPosition(gridX, gridY);
+            this.colorType = colorType;
+        }
+
+        public void SetGridPosition(int gridX, int gridY)
+        {
+            PrevGridX = this.gridX;
+            PrevGridY = this.gridY;
+
             this.gridX = gridX;
             this.gridY = gridY;
+
+            UpdateOrderLayer();
         }
 
         public void UpdateIcon(BlockIconType iconType)
@@ -68,6 +77,11 @@ namespace ColorBlast.Blocks
             blockModelTransform.localScale = new Vector3(blockProperties.BlockSizeX, blockProperties.BlockSizeY, 1);
         }
 
+        public void FallTo(Vector2 targetPosition)
+        {
+            transform.DOMove(targetPosition, blockProperties.FallDuration).SetEase(Ease.OutBounce);
+        }
+
         public void Destroy()
         {
             destroyTween =
@@ -77,13 +91,14 @@ namespace ColorBlast.Blocks
         public void OnSpawn()
         {
             //  scale, alpha etc if needed
+            transform.localScale = Vector2.one;
         }
 
         public void OnDespawn()
         {
             // stop tween, reset states, animations if needed
-            ResetVisual();
             destroyTween?.Kill();
+            ResetVisual();
         }
     }
 }
