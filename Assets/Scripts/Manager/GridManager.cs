@@ -63,17 +63,6 @@ namespace ColorBlast.Manager
             return new Vector2(row * (blockSize.x + blockProperties.SpacingX), col * (blockSize.y + blockProperties.SpacingY));
         }
 
-        // private Vector2 GetBlockWorldPosition(int row, int col)
-        // {
-        //     if (blockGrid[row, col] != null)
-        //     {
-        //         return new Vector2(blockGrid[row, col].transform.position.x, blockGrid[row, col].transform.position.y);
-        //     }
-        //
-        //     Debug.LogError($"Block_{row}_{col} not found");
-        //     return Vector2.zero;
-        // }
-
         public void OnBlockClicked(Block block)
         {
             var groups = gridChecker.GetGroup(block.GridX, block.GridY);

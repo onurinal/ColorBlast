@@ -37,6 +37,7 @@ namespace ColorBlast.Blocks
         {
             SetGridPosition(gridX, gridY);
             this.colorType = colorType;
+            ResetVisual();
         }
 
         public void SetGridPosition(int gridX, int gridY)
@@ -72,6 +73,7 @@ namespace ColorBlast.Blocks
             blockSpriteRenderer.sortingOrder = gridY;
         }
 
+        // updating block local scale just once at start
         private void UpdateBlockScale()
         {
             blockModelTransform.localScale = new Vector3(blockProperties.BlockSizeX, blockProperties.BlockSizeY, 1);

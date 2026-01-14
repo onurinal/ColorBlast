@@ -17,7 +17,7 @@ MonoBehaviour:
   blockSizeY: 0.4
   spacingX: -0.15
   spacingY: -0.15
-  destroyDuration: 0.3
-  fallDuration: 0.25
-  spawnDelayBetweenBlocks: 0
-  spawnDuration: 0.1
+  destroyDuration: 0.2
+  fallDuration: 0.2
+  spawnDelayBetweenBlocks: 0.015
+  spawnDuration: 0.15

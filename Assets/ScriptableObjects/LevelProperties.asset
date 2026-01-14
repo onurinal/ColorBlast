@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: LevelProperties
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Level.LevelProperties
   colorCount: 4
-  rowCount: 8
-  columnCount: 8
+  rowCount: 10
+  columnCount: 10
   firstIconThreshold: 3
   secondIconThreshold: 4
   thirdIconThreshold: 5

@@ -44,7 +44,7 @@ namespace ColorBlast.Grid
         /// <summary>
         /// Full grid scan - only using at initialization
         /// </summary>
-        public void CheckAllGrid()
+        private void CheckAllGrid()
         {
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
 
@@ -52,7 +52,12 @@ namespace ColorBlast.Grid
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    if (visitedBlocks[row, col] || blockGrid[row, col] == null)
+                    if (visitedBlocks[row, col])
+                    {
+                        continue;
+                    }
+
+                    if (blockGrid[row, col] == null)
                     {
                         continue;
                     }
@@ -61,9 +66,10 @@ namespace ColorBlast.Grid
                     var blockColor = blockGrid[row, col].ColorType;
                     TryMatch(new Vector2Int(row, col), blockColor);
 
-                    //***************************** CHECK IT - IF YOU CAN REDUCE THE COST - APPLY***********************************************************
-                    // Update icons based on group size
-                    UpdateGroupIcons(currentGroup);
+                    if (currentGroup.Count > levelProperties.FirstIconThreshold)
+                    {
+                        UpdateGroupIcons(currentGroup);
+                    }
                 }
             }
         }
@@ -77,7 +83,7 @@ namespace ColorBlast.Grid
             {
                 var currentBlock = matchQueue.Dequeue();
 
-                if (!IsInsideGrid(currentBlock)) continue;
+                if (currentBlock.x < 0 || currentBlock.y < 0 || currentBlock.x >= levelProperties.RowCount || currentBlock.y >= levelProperties.ColumnCount) continue;
                 if (visitedBlocks[currentBlock.x, currentBlock.y]) continue;
                 if (blockGrid[currentBlock.x, currentBlock.y] == null) continue;
                 if (color != blockGrid[currentBlock.x, currentBlock.y].ColorType) continue;
@@ -102,49 +108,71 @@ namespace ColorBlast.Grid
         {
             affectedBlocks.Clear();
 
-            foreach (var block in destroyedBlocks)
-            {
-                if (block == null)
-                {
-                    continue;
-                }
+            AddDestroyedBlocksToAffected(destroyedBlocks);
 
-                AddNeighborsToAffectedGroup(block.GridX, block.GridY);
-            }
+            AddMovedBlocksToAffected(movedBlocks);
 
-            foreach (var block in movedBlocks)
-            {
-                if (block == null)
-                {
-                    continue;
-                }
-
-                affectedBlocks.Add(block);
-                AddNeighborsToAffectedGroup(block.PrevGridX, block.PrevGridY);
-            }
-
-            foreach (var block in newSpawnedBlocks)
-            {
-                if (block == null)
-                {
-                    continue;
-                }
-
-                affectedBlocks.Add(block);
-            }
+            AddNewBlocksToAffected(newSpawnedBlocks);
 
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
 
             foreach (var block in affectedBlocks)
             {
-                if (block == null || visitedBlocks[block.GridX, block.GridY])
+                if (block == null)
+                {
+                    continue;
+                }
+
+                if (visitedBlocks[block.GridX, block.GridY])
                 {
                     continue;
                 }
 
                 currentGroup.Clear();
                 TryMatch(new Vector2Int(block.GridX, block.GridY), block.ColorType);
+
                 UpdateGroupIcons(currentGroup);
+            }
+        }
+
+        private void AddNewBlocksToAffected(List<Block> newSpawnedBlocks)
+        {
+            foreach (var newBlock in newSpawnedBlocks)
+            {
+                if (newBlock == null)
+                {
+                    continue;
+                }
+
+                affectedBlocks.Add(newBlock);
+            }
+        }
+
+        private void AddDestroyedBlocksToAffected(List<Block> destroyedBlocks)
+        {
+            foreach (var destroyedBlock in destroyedBlocks)
+            {
+                if (destroyedBlock == null)
+                {
+                    continue;
+                }
+
+                AddNeighborsToAffectedGroup(destroyedBlock.GridX, destroyedBlock.GridY);
+            }
+        }
+
+        private void AddMovedBlocksToAffected(List<Block> movedBlocks)
+        {
+            foreach (var movedBlock in movedBlocks)
+            {
+                if (movedBlock == null)
+                {
+                    continue;
+                }
+
+                // add moved blocks and their old position's neighbors in affected blocks
+                affectedBlocks.Add(movedBlock);
+                AddNeighborsToAffectedGroup(movedBlock.PrevGridX, movedBlock.PrevGridY);
             }
         }
 
@@ -172,11 +200,14 @@ namespace ColorBlast.Grid
 
         private void UpdateGroupIcons(List<Block> group)
         {
-            var iconType = DetermineBlockIconType(group.Count);
+            var newIcon = DetermineBlockIconType(group.Count);
 
             foreach (var block in group)
             {
-                block.UpdateIcon(iconType);
+                if (newIcon != block.IconType)
+                {
+                    block.UpdateIcon(newIcon);
+                }
             }
         }
 
@@ -219,11 +250,18 @@ namespace ColorBlast.Grid
             return currentGroup;
         }
 
-        private bool IsInsideGrid(Vector2Int position)
-        {
-            if (position.x >= levelProperties.RowCount || position.y >= levelProperties.ColumnCount || position.x < 0 || position.y < 0) return false;
+        // private bool IsInsideGrid(Vector2Int position)
+        // {
+        //     if (position.x >= levelProperties.RowCount || position.y >= levelProperties.ColumnCount || position.x < 0 || position.y < 0)
+        //     {
+        //         return false;
+        //     }
+        //
+        //     return true;
+        // }
 
-            return true;
+        private void CheckDeadlock()
+        {
         }
     }
 }
