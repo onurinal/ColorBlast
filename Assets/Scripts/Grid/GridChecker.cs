@@ -68,9 +68,8 @@ namespace ColorBlast.Grid
                     currentGroup.Clear();
                     var blockColor = blockGrid[row, col].ColorType;
                     TryMatch(new Vector2Int(row, col), blockColor);
-                    CheckAnyMove(currentGroup);
-
                     UpdateGroupIcons(currentGroup);
+                    CheckAnyMove(currentGroup);
                 }
             }
 
@@ -140,25 +139,27 @@ namespace ColorBlast.Grid
 
             if (!hasAnyMove)
             {
-                foreach (var block in blockGrid)
+                for (int row = 0; row < levelProperties.RowCount; row++)
                 {
-                    if (block == null)
+                    for (int col = 0; col < levelProperties.ColumnCount; col++)
                     {
-                        continue;
-                    }
+                        // Skip already visited blocks from affected area
+                        if (visitedBlocks[row, col])
+                            continue;
 
-                    if (visitedBlocks[block.GridX, block.GridY])
-                    {
-                        continue;
-                    }
+                        var block = blockGrid[row, col];
+                        if (block == null)
+                        {
+                            continue;
+                        }
 
-                    currentGroup.Clear();
-                    TryMatch(new Vector2Int(block.GridX, block.GridY), block.ColorType);
-                    CheckAnyMove(currentGroup);
+                        currentGroup.Clear();
+                        TryMatch(new Vector2Int(row, col), block.ColorType);
+                        CheckAnyMove(currentGroup);
 
-                    if (hasAnyMove)
-                    {
-                        return;
+                        // Early exit if we found a valid move
+                        if (hasAnyMove)
+                            return;
                     }
                 }
             }
