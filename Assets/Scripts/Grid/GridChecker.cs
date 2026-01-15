@@ -16,7 +16,6 @@ namespace ColorBlast.Grid
         private List<Block> currentGroup;
         private HashSet<Block> affectedBlocks; // blocks that need update visual
 
-        private bool hasAnyMove;
 
         private static readonly Vector2Int[] Neighbors = new Vector2Int[]
         {
@@ -48,19 +47,13 @@ namespace ColorBlast.Grid
         /// </summary>
         private void CheckAllGrid()
         {
-            hasAnyMove = false;
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
 
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    if (visitedBlocks[row, col])
-                    {
-                        continue;
-                    }
-
-                    if (blockGrid[row, col] == null)
+                    if (visitedBlocks[row, col] || blockGrid[row, col] == null)
                     {
                         continue;
                     }
@@ -69,11 +62,8 @@ namespace ColorBlast.Grid
                     var blockColor = blockGrid[row, col].ColorType;
                     TryMatch(new Vector2Int(row, col), blockColor);
                     UpdateGroupIcons(currentGroup);
-                    CheckAnyMove(currentGroup);
                 }
             }
-
-            IsDeadLock();
         }
 
         private void TryMatch(Vector2Int startBlock, BlockColorType color)
@@ -109,7 +99,6 @@ namespace ColorBlast.Grid
         public void CheckAffectedBlocks(List<Block> destroyedBlocks, List<Block> newSpawnedBlocks, List<Block> movedBlocks)
         {
             affectedBlocks.Clear();
-            hasAnyMove = false;
 
             AddDestroyedBlocksToAffected(destroyedBlocks);
 
@@ -121,50 +110,15 @@ namespace ColorBlast.Grid
 
             foreach (var block in affectedBlocks)
             {
-                if (block == null)
-                {
-                    continue;
-                }
-
-                if (visitedBlocks[block.GridX, block.GridY])
+                if (block == null || visitedBlocks[block.GridX, block.GridY])
                 {
                     continue;
                 }
 
                 currentGroup.Clear();
                 TryMatch(new Vector2Int(block.GridX, block.GridY), block.ColorType);
-                CheckAnyMove(currentGroup);
                 UpdateGroupIcons(currentGroup);
             }
-
-            if (!hasAnyMove)
-            {
-                for (int row = 0; row < levelProperties.RowCount; row++)
-                {
-                    for (int col = 0; col < levelProperties.ColumnCount; col++)
-                    {
-                        // Skip already visited blocks from affected area
-                        if (visitedBlocks[row, col])
-                            continue;
-
-                        var block = blockGrid[row, col];
-                        if (block == null)
-                        {
-                            continue;
-                        }
-
-                        currentGroup.Clear();
-                        TryMatch(new Vector2Int(row, col), block.ColorType);
-                        CheckAnyMove(currentGroup);
-
-                        // Early exit if we found a valid move
-                        if (hasAnyMove)
-                            return;
-                    }
-                }
-            }
-
-            IsDeadLock();
         }
 
         private void AddNewBlocksToAffected(List<Block> newSpawnedBlocks)
@@ -286,23 +240,30 @@ namespace ColorBlast.Grid
             return true;
         }
 
-        /// <summary>
-        /// Checking deadlock situation
-        /// </summary>
-        private void CheckAnyMove(List<Block> group)
+        public bool IsDeadlocked()
         {
-            if (group.Count >= 2)
-            {
-                hasAnyMove = true;
-            }
-        }
+            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
 
-        private void IsDeadLock()
-        {
-            if (!hasAnyMove)
+            for (int row = 0; row < levelProperties.RowCount; row++)
             {
-                Debug.Log("DEADLOCK! NO MATCH FOUND");
+                for (int col = 0; col < levelProperties.ColumnCount; col++)
+                {
+                    if (visitedBlocks[row, col] || blockGrid[row, col] == null)
+                        continue;
+
+                    currentGroup.Clear();
+                    TryMatch(new Vector2Int(row, col), blockGrid[row, col].ColorType);
+
+                    // If  ANY valid group >= 2 blocks, exit early
+                    if (currentGroup.Count >= 2)
+                    {
+                        return false;
+                    }
+                }
             }
+
+            // No valid groups found - deadlock!
+            return true;
         }
     }
 }

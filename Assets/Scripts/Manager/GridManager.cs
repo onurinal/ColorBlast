@@ -92,6 +92,11 @@ namespace ColorBlast.Manager
 
             gridChecker.CheckAffectedBlocks(blocks, newSpawnBlocks, movedBlocks);
 
+            if (gridChecker.IsDeadlocked())
+            {
+                Debug.Log("DEADLOCK! NO MATCH FOUND");
+            }
+
             IsProcessing = false;
         }
 
