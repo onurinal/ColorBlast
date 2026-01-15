@@ -37,7 +37,7 @@ namespace ColorBlast.Blocks
         {
             SetGridPosition(gridX, gridY);
             this.colorType = colorType;
-            ResetVisual();
+            UpdateVisual();
         }
 
         public void SetGridPosition(int gridX, int gridY)
@@ -81,7 +81,7 @@ namespace ColorBlast.Blocks
 
         public void FallTo(Vector2 targetPosition)
         {
-            transform.DOMove(targetPosition, blockProperties.FallDuration).SetEase(Ease.OutBounce);
+            transform.DOMove(targetPosition, blockProperties.FallDuration).SetEase(Ease.InOutCubic);
         }
 
         public void Destroy()

@@ -16,6 +16,8 @@ namespace ColorBlast.Grid
         private List<Block> currentGroup;
         private HashSet<Block> affectedBlocks; // blocks that need update visual
 
+        private bool hasAnyMove;
+
         private static readonly Vector2Int[] Neighbors = new Vector2Int[]
         {
             new Vector2Int(1, 0), // up
@@ -46,6 +48,7 @@ namespace ColorBlast.Grid
         /// </summary>
         private void CheckAllGrid()
         {
+            hasAnyMove = false;
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
 
             for (int row = 0; row < levelProperties.RowCount; row++)
@@ -65,13 +68,13 @@ namespace ColorBlast.Grid
                     currentGroup.Clear();
                     var blockColor = blockGrid[row, col].ColorType;
                     TryMatch(new Vector2Int(row, col), blockColor);
+                    CheckAnyMove(currentGroup);
 
-                    if (currentGroup.Count > levelProperties.FirstIconThreshold)
-                    {
-                        UpdateGroupIcons(currentGroup);
-                    }
+                    UpdateGroupIcons(currentGroup);
                 }
             }
+
+            IsDeadLock();
         }
 
         private void TryMatch(Vector2Int startBlock, BlockColorType color)
@@ -83,7 +86,7 @@ namespace ColorBlast.Grid
             {
                 var currentBlock = matchQueue.Dequeue();
 
-                if (currentBlock.x < 0 || currentBlock.y < 0 || currentBlock.x >= levelProperties.RowCount || currentBlock.y >= levelProperties.ColumnCount) continue;
+                if (!IsInsideGrid(currentBlock)) continue;
                 if (visitedBlocks[currentBlock.x, currentBlock.y]) continue;
                 if (blockGrid[currentBlock.x, currentBlock.y] == null) continue;
                 if (color != blockGrid[currentBlock.x, currentBlock.y].ColorType) continue;
@@ -107,6 +110,7 @@ namespace ColorBlast.Grid
         public void CheckAffectedBlocks(List<Block> destroyedBlocks, List<Block> newSpawnedBlocks, List<Block> movedBlocks)
         {
             affectedBlocks.Clear();
+            hasAnyMove = false;
 
             AddDestroyedBlocksToAffected(destroyedBlocks);
 
@@ -130,21 +134,46 @@ namespace ColorBlast.Grid
 
                 currentGroup.Clear();
                 TryMatch(new Vector2Int(block.GridX, block.GridY), block.ColorType);
-
+                CheckAnyMove(currentGroup);
                 UpdateGroupIcons(currentGroup);
             }
+
+            if (!hasAnyMove)
+            {
+                foreach (var block in blockGrid)
+                {
+                    if (block == null)
+                    {
+                        continue;
+                    }
+
+                    if (visitedBlocks[block.GridX, block.GridY])
+                    {
+                        continue;
+                    }
+
+                    currentGroup.Clear();
+                    TryMatch(new Vector2Int(block.GridX, block.GridY), block.ColorType);
+                    CheckAnyMove(currentGroup);
+
+                    if (hasAnyMove)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            IsDeadLock();
         }
 
         private void AddNewBlocksToAffected(List<Block> newSpawnedBlocks)
         {
             foreach (var newBlock in newSpawnedBlocks)
             {
-                if (newBlock == null)
+                if (newBlock != null)
                 {
-                    continue;
+                    affectedBlocks.Add(newBlock);
                 }
-
-                affectedBlocks.Add(newBlock);
             }
         }
 
@@ -152,12 +181,10 @@ namespace ColorBlast.Grid
         {
             foreach (var destroyedBlock in destroyedBlocks)
             {
-                if (destroyedBlock == null)
+                if (destroyedBlock != null)
                 {
-                    continue;
+                    AddNeighborsToAffectedGroup(destroyedBlock.GridX, destroyedBlock.GridY);
                 }
-
-                AddNeighborsToAffectedGroup(destroyedBlock.GridX, destroyedBlock.GridY);
             }
         }
 
@@ -165,14 +192,12 @@ namespace ColorBlast.Grid
         {
             foreach (var movedBlock in movedBlocks)
             {
-                if (movedBlock == null)
+                if (movedBlock != null)
                 {
-                    continue;
+                    // add moved blocks and their old position's neighbors in affected blocks
+                    affectedBlocks.Add(movedBlock);
+                    AddNeighborsToAffectedGroup(movedBlock.PrevGridX, movedBlock.PrevGridY);
                 }
-
-                // add moved blocks and their old position's neighbors in affected blocks
-                affectedBlocks.Add(movedBlock);
-                AddNeighborsToAffectedGroup(movedBlock.PrevGridX, movedBlock.PrevGridY);
             }
         }
 
@@ -250,18 +275,33 @@ namespace ColorBlast.Grid
             return currentGroup;
         }
 
-        // private bool IsInsideGrid(Vector2Int position)
-        // {
-        //     if (position.x >= levelProperties.RowCount || position.y >= levelProperties.ColumnCount || position.x < 0 || position.y < 0)
-        //     {
-        //         return false;
-        //     }
-        //
-        //     return true;
-        // }
-
-        private void CheckDeadlock()
+        private bool IsInsideGrid(Vector2Int currentBlock)
         {
+            if (currentBlock.x < 0 || currentBlock.y < 0 || currentBlock.x >= levelProperties.RowCount || currentBlock.y >= levelProperties.ColumnCount)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checking deadlock situation
+        /// </summary>
+        private void CheckAnyMove(List<Block> group)
+        {
+            if (group.Count >= 2)
+            {
+                hasAnyMove = true;
+            }
+        }
+
+        private void IsDeadLock()
+        {
+            if (!hasAnyMove)
+            {
+                Debug.Log("DEADLOCK! NO MATCH FOUND");
+            }
         }
     }
 }

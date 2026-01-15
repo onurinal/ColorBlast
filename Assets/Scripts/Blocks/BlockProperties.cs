@@ -24,7 +24,9 @@ namespace ColorBlast.Blocks
         public float SpacingX => spacingX;
         public float SpacingY => spacingY;
         public float DestroyDuration => destroyDuration;
+
         public float FallDuration => fallDuration;
+
         public float SpawnDelayBetweenBlocks => spawnDelayBetweenBlocks;
         public float SpawnDuration => spawnDuration;
 
