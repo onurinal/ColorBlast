@@ -74,7 +74,7 @@ namespace ColorBlast.Grid
                         blockGrid[row, col] = null;
                         block.SetGridPosition(row, writeCol);
                         var targetPosition = gridManager.GetCellWorldPosition(row, writeCol);
-                        block.FallTo(targetPosition);
+                        block.MoveTo(targetPosition);
 
                         // for affected blocks
                         movedBlocks.Add(block);

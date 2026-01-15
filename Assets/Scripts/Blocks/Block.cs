@@ -79,7 +79,7 @@ namespace ColorBlast.Blocks
             blockModelTransform.localScale = new Vector3(blockProperties.BlockSizeX, blockProperties.BlockSizeY, 1);
         }
 
-        public void FallTo(Vector2 targetPosition)
+        public void MoveTo(Vector2 targetPosition)
         {
             transform.DOMove(targetPosition, blockProperties.FallDuration).SetEase(Ease.InOutCubic);
         }

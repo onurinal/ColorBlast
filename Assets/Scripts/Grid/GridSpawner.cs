@@ -112,7 +112,7 @@ namespace ColorBlast.Grid
             blockGrid[targetRow, targetCol] = newBlock;
 
             var targetPosition = gridManager.GetCellWorldPosition(targetRow, targetCol);
-            newBlock.FallTo(targetPosition);
+            newBlock.MoveTo(targetPosition);
             return newBlock;
         }
     }

@@ -12,9 +12,9 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
 
         private bool[,] visitedBlocks;
-        private Queue<Vector2Int> matchQueue;
-        private List<Block> currentGroup;
-        private HashSet<Block> affectedBlocks; // blocks that need update visual
+        private Queue<Vector2Int> matchQueue; // using for breadth-first search algorithm
+        private List<Block> currentGroup; // temporary list for finding groups and updating icons
+        private HashSet<Block> affectedBlocks; // blocks that need update visual after input
 
 
         private static readonly Vector2Int[] Neighbors = new Vector2Int[]
@@ -31,7 +31,6 @@ namespace ColorBlast.Grid
             this.levelProperties = levelProperties;
 
             InitializeLists();
-            CheckAllGrid();
         }
 
         private void InitializeLists()
@@ -45,7 +44,7 @@ namespace ColorBlast.Grid
         /// <summary>
         /// Full grid scan - only using at initialization
         /// </summary>
-        private void CheckAllGrid()
+        public void CheckAllGrid()
         {
             Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
 
