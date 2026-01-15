@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using ColorBlast.Blocks;
 using ColorBlast.Grid;
 using ColorBlast.Level;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace ColorBlast.Manager
 {
@@ -18,6 +20,7 @@ namespace ColorBlast.Manager
         private GridSpawner gridSpawner;
         private GridChecker gridChecker;
         private GridRefill gridRefill;
+        private GridShuffler gridShuffler;
         private LevelProperties levelProperties;
 
         private Block[,] blockGrid;
@@ -29,10 +32,6 @@ namespace ColorBlast.Manager
         private List<Block> newSpawnBlocks;
         private List<Block> movedBlocks;
 
-        // for shuffle
-        private List<Block> allBlocks;
-        private List<Vector2Int> allBlockPositions;
-
         public void Initialize(LevelProperties levelProperties)
         {
             this.levelProperties = levelProperties;
@@ -42,8 +41,6 @@ namespace ColorBlast.Manager
 
             newSpawnBlocks = new List<Block>();
             movedBlocks = new List<Block>();
-            allBlocks = new List<Block>();
-            allBlockPositions = new List<Vector2Int>();
 
             gridSpawner = new GridSpawner();
             gridSpawner.Initialize(blockGrid, this, levelProperties, blockProperties);
@@ -51,6 +48,8 @@ namespace ColorBlast.Manager
             gridChecker.Initialize(blockGrid, levelProperties);
             gridRefill = new GridRefill();
             gridRefill.Initialize(blockGrid, this, levelProperties, blockProperties);
+            gridShuffler = new GridShuffler();
+            gridShuffler.Initialize(blockGrid, levelProperties, this);
 
             cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
 
@@ -80,8 +79,8 @@ namespace ColorBlast.Manager
             if (gridChecker.IsDeadlocked())
             {
                 Debug.Log("DEADLOCK! NO MATCH FOUND");
-                Debug.Log("SHUFFLE IN 3 SECONDS...");
-                yield return Shuffle();
+                Debug.Log("SHUFFLE IN 2 SECONDS...");
+                yield return gridShuffler.Shuffle();
             }
         }
 
@@ -107,8 +106,8 @@ namespace ColorBlast.Manager
             if (gridChecker.IsDeadlocked())
             {
                 Debug.Log("DEADLOCK! NO MATCH FOUND");
-                Debug.Log("SHUFFLE IN 3 SECONDS...");
-                yield return Shuffle();
+                Debug.Log("SHUFFLE IN 2 SECONDS...");
+                yield return gridShuffler.Shuffle();
             }
 
             IsProcessing = false;
@@ -139,58 +138,5 @@ namespace ColorBlast.Manager
 
             yield return new WaitForSeconds(blockProperties.DestroyDuration);
         }
-
-        #region Shuffle System
-
-        private IEnumerator Shuffle()
-        {
-            allBlocks.Clear();
-            allBlockPositions.Clear();
-
-            yield return new WaitForSeconds(3f);
-
-            // get all block and positions first
-            AddAllBlockAndPositionToShuffle();
-
-            // shuffle with Fisher-Yates
-            ProcessShuffle();
-
-            // assign new positions
-            for (int i = 0; i < allBlockPositions.Count; i++)
-            {
-                var pos = allBlockPositions[i];
-                allBlocks[i].SetGridPosition(pos.x, pos.y); // set new indices
-                blockGrid[pos.x, pos.y] = allBlocks[i]; // update block position in block grid
-                blockGrid[pos.x, pos.y].MoveTo(GetCellWorldPosition(pos.x, pos.y));
-            }
-        }
-
-        private void AddAllBlockAndPositionToShuffle()
-        {
-            for (int row = 0; row < levelProperties.RowCount; row++)
-            {
-                for (int col = 0; col < levelProperties.ColumnCount; col++)
-                {
-                    if (blockGrid[row, col] != null)
-                    {
-                        allBlocks.Add(blockGrid[row, col]);
-                        allBlockPositions.Add(new Vector2Int(row, col));
-                    }
-                }
-            }
-        }
-
-        private void ProcessShuffle()
-        {
-            for (int i = allBlocks.Count - 1; i > 0; i--)
-            {
-                var j = Random.Range(0, i + 1);
-                var tempBlock = allBlocks[i];
-                allBlocks[i] = allBlocks[j];
-                allBlocks[j] = tempBlock;
-            }
-        }
-
-        #endregion
     }
 }
