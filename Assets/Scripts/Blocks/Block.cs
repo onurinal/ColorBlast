@@ -57,6 +57,12 @@ namespace ColorBlast.Blocks
             UpdateVisual();
         }
 
+        public void UpdateColor(BlockColorType colorType)
+        {
+            this.colorType = colorType;
+            UpdateVisual();
+        }
+
         private void UpdateVisual()
         {
             blockSpriteRenderer.sprite = blockColorDatabase.GetSpriteForType(colorType, iconType);
