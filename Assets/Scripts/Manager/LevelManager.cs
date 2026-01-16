@@ -5,16 +5,36 @@ namespace ColorBlast.Manager
 {
     public class LevelManager : MonoBehaviour
     {
-        [SerializeField] private LevelProperties levelProperties;
+        [SerializeField] private LevelProperties[] levels;
+        private int currentLevelIndex;
 
-        public LevelProperties LevelProperties => levelProperties;
-
-        public void Initialize()
+        public LevelProperties CurrentLevel
         {
-            if (levelProperties == null)
+            get
             {
-                Debug.LogError($"LevelProperties is null");
+                if (levels == null || levels.Length == 0)
+                {
+                    return null;
+                }
+
+                return levels[currentLevelIndex];
             }
+        }
+
+        public void LoadLevel(int levelIndex)
+        {
+            if (levels == null || levels.Length == 0)
+            {
+                Debug.LogError("No levels defined in LevelManager!");
+                return;
+            }
+
+            if (levelIndex < 0 || levelIndex >= levels.Length)
+            {
+                Debug.LogError($"Level index {levelIndex} is out of range.");
+            }
+
+            currentLevelIndex = levelIndex;
         }
     }
 }

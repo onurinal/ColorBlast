@@ -484,7 +484,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb0394cc0d54450288c1f75f19f90ef3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.LevelManager
-  levelProperties: {fileID: 11400000, guid: c28098aa7bcfe1e418f98b454268f0f5, type: 2}
+  levels:
+  - {fileID: 11400000, guid: c28098aa7bcfe1e418f98b454268f0f5, type: 2}
 --- !u!4 &1525867608
 Transform:
   m_ObjectHideFlags: 0

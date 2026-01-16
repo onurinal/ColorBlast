@@ -15,7 +15,7 @@ namespace ColorBlast.Player
         public void Initialize(GridManager gridManager)
         {
             this.gridManager = gridManager;
-            
+
             playerInputHandler = GetComponent<PlayerInputHandler>();
             playerInputHandler.Initialize(this);
 
@@ -25,14 +25,13 @@ namespace ColorBlast.Player
             }
         }
 
-
         public void HandleTap(Vector2 position)
         {
-            if(gridManager.IsProcessing)
+            if (gridManager.IsBusy)
             {
                 return;
             }
-            
+
             var worldPosition = mainCamera.ScreenToWorldPoint(position);
             worldPosition.z = 0f;
 

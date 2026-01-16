@@ -10,32 +10,24 @@ namespace ColorBlast.Manager
         [SerializeField] private GridManager gridManager;
         [SerializeField] private LevelManager levelManager;
 
-        private bool isGameStarted = false;
-
         private void Start()
         {
-            InitializeGame();
-        }
-
-        private void InitializeGame()
-        {
-            levelManager.Initialize();
-            objectPoolManager.InitializePool(levelManager.LevelProperties);
-            gridManager.Initialize(levelManager.LevelProperties);
-            playerController.Initialize(gridManager);
-
             StartGame();
         }
 
         private void StartGame()
         {
-            if (isGameStarted)
-            {
-                return;
-            }
+            // it could be improved when get more levels
+            levelManager.LoadLevel(0);
 
-            isGameStarted = true;
-            StartCoroutine(gridManager.OnGameStart());
+            if (levelManager.CurrentLevel != null)
+            {
+                objectPoolManager.InitializePool(levelManager.CurrentLevel);
+                gridManager.Initialize(levelManager.CurrentLevel);
+                playerController.Initialize(gridManager);
+
+                StartCoroutine(gridManager.OnGameStart());
+            }
         }
     }
 }

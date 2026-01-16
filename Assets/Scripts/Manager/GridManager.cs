@@ -24,7 +24,7 @@ namespace ColorBlast.Manager
         private Block[,] blockGrid;
         private Vector2 blockSize;
 
-        public bool IsProcessing { get; private set; } // prevent multiple clicks during refill,animations,falls
+        public bool IsBusy { get; private set; } // prevent multiple clicks during refill,animations,falls
 
         // for affected blocks
         private List<Block> newSpawnBlocks;
@@ -69,6 +69,8 @@ namespace ColorBlast.Manager
 
         public IEnumerator OnGameStart()
         {
+            IsBusy = true;
+
             yield return gridSpawner.CreateNewBlocksAtStart();
             gridChecker.CheckAllGrid();
 
@@ -78,6 +80,8 @@ namespace ColorBlast.Manager
                 Debug.Log("SHUFFLE IN 2 SECONDS...");
                 yield return gridShuffler.Shuffle();
             }
+
+            IsBusy = false;
         }
 
         /// <summary>
@@ -86,7 +90,7 @@ namespace ColorBlast.Manager
         /// </summary>
         private IEnumerator ResolveGrid(List<Block> blocks)
         {
-            IsProcessing = true;
+            IsBusy = true;
 
             // Destroy blocks with animation
             yield return DestroyBlocks(blocks);
@@ -106,7 +110,7 @@ namespace ColorBlast.Manager
                 yield return gridShuffler.Shuffle();
             }
 
-            IsProcessing = false;
+            IsBusy = false;
         }
 
         public void OnBlockClicked(Block block)
@@ -123,13 +127,11 @@ namespace ColorBlast.Manager
         {
             foreach (var block in blocks)
             {
-                if (block == null)
+                if (block != null)
                 {
-                    continue;
+                    block.Destroy();
+                    blockGrid[block.GridX, block.GridY] = null;
                 }
-
-                block.Destroy();
-                blockGrid[block.GridX, block.GridY] = null;
             }
 
             yield return new WaitForSeconds(blockProperties.DestroyDuration);
