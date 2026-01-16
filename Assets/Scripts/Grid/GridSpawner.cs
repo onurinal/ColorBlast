@@ -20,20 +20,23 @@ namespace ColorBlast.Grid
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
             this.blockProperties = blockProperties;
-
-            CreateBlocksAtStart();
         }
 
-        private void CreateBlocksAtStart()
+        public IEnumerator CreateBlocksAtStart()
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    var blockPosition = gridManager.GetCellWorldPosition(row, col);
-                    blockGrid[row, col] = CreateBlock(row, col, blockPosition);
+                    var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
+                    blockGrid[row, col] = CreateBlock(row, col, spawnPosition);
+                    var targetPosition = gridManager.GetCellWorldPosition(row, col);
+                    blockGrid[row, col].MoveTo(targetPosition);
+                    yield return new WaitForSeconds(blockProperties.SpawnDelayBetweenBlocks);
                 }
             }
+
+            yield return new WaitForSeconds(blockProperties.SpawnDuration);
         }
 
         private Block CreateBlock(int row, int col, Vector2 position)

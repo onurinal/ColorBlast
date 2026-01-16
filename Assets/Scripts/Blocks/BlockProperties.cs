@@ -18,7 +18,6 @@ namespace ColorBlast.Blocks
         [SerializeField] private float spawnDelayBetweenBlocks; // small delay between block spawn
         [SerializeField] private float spawnDuration; // delay for all new  block spawn
 
-        public Block BlockPrefab => blockPrefab;
         public float BlockSizeX => blockSizeX;
         public float BlockSizeY => blockSizeY;
         public float SpacingX => spacingX;

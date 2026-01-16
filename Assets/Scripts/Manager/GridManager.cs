@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using ColorBlast.Blocks;
 using ColorBlast.Grid;
 using ColorBlast.Level;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace ColorBlast.Manager
 {
@@ -74,6 +72,7 @@ namespace ColorBlast.Manager
 
         private IEnumerator ResolveGridAtStart()
         {
+            yield return gridSpawner.CreateBlocksAtStart();
             gridChecker.CheckAllGrid();
 
             if (gridChecker.IsDeadlocked())

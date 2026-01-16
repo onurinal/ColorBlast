@@ -27,7 +27,9 @@ namespace ColorBlast
             }
 
             UpdateCameraPosition();
-            // UpdateCameraOrthographicSize();  For more rows and columns, it will change camera orthographic size
+
+            // For more rows and columns or after localScale change, it will scale camera size
+            UpdateCameraOrthographicSize();
         }
 
         private Vector3 GetCenterPosition()
@@ -58,6 +60,10 @@ namespace ColorBlast
             var minHeightSize = (gridHeight + (padding * 2f)) / 2f;
 
             mainCamera.orthographicSize = Mathf.Max(minWidthSize, minHeightSize);
+            if (mainCamera.orthographicSize < 11)
+            {
+                mainCamera.orthographicSize = 10;
+            }
         }
     }
 }
