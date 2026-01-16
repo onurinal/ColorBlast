@@ -50,9 +50,6 @@ namespace ColorBlast.Manager
             gridShuffler.Initialize(blockGrid, levelProperties, this);
 
             cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
-
-            // Start LEVEL
-            StartCoroutine(ResolveGridAtStart());
         }
 
         private void CacheBlockSize()
@@ -70,9 +67,9 @@ namespace ColorBlast.Manager
             return new Vector2(row * (blockSize.x + blockProperties.SpacingX), col * (blockSize.y + blockProperties.SpacingY));
         }
 
-        private IEnumerator ResolveGridAtStart()
+        public IEnumerator OnGameStart()
         {
-            yield return gridSpawner.CreateBlocksAtStart();
+            yield return gridSpawner.CreateNewBlocksAtStart();
             gridChecker.CheckAllGrid();
 
             if (gridChecker.IsDeadlocked())

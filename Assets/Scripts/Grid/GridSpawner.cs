@@ -22,7 +22,7 @@ namespace ColorBlast.Grid
             this.blockProperties = blockProperties;
         }
 
-        public IEnumerator CreateBlocksAtStart()
+        public IEnumerator CreateNewBlocksAtStart()
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
