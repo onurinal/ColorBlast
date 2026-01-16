@@ -50,7 +50,7 @@ namespace ColorBlast.Grid
 
             if (anyBlockMoved)
             {
-                yield return new WaitForSeconds(blockProperties.FallDuration);
+                yield return new WaitForSeconds(blockProperties.MoveDuration);
             }
         }
 

@@ -87,7 +87,7 @@ namespace ColorBlast.Blocks
 
         public void MoveTo(Vector2 targetPosition)
         {
-            transform.DOMove(targetPosition, blockProperties.FallDuration).SetEase(Ease.InOutCubic);
+            transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic);
         }
 
         public void Destroy()
