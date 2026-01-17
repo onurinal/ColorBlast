@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using ColorBlast.Blocks;
 using ColorBlast.Level;
@@ -20,12 +19,10 @@ namespace ColorBlast.Grid
             this.gridManager = gridManager;
         }
 
-        public IEnumerator Shuffle()
+        public void Shuffle()
         {
             var protectedPositions = new HashSet<(int row, int col)>();
             var colorToAllBlocks = new Dictionary<BlockColorType, List<Block>>();
-
-            yield return new WaitForSeconds(2f);
 
             UpdateAllColorToList(colorToAllBlocks);
 
@@ -91,7 +88,7 @@ namespace ColorBlast.Grid
             for (int i = 0; i < levelProperties.ColorCount; i++)
             {
                 var color = (BlockColorType)i;
-                if (colorToAllBlocks.TryGetValue(color, out var list) && list.Count >= 2)
+                if (colorToAllBlocks.TryGetValue(color, out var list) && list.Count >= LevelRule.MatchThreshold)
                 {
                     return color;
                 }

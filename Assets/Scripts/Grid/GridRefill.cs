@@ -25,19 +25,11 @@ namespace ColorBlast.Grid
             this.blockProperties = blockProperties;
         }
 
-        public IEnumerator StartRefillToEmptySlots(List<Block> movedBlocks)
-        {
-            // Apply gravity - existing blocks fall down
-            yield return ApplyGravity(movedBlocks);
-        }
-
-
         /// <summary>
         /// Apply gravity - make existing blocks fall to fill gaps
         /// </summary>
-        private IEnumerator ApplyGravity(List<Block> movedBlocks)
+        public IEnumerator ApplyGravity(List<Block> movedBlocks, WaitForSeconds moveDelay)
         {
-            movedBlocks.Clear();
             var anyBlockMoved = false;
 
             for (int row = 0; row < levelProperties.RowCount; row++)
@@ -50,7 +42,7 @@ namespace ColorBlast.Grid
 
             if (anyBlockMoved)
             {
-                yield return new WaitForSeconds(blockProperties.MoveDuration);
+                yield return moveDelay;
             }
         }
 

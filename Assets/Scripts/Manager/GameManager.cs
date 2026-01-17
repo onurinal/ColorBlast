@@ -5,10 +5,11 @@ namespace ColorBlast.Manager
 {
     public class GameManager : MonoBehaviour
     {
-        [SerializeField] private ObjectPoolManager objectPoolManager;
-        [SerializeField] private PlayerController playerController;
-        [SerializeField] private GridManager gridManager;
         [SerializeField] private LevelManager levelManager;
+        [SerializeField] private ObjectPoolManager objectPoolManager;
+        [SerializeField] private GridManager gridManager;
+        [SerializeField] private PlayerController playerController;
+        [SerializeField] private UIManager uiManager;
 
         private void Start()
         {
@@ -22,11 +23,21 @@ namespace ColorBlast.Manager
 
             if (levelManager.CurrentLevel != null)
             {
+                uiManager.Initialize();
                 objectPoolManager.InitializePool(levelManager.CurrentLevel);
-                gridManager.Initialize(levelManager.CurrentLevel);
+                gridManager.Initialize(levelManager.CurrentLevel, uiManager);
                 playerController.Initialize(gridManager);
 
                 StartCoroutine(gridManager.OnGameStart());
+            }
+        }
+
+        // for testing
+        public void RestartLevel()
+        {
+            if (!gridManager.IsBusy)
+            {
+                SceneLoader.LoadSameScene();
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ColorBlast.Blocks
 {
@@ -18,22 +17,16 @@ namespace ColorBlast.Blocks
         [SerializeField] private float blockSizeX;
         [SerializeField] private float blockSizeY;
 
-        [SerializeField] private float destroyDuration;
-        [SerializeField] private float moveDuration; // delay for falling and moving
-        [SerializeField] private float spawnDelayBetweenBlocks; // small delay between block spawn
-        [SerializeField] private float spawnDuration; // delay for all new  block spawn
-
         public float BlockSizeX => blockSizeX;
         public float BlockSizeY => blockSizeY;
         public float SpacingX => BaseSpacingX * (blockSizeX / BaseBlockSizeX);
         public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
 
-        public float DestroyDuration => destroyDuration;
-
-        public float MoveDuration => moveDuration;
-
-        public float SpawnDelayBetweenBlocks => spawnDelayBetweenBlocks;
-        public float SpawnDuration => spawnDuration;
+        public float DestroyDuration { get; private set; } = 0.15f;
+        public float MoveDuration { get; private set; } = 0.2f; // delay for falling and moving
+        public float SpawnDelayBetweenBlocks { get; private set; } = 0.02f; // small delay between block spawn
+        public float SpawnDuration { get; private set; } = 0.15f; // delay for all new  block spawn
+        public float ShuffleDuration { get; private set; } = 2f;
 
 
         public Vector2 GetBlockSpriteBoundSize()

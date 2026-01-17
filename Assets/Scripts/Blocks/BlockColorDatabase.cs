@@ -24,12 +24,11 @@ namespace ColorBlast.Blocks
         {
             if (blockColorDataDict == null) InitializeBlockColorDataDict();
 
-            if (blockColorDataDict.TryGetValue(colorType, out var colorData))
+            if (blockColorDataDict != null && blockColorDataDict.TryGetValue(colorType, out var colorData))
             {
                 return colorData.GetSprite(iconType);
             }
 
-            Debug.LogError("Color not found: " + colorType);
             return null;
         }
     }

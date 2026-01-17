@@ -13,7 +13,7 @@ namespace ColorBlast.Grid
 
         private bool[,] visitedBlocks;
         private Queue<Vector2Int> matchQueue; // using for breadth-first search algorithm
-        private List<Block> currentGroup; // temporary list for finding groups and updating icons
+        private List<Block> currentGroup; //  list for finding groups and updating icons
         private HashSet<Block> affectedBlocks; // blocks that need update visual after input
 
 
@@ -36,9 +36,9 @@ namespace ColorBlast.Grid
         private void InitializeLists()
         {
             visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
-            matchQueue = new Queue<Vector2Int>();
-            currentGroup = new List<Block>();
-            affectedBlocks = new HashSet<Block>();
+            matchQueue = new Queue<Vector2Int>((levelProperties.RowCount * levelProperties.ColumnCount) / 2);
+            currentGroup = new List<Block>((levelProperties.RowCount * levelProperties.ColumnCount) / 2);
+            affectedBlocks = new HashSet<Block>((levelProperties.RowCount * levelProperties.ColumnCount) / 2);
         }
 
         /// <summary>
@@ -82,9 +82,9 @@ namespace ColorBlast.Grid
                 visitedBlocks[currentBlock.x, currentBlock.y] = true;
                 currentGroup.Add(blockGrid[currentBlock.x, currentBlock.y]);
 
-                foreach (var offset in Neighbors)
+                for (int i = 0; i < Neighbors.Length; i++)
                 {
-                    matchQueue.Enqueue(currentBlock + offset);
+                    matchQueue.Enqueue(currentBlock + Neighbors[i]);
                 }
             }
         }
@@ -122,35 +122,35 @@ namespace ColorBlast.Grid
 
         private void AddNewBlocksToAffected(List<Block> newSpawnedBlocks)
         {
-            foreach (var newBlock in newSpawnedBlocks)
+            for (int i = 0; i < newSpawnedBlocks.Count; i++)
             {
-                if (newBlock != null)
+                if (newSpawnedBlocks[i] != null)
                 {
-                    affectedBlocks.Add(newBlock);
+                    affectedBlocks.Add(newSpawnedBlocks[i]);
                 }
             }
         }
 
         private void AddDestroyedBlocksToAffected(List<Block> destroyedBlocks)
         {
-            foreach (var destroyedBlock in destroyedBlocks)
+            for (int i = 0; i < destroyedBlocks.Count; i++)
             {
-                if (destroyedBlock != null)
+                if (destroyedBlocks[i] != null)
                 {
-                    AddNeighborsToAffectedGroup(destroyedBlock.GridX, destroyedBlock.GridY);
+                    AddNeighborsToAffectedGroup(destroyedBlocks[i].GridX, destroyedBlocks[i].GridY);
                 }
             }
         }
 
         private void AddMovedBlocksToAffected(List<Block> movedBlocks)
         {
-            foreach (var movedBlock in movedBlocks)
+            for (int i = 0; i < movedBlocks.Count; i++)
             {
-                if (movedBlock != null)
+                if (movedBlocks[i] != null)
                 {
                     // add moved blocks and their old position's neighbors in affected blocks
-                    affectedBlocks.Add(movedBlock);
-                    AddNeighborsToAffectedGroup(movedBlock.PrevGridX, movedBlock.PrevGridY);
+                    affectedBlocks.Add(movedBlocks[i]);
+                    AddNeighborsToAffectedGroup(movedBlocks[i].PrevGridX, movedBlocks[i].PrevGridY);
                 }
             }
         }
@@ -181,11 +181,11 @@ namespace ColorBlast.Grid
         {
             var newIcon = DetermineBlockIconType(group.Count);
 
-            foreach (var block in group)
+            for (int i = 0; i < group.Count; i++)
             {
-                if (newIcon != block.IconType)
+                if (newIcon != group[i].IconType)
                 {
-                    block.UpdateIcon(newIcon);
+                    group[i].UpdateIcon(newIcon);
                 }
             }
         }
@@ -254,7 +254,7 @@ namespace ColorBlast.Grid
                     TryMatch(new Vector2Int(row, col), blockGrid[row, col].ColorType);
 
                     // If  ANY valid group >= 2 blocks, exit early
-                    if (currentGroup.Count >= 2)
+                    if (currentGroup.Count >= LevelRule.MatchThreshold)
                     {
                         return false;
                     }

@@ -10,6 +10,7 @@ namespace ColorBlast.Manager
     public class GridManager : MonoBehaviour
     {
         [Header("Grid Configuration")]
+        [SerializeField] private SpriteRenderer gridBorderSprite;
         [SerializeField] private BlockProperties blockProperties;
 
         [Header("References")]
@@ -20,26 +21,67 @@ namespace ColorBlast.Manager
         private GridRefill gridRefill;
         private GridShuffler gridShuffler;
         private LevelProperties levelProperties;
+        private UIManager uiManager;
 
         private Block[,] blockGrid;
         private Vector2 blockSize;
 
-        public bool IsBusy { get; private set; } // prevent multiple clicks during refill,animations,falls
+        // cache coroutine delays to avoid GC allocations
+        private WaitForSeconds destroyDelay;
+        private WaitForSeconds moveDelay;
+        private WaitForSeconds spawnDelayBetweenBlocks;
+        private WaitForSeconds spawnDelay;
+        private WaitForSeconds shuffleDelay;
+
+        public bool IsBusy { get; private set; } // prevent multiple interactions during animations, refill or falling
 
         // for affected blocks
-        private List<Block> newSpawnBlocks;
-        private List<Block> movedBlocks;
+        private readonly List<Block> newSpawnBlocks = new List<Block>();
+        private readonly List<Block> movedBlocks = new List<Block>();
 
-        public void Initialize(LevelProperties levelProperties)
+        public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
             this.levelProperties = levelProperties;
+            this.uiManager = uiManager;
 
-            CacheBlockSize();
+            CacheValues();
             CreateGrid();
 
-            newSpawnBlocks = new List<Block>();
-            movedBlocks = new List<Block>();
+            InitializeGridSystems(levelProperties);
+            InitializeCamera(levelProperties);
+            UpdateGridBorderSizeAndPosition();
+        }
 
+        private void CacheValues()
+        {
+            blockSize = blockProperties.GetBlockSpriteBoundSize();
+
+            destroyDelay = new WaitForSeconds(blockProperties.DestroyDuration);
+            moveDelay = new WaitForSeconds(blockProperties.MoveDuration);
+            spawnDelayBetweenBlocks = new WaitForSeconds(blockProperties.SpawnDelayBetweenBlocks);
+            spawnDelay = new WaitForSeconds(blockProperties.SpawnDuration);
+            shuffleDelay = new WaitForSeconds(blockProperties.ShuffleDuration);
+        }
+
+        private void CreateGrid()
+        {
+            blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
+        }
+
+        private void UpdateGridBorderSizeAndPosition()
+        {
+            if (gridBorderSprite != null)
+            {
+                gridBorderSprite.size =
+                    new Vector2(levelProperties.RowCount * (blockSize.x + blockProperties.SpacingX) + 0.3f,
+                        levelProperties.ColumnCount * (blockSize.y + blockProperties.SpacingY) + 0.4f);
+                gridBorderSprite.transform.position = new Vector2(cameraController.transform.position.x, cameraController.transform.position.y);
+                gridBorderSprite.gameObject.SetActive(true);
+            }
+        }
+
+        private void InitializeGridSystems(LevelProperties levelProperties)
+        {
             gridSpawner = new GridSpawner();
             gridSpawner.Initialize(blockGrid, this, levelProperties, blockProperties);
             gridChecker = new GridChecker();
@@ -48,18 +90,11 @@ namespace ColorBlast.Manager
             gridRefill.Initialize(blockGrid, this, levelProperties, blockProperties);
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this);
+        }
 
+        private void InitializeCamera(LevelProperties levelProperties)
+        {
             cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
-        }
-
-        private void CacheBlockSize()
-        {
-            blockSize = blockProperties.GetBlockSpriteBoundSize();
-        }
-
-        private void CreateGrid()
-        {
-            blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
         }
 
         public Vector2 GetCellWorldPosition(int row, int col)
@@ -71,17 +106,28 @@ namespace ColorBlast.Manager
         {
             IsBusy = true;
 
-            yield return gridSpawner.CreateNewBlocksAtStart();
+            yield return gridSpawner.CreateNewBlocksAtStart(spawnDelayBetweenBlocks, spawnDelay);
             gridChecker.CheckAllGrid();
 
             if (gridChecker.IsDeadlocked())
             {
-                Debug.Log("DEADLOCK! NO MATCH FOUND");
-                Debug.Log("SHUFFLE IN 2 SECONDS...");
-                yield return gridShuffler.Shuffle();
+                uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
+                yield return shuffleDelay;
+                gridShuffler.Shuffle();
             }
 
             IsBusy = false;
+        }
+
+        public void OnBlockClicked(Block block)
+        {
+            var groups = gridChecker.GetGroup(block.GridX, block.GridY);
+
+            if (groups.Count >= LevelRule.MatchThreshold)
+            {
+                StartCoroutine(ResolveGrid(groups));
+                EventManager.OnMoveChanged();
+            }
         }
 
         /// <summary>
@@ -96,45 +142,37 @@ namespace ColorBlast.Manager
             yield return DestroyBlocks(blocks);
 
             // existing blocks fall down
-            yield return gridRefill.StartRefillToEmptySlots(movedBlocks);
+            movedBlocks.Clear();
+            yield return gridRefill.ApplyGravity(movedBlocks, moveDelay);
 
             // Spawn new blocks to fill empty slots
-            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks);
+            newSpawnBlocks.Clear();
+            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks, spawnDelayBetweenBlocks, spawnDelay);
 
             gridChecker.CheckAffectedBlocks(blocks, newSpawnBlocks, movedBlocks);
 
             if (gridChecker.IsDeadlocked())
             {
-                Debug.Log("DEADLOCK! NO MATCH FOUND");
-                Debug.Log("SHUFFLE IN 2 SECONDS...");
-                yield return gridShuffler.Shuffle();
+                uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
+                yield return shuffleDelay;
+                gridShuffler.Shuffle();
             }
 
             IsBusy = false;
         }
 
-        public void OnBlockClicked(Block block)
-        {
-            var groups = gridChecker.GetGroup(block.GridX, block.GridY);
-
-            if (groups.Count >= 2)
-            {
-                StartCoroutine(ResolveGrid(groups));
-            }
-        }
-
         private IEnumerator DestroyBlocks(List<Block> blocks)
         {
-            foreach (var block in blocks)
+            for (int i = 0; i < blocks.Count; i++)
             {
-                if (block != null)
+                if (blocks[i] != null)
                 {
-                    block.Destroy();
-                    blockGrid[block.GridX, block.GridY] = null;
+                    blocks[i].Destroy();
+                    blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
                 }
             }
 
-            yield return new WaitForSeconds(blockProperties.DestroyDuration);
+            yield return destroyDelay;
         }
     }
 }

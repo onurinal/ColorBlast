@@ -22,21 +22,24 @@ namespace ColorBlast.Grid
             this.blockProperties = blockProperties;
         }
 
-        public IEnumerator CreateNewBlocksAtStart()
+        public IEnumerator CreateNewBlocksAtStart(WaitForSeconds spawnDelayBetweenBlocks, WaitForSeconds spawnDelay)
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
-                    blockGrid[row, col] = CreateBlock(row, col, spawnPosition);
-                    var targetPosition = gridManager.GetCellWorldPosition(row, col);
-                    blockGrid[row, col].MoveTo(targetPosition);
-                    yield return new WaitForSeconds(blockProperties.SpawnDelayBetweenBlocks);
+                    if (blockGrid[row, col] == null)
+                    {
+                        var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
+                        blockGrid[row, col] = CreateBlock(row, col, spawnPosition);
+                        var targetPosition = gridManager.GetCellWorldPosition(row, col);
+                        blockGrid[row, col].MoveTo(targetPosition);
+                        yield return spawnDelayBetweenBlocks;
+                    }
                 }
             }
 
-            yield return new WaitForSeconds(blockProperties.SpawnDuration);
+            yield return spawnDelay;
         }
 
         private Block CreateBlock(int row, int col, Vector2 position)
@@ -58,10 +61,8 @@ namespace ColorBlast.Grid
         /// <summary>
         /// Spawn new blocks at the top each column to fill empty slots
         /// </summary>
-        public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks)
+        public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks, WaitForSeconds spawnDelayBetweenBlocks, WaitForSeconds spawnDelay)
         {
-            newSpawnBlocks.Clear();
-
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 var emptyCount = CountEmptySlotsForColumn(row);
@@ -75,12 +76,12 @@ namespace ColorBlast.Grid
                         var newBlock = SpawnBlockAboveGrid(row, targetCol, i);
                         newSpawnBlocks.Add(newBlock);
 
-                        yield return new WaitForSeconds(blockProperties.SpawnDelayBetweenBlocks);
+                        yield return spawnDelayBetweenBlocks;
                     }
                 }
             }
 
-            yield return new WaitForSeconds(blockProperties.SpawnDuration);
+            yield return spawnDelay;
         }
 
         /// <summary>

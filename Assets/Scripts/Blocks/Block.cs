@@ -18,6 +18,7 @@ namespace ColorBlast.Blocks
         [SerializeField] private BlockIconType iconType;
 
         private Tween destroyTween;
+        private Tween moveTween;
 
         public int GridX => gridX;
         public int GridY => gridY;
@@ -38,6 +39,12 @@ namespace ColorBlast.Blocks
             SetGridPosition(gridX, gridY);
             this.colorType = colorType;
             UpdateVisual();
+        }
+
+        private void OnDestroy()
+        {
+            moveTween?.Kill();
+            destroyTween?.Kill();
         }
 
         public void SetGridPosition(int gridX, int gridY)
@@ -87,13 +94,20 @@ namespace ColorBlast.Blocks
 
         public void MoveTo(Vector2 targetPosition)
         {
-            transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic);
+            moveTween?.Kill();
+            moveTween = transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic);
         }
 
         public void Destroy()
         {
+            destroyTween?.Kill();
             destroyTween =
-                transform.DOScale(new Vector2(0f, 0f), blockProperties.DestroyDuration).SetEase(Ease.InOutBounce).OnComplete(() => ObjectPoolManager.Instance.ReturnBlock(this));
+                transform.DOScale(new Vector2(0f, 0f), blockProperties.DestroyDuration).SetEase(Ease.InOutBounce).OnComplete(ReturnToPool);
+        }
+
+        private void ReturnToPool()
+        {
+            ObjectPoolManager.Instance.ReturnBlock(this);
         }
 
         public void OnSpawn()
