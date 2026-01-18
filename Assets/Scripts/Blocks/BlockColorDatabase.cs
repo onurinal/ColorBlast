@@ -10,26 +10,40 @@ namespace ColorBlast.Blocks
 
         private Dictionary<BlockColorType, BlockColorData> blockColorDataDict;
 
+        private void OnEnable()
+        {
+            InitializeBlockColorDataDict();
+        }
+
         private void InitializeBlockColorDataDict()
         {
-            blockColorDataDict = new Dictionary<BlockColorType, BlockColorData>();
-
-            foreach (var data in blockColorDataList)
+            if (blockColorDataList == null || blockColorDataList.Count == 0)
             {
-                blockColorDataDict.Add(data.ColorType, data);
+                Debug.LogWarning("BlockColorDataList is null or empty");
+                return;
+            }
+
+            blockColorDataDict = new Dictionary<BlockColorType, BlockColorData>(blockColorDataList.Count);
+
+            for (int i = 0; i < blockColorDataList.Count; i++)
+            {
+                var data = blockColorDataList[i];
+                if (data != null)
+                {
+                    blockColorDataDict[data.ColorType] = data;
+                }
             }
         }
 
         public Sprite GetSpriteForType(BlockColorType colorType, BlockIconType iconType)
         {
-            if (blockColorDataDict == null) InitializeBlockColorDataDict();
-
-            if (blockColorDataDict != null && blockColorDataDict.TryGetValue(colorType, out var colorData))
+            if (blockColorDataDict.TryGetValue(colorType, out var colorData))
             {
                 return colorData.GetSprite(iconType);
             }
 
-            return null;
+            Debug.LogWarning($"BlockColorDatabase Color type '{colorType}' not found");
+            return blockColorDataList[0].GetSprite(BlockIconType.Default);
         }
     }
 }

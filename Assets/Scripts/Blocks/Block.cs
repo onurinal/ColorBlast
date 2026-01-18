@@ -5,18 +5,26 @@ using UnityEngine;
 
 namespace ColorBlast.Blocks
 {
+    /// <summary>
+    /// Represents a single block in the grid. Handles visual updates, animations and pooling
+    /// </summary>
     public class Block : MonoBehaviour, IPoolable
     {
+        [Header("References")]
         [SerializeField] private BlockProperties blockProperties;
         [SerializeField] private BlockColorDatabase blockColorDatabase;
         [SerializeField] private SpriteRenderer blockSpriteRenderer;
         [SerializeField] private Transform blockModelTransform;
 
-        [SerializeField] private int gridX;
-        [SerializeField] private int gridY;
-        [SerializeField] private BlockColorType colorType;
-        [SerializeField] private BlockIconType iconType;
+        // Grid position
+        private int gridX;
+        private int gridY;
 
+        // Block properties
+        private BlockColorType colorType;
+        private BlockIconType iconType;
+
+        // Animation tweens
         private Tween destroyTween;
         private Tween moveTween;
 
@@ -25,7 +33,7 @@ namespace ColorBlast.Blocks
         public BlockColorType ColorType => colorType;
         public BlockIconType IconType => iconType;
 
-        // for tracking neighbors
+        // previous grid position before last move. Used to track affected neighbors
         public int PrevGridX { get; private set; }
         public int PrevGridY { get; private set; }
 
@@ -39,12 +47,6 @@ namespace ColorBlast.Blocks
             SetGridPosition(gridX, gridY);
             this.colorType = colorType;
             UpdateVisual();
-        }
-
-        private void OnDestroy()
-        {
-            moveTween?.Kill();
-            destroyTween?.Kill();
         }
 
         public void SetGridPosition(int gridX, int gridY)
@@ -72,7 +74,10 @@ namespace ColorBlast.Blocks
 
         private void UpdateVisual()
         {
-            blockSpriteRenderer.sprite = blockColorDatabase.GetSpriteForType(colorType, iconType);
+            if (blockSpriteRenderer != null && blockColorDatabase != null)
+            {
+                blockSpriteRenderer.sprite = blockColorDatabase.GetSpriteForType(colorType, iconType);
+            }
         }
 
         private void ResetVisual()
@@ -83,13 +88,19 @@ namespace ColorBlast.Blocks
 
         private void UpdateOrderLayer()
         {
-            blockSpriteRenderer.sortingOrder = gridY;
+            if (blockSpriteRenderer != null)
+            {
+                blockSpriteRenderer.sortingOrder = gridY;
+            }
         }
 
         // updating block local scale just once at start
         private void UpdateBlockScale()
         {
-            blockModelTransform.localScale = new Vector3(blockProperties.BlockSizeX, blockProperties.BlockSizeY, 1);
+            if (blockModelTransform != null && blockProperties != null)
+            {
+                blockModelTransform.localScale = new Vector3(blockProperties.BlockSizeX, blockProperties.BlockSizeY, 1);
+            }
         }
 
         public void MoveTo(Vector2 targetPosition)
@@ -102,7 +113,7 @@ namespace ColorBlast.Blocks
         {
             destroyTween?.Kill();
             destroyTween =
-                transform.DOScale(new Vector2(0f, 0f), blockProperties.DestroyDuration).SetEase(Ease.InOutBounce).OnComplete(ReturnToPool);
+                transform.DOScale(Vector2.zero, blockProperties.DestroyDuration).SetEase(Ease.InOutBounce).OnComplete(ReturnToPool);
         }
 
         private void ReturnToPool()
@@ -112,14 +123,19 @@ namespace ColorBlast.Blocks
 
         public void OnSpawn()
         {
-            //  scale, alpha etc if needed
-            transform.localScale = Vector2.one;
+            //  
         }
 
         public void OnDespawn()
         {
             // stop tween, reset states, animations if needed
+            moveTween?.Kill();
             destroyTween?.Kill();
+
+            moveTween = null;
+            destroyTween = null;
+
+            transform.localScale = Vector3.one;
             ResetVisual();
         }
     }
