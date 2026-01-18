@@ -178,7 +178,7 @@ namespace ColorBlast.Grid
                     if (blockGrid[row, col] != null)
                     {
                         var block = blockGrid[row, col];
-                        block.MoveTo(gridManager.GetCellWorldPosition(row, col));
+                        block.MoveToPosition(gridManager.GetCellWorldPosition(row, col));
                     }
                 }
             }

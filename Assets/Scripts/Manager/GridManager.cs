@@ -27,8 +27,8 @@ namespace ColorBlast.Manager
 
         public bool IsBusy { get; private set; }
 
-        private readonly List<Block> newSpawnBlocks = new List<Block>();
-        private readonly List<Block> movedBlocks = new List<Block>();
+        private List<Block> newSpawnBlocks;
+        private List<Block> movedBlocks;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
@@ -50,6 +50,10 @@ namespace ColorBlast.Manager
         private void CreateGrid()
         {
             blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
+
+            var maxCapacity = levelProperties.RowCount * levelProperties.ColumnCount;
+            newSpawnBlocks = new List<Block>(maxCapacity);
+            movedBlocks = new List<Block>(maxCapacity);
         }
 
         private void InitializeGridSystems(LevelProperties levelProperties)
@@ -84,7 +88,7 @@ namespace ColorBlast.Manager
             if (gridChecker.IsDeadlocked())
             {
                 uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
-                yield return new WaitForSeconds(blockProperties.ShuffleDuration);
+                yield return blockProperties.ShuffleWait;
                 gridShuffler.Shuffle();
             }
 
@@ -111,40 +115,41 @@ namespace ColorBlast.Manager
             IsBusy = true;
 
             // Destroy blocks with animation
-            yield return DestroyBlocks(blocks);
+            DestroyBlocks(blocks);
+            yield return blockProperties.DestroyWait;
 
             // existing blocks fall down
             movedBlocks.Clear();
-            yield return gridRefill.ApplyGravity(movedBlocks);
+            gridRefill.ApplyGravity(movedBlocks);
+            yield return blockProperties.MoveWait;
 
             // Spawn new blocks to fill empty slots
             newSpawnBlocks.Clear();
-            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks);
+            gridSpawner.SpawnNewBlocks(newSpawnBlocks);
+            yield return blockProperties.SpawnWait;
 
-            gridChecker.CheckAffectedBlocks(blocks, newSpawnBlocks, movedBlocks);
+            gridChecker.CheckAffectedBlocks(newSpawnBlocks, movedBlocks);
 
             if (gridChecker.IsDeadlocked())
             {
                 uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
-                yield return new WaitForSeconds(blockProperties.ShuffleDuration);
+                yield return blockProperties.ShuffleWait;
                 gridShuffler.Shuffle();
             }
 
             IsBusy = false;
         }
 
-        private IEnumerator DestroyBlocks(List<Block> blocks)
+        private void DestroyBlocks(List<Block> blocks)
         {
             for (int i = 0; i < blocks.Count; i++)
             {
                 if (blocks[i] != null)
                 {
-                    blocks[i].Destroy();
+                    blocks[i].PlayDestroyAnimation();
                     blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
                 }
             }
-
-            yield return new WaitForSeconds(blockProperties.DestroyDuration);
         }
     }
 }

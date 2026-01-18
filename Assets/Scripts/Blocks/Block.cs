@@ -6,7 +6,8 @@ using UnityEngine;
 namespace ColorBlast.Blocks
 {
     /// <summary>
-    /// Represents a single block in the grid. Handles visual updates, animations and pooling
+    /// Represents a single block on the game board.
+    /// Handles grid position data, visual updates, animations and pooling
     /// </summary>
     public class Block : MonoBehaviour, IPoolable
     {
@@ -18,7 +19,6 @@ namespace ColorBlast.Blocks
 
         private int gridX;
         private int gridY;
-
         private BlockColorType colorType;
         private BlockIconType iconType;
 
@@ -29,7 +29,6 @@ namespace ColorBlast.Blocks
         public int GridY => gridY;
         public BlockColorType ColorType => colorType;
         public BlockIconType IconType => iconType;
-
         public int PrevGridX { get; private set; }
         public int PrevGridY { get; private set; }
 
@@ -98,13 +97,13 @@ namespace ColorBlast.Blocks
             }
         }
 
-        public void MoveTo(Vector2 targetPosition)
+        public void MoveToPosition(Vector2 targetPosition)
         {
             moveTween?.Kill();
             moveTween = transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic);
         }
 
-        public void Destroy()
+        public void PlayDestroyAnimation()
         {
             destroyTween?.Kill();
             destroyTween =
@@ -118,7 +117,7 @@ namespace ColorBlast.Blocks
 
         public void OnSpawn()
         {
-            //  
+            //  when block has some animations after spawning
         }
 
         public void OnDespawn()

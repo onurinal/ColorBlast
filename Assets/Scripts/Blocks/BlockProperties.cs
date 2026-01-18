@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace ColorBlast.Blocks
 {
@@ -13,28 +14,38 @@ namespace ColorBlast.Blocks
 
         [SerializeField] private Block blockPrefab;
 
-        [Header("Block Settings")]
+        [Header("Block Size")]
         [SerializeField] private float blockSizeX;
         [SerializeField] private float blockSizeY;
 
+        [Header("Animation Durations")]
         [SerializeField] private float destroyDuration;
         [SerializeField] private float moveDuration;
-        [SerializeField] private float spawnDelayBetweenBlocks;
         [SerializeField] private float spawnDuration;
         [SerializeField] private float shuffleDuration;
 
+        private WaitForSeconds cachedDestroyWait;
+        private WaitForSeconds cachedMoveWait;
+        private WaitForSeconds cachedSpawnWait;
+        private WaitForSeconds cachedShuffleWait;
 
-        public float BlockSizeX => blockSizeX;
-        public float BlockSizeY => blockSizeY;
-        public float SpacingX => BaseSpacingX * (blockSizeX / BaseBlockSizeX);
-        public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
+        private void OnEnable()
+        {
+            UpdateCacheValues();
+        }
 
-        public float DestroyDuration => destroyDuration;
-        public float MoveDuration => moveDuration;
-        public float SpawnDelayBetweenBlocks => spawnDelayBetweenBlocks;
-        public float SpawnDuration => spawnDuration;
-        public float ShuffleDuration => shuffleDuration;
+        private void OnValidate()
+        {
+            UpdateCacheValues();
+        }
 
+        private void UpdateCacheValues()
+        {
+            cachedDestroyWait = new WaitForSeconds(destroyDuration);
+            cachedMoveWait = new WaitForSeconds(moveDuration);
+            cachedSpawnWait = new WaitForSeconds(spawnDuration);
+            cachedShuffleWait = new WaitForSeconds(shuffleDuration);
+        }
 
         public Vector2 GetBlockSpriteBoundSize()
         {
@@ -53,5 +64,20 @@ namespace ColorBlast.Blocks
             var blockSize = new Vector2(baseSpriteWidth * blockSizeX, baseSpriteHeight * blockSizeY);
             return blockSize;
         }
+
+
+        public float BlockSizeX => blockSizeX;
+        public float BlockSizeY => blockSizeY;
+        public float SpacingX => BaseSpacingX * (blockSizeX / BaseBlockSizeX);
+        public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
+
+        public float MoveDuration => moveDuration;
+        public float DestroyDuration => destroyDuration;
+        public float ShuffleDuration => shuffleDuration;
+
+        public WaitForSeconds DestroyWait => cachedDestroyWait;
+        public WaitForSeconds MoveWait => cachedMoveWait;
+        public WaitForSeconds SpawnWait => cachedSpawnWait;
+        public WaitForSeconds ShuffleWait => cachedShuffleWait;
     }
 }

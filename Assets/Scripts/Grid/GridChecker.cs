@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace ColorBlast.Grid
 {
+    /// <summary>
+    /// Handles group detection, icon updates and deadlock detection on the game board
+    /// Uses flood-fill algorithm to find connected groups of same colored blocks
+    /// </summary>
     public class GridChecker
     {
         private LevelProperties levelProperties;
@@ -35,15 +39,16 @@ namespace ColorBlast.Grid
 
         private void InitializeLists()
         {
+            var capacity = levelProperties.RowCount * levelProperties.ColumnCount / 2;
             visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
-            matchQueue = new Queue<Vector2Int>((levelProperties.RowCount * levelProperties.ColumnCount) / 2);
-            currentGroup = new List<Block>((levelProperties.RowCount * levelProperties.ColumnCount) / 2);
-            affectedBlocks = new HashSet<Block>((levelProperties.RowCount * levelProperties.ColumnCount) / 2);
+            matchQueue = new Queue<Vector2Int>(capacity);
+            currentGroup = new List<Block>(capacity);
+            affectedBlocks = new HashSet<Block>(capacity);
         }
 
         public void CheckAllGrid()
         {
-            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
+            ClearVisitedBlocks();
 
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -56,47 +61,59 @@ namespace ColorBlast.Grid
 
                     currentGroup.Clear();
                     var blockColor = blockGrid[row, col].ColorType;
-                    TryMatch(new Vector2Int(row, col), blockColor);
+                    FindConnectedMatch(row, col, blockColor);
                     UpdateGroupIcons(currentGroup);
                 }
             }
         }
 
-        private void TryMatch(Vector2Int startBlock, BlockColorType color)
+        private void FindConnectedMatch(int startRow, int startCol, BlockColorType color)
         {
             matchQueue.Clear();
-            matchQueue.Enqueue(startBlock);
+            matchQueue.Enqueue(new Vector2Int(startRow, startCol));
 
             while (matchQueue.Count > 0)
             {
                 var currentBlock = matchQueue.Dequeue();
+                var row = currentBlock.x;
+                var col = currentBlock.y;
 
-                if (!IsInsideGrid(currentBlock)) continue;
-                if (visitedBlocks[currentBlock.x, currentBlock.y]) continue;
-                if (blockGrid[currentBlock.x, currentBlock.y] == null) continue;
-                if (color != blockGrid[currentBlock.x, currentBlock.y].ColorType) continue;
+                if (!IsInsideGrid(row, col)) continue;
+                if (visitedBlocks[row, col]) continue;
 
-                visitedBlocks[currentBlock.x, currentBlock.y] = true;
-                currentGroup.Add(blockGrid[currentBlock.x, currentBlock.y]);
+                var block = blockGrid[row, col];
+                if (block == null) continue;
+                if (block.ColorType != color) continue;
+
+                visitedBlocks[row, col] = true;
+                currentGroup.Add(block);
 
                 for (int i = 0; i < Neighbors.Length; i++)
                 {
-                    matchQueue.Enqueue(currentBlock + Neighbors[i]);
+                    var next = currentBlock + Neighbors[i];
+                    if (!IsInsideGrid(next.x, next.y))
+                    {
+                        continue;
+                    }
+
+                    if (visitedBlocks[next.x, next.y])
+                    {
+                        continue;
+                    }
+
+                    matchQueue.Enqueue(next);
                 }
             }
         }
 
-        public void CheckAffectedBlocks(List<Block> destroyedBlocks, List<Block> newSpawnedBlocks, List<Block> movedBlocks)
+        public void CheckAffectedBlocks(List<Block> newSpawnedBlocks, List<Block> movedBlocks)
         {
             affectedBlocks.Clear();
 
-            AddDestroyedBlocksToAffected(destroyedBlocks);
+            AddBlocksToAffected(movedBlocks);
+            AddBlocksToAffected(newSpawnedBlocks);
 
-            AddMovedBlocksToAffected(movedBlocks);
-
-            AddNewBlocksToAffected(newSpawnedBlocks);
-
-            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
+            ClearVisitedBlocks();
 
             foreach (var block in affectedBlocks)
             {
@@ -106,64 +123,44 @@ namespace ColorBlast.Grid
                 }
 
                 currentGroup.Clear();
-                TryMatch(new Vector2Int(block.GridX, block.GridY), block.ColorType);
+                FindConnectedMatch(block.GridX, block.GridY, block.ColorType);
                 UpdateGroupIcons(currentGroup);
             }
         }
 
-        private void AddNewBlocksToAffected(List<Block> newSpawnedBlocks)
+        private void AddBlocksToAffected(List<Block> blocks)
         {
-            for (int i = 0; i < newSpawnedBlocks.Count; i++)
+            if (blocks == null || blocks.Count == 0)
             {
-                if (newSpawnedBlocks[i] != null)
-                {
-                    affectedBlocks.Add(newSpawnedBlocks[i]);
-                }
+                return;
             }
-        }
 
-        private void AddDestroyedBlocksToAffected(List<Block> destroyedBlocks)
-        {
-            for (int i = 0; i < destroyedBlocks.Count; i++)
+            for (int i = 0; i < blocks.Count; i++)
             {
-                if (destroyedBlocks[i] != null)
+                var block = blocks[i];
+                if (block != null)
                 {
-                    AddNeighborsToAffectedGroup(destroyedBlocks[i].GridX, destroyedBlocks[i].GridY);
-                }
-            }
-        }
-
-        private void AddMovedBlocksToAffected(List<Block> movedBlocks)
-        {
-            for (int i = 0; i < movedBlocks.Count; i++)
-            {
-                if (movedBlocks[i] != null)
-                {
-                    affectedBlocks.Add(movedBlocks[i]);
-                    AddNeighborsToAffectedGroup(movedBlocks[i].PrevGridX, movedBlocks[i].PrevGridY);
+                    affectedBlocks.Add(block);
+                    AddNeighborsToAffectedGroup(block.GridX, block.GridY);
                 }
             }
         }
 
         private void AddNeighborsToAffectedGroup(int row, int col)
         {
-            TryAddAffectedBlock(row + 1, col);
-            TryAddAffectedBlock(row, col + 1);
-            TryAddAffectedBlock(row, col - 1);
-            TryAddAffectedBlock(row - 1, col);
-        }
-
-        private void TryAddAffectedBlock(int row, int col)
-        {
-            if (row < 0 || row >= levelProperties.RowCount || col < 0 || col >= levelProperties.ColumnCount)
+            for (int i = 0; i < Neighbors.Length; i++)
             {
-                return;
-            }
+                var neighborRow = row + Neighbors[i].x;
+                var neighborCol = col + Neighbors[i].y;
 
-            var block = blockGrid[row, col];
-            if (block != null)
-            {
-                affectedBlocks.Add(block);
+                if (IsInsideGrid(neighborRow, neighborCol))
+                {
+                    var block = blockGrid[neighborRow, neighborCol];
+                    if (block != null)
+                    {
+                        affectedBlocks.Add(block);
+                    }
+                }
             }
         }
 
@@ -186,42 +183,41 @@ namespace ColorBlast.Grid
             {
                 return BlockIconType.ThirdIcon;
             }
-            else if (groupSize > levelProperties.SecondIconThreshold)
+
+            if (groupSize > levelProperties.SecondIconThreshold)
             {
                 return BlockIconType.SecondIcon;
             }
-            else if (groupSize > levelProperties.FirstIconThreshold)
+
+            if (groupSize > levelProperties.FirstIconThreshold)
             {
                 return BlockIconType.FirstIcon;
             }
-            else
-            {
-                return BlockIconType.Default;
-            }
+
+            return BlockIconType.Default;
         }
 
         public List<Block> GetGroup(int row, int col)
         {
-            var block = blockGrid[row, col];
+            currentGroup.Clear();
 
+            var block = blockGrid[row, col];
             if (block == null)
             {
-                currentGroup.Clear();
                 return currentGroup;
             }
 
-            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
-            currentGroup.Clear();
+            ClearVisitedBlocks();
 
             var color = block.ColorType;
-            TryMatch(new Vector2Int(row, col), color);
+            FindConnectedMatch(row, col, color);
 
             return currentGroup;
         }
 
-        private bool IsInsideGrid(Vector2Int currentBlock)
+        private bool IsInsideGrid(int row, int col)
         {
-            if (currentBlock.x < 0 || currentBlock.y < 0 || currentBlock.x >= levelProperties.RowCount || currentBlock.y >= levelProperties.ColumnCount)
+            if (row < 0 || col < 0 || row >= levelProperties.RowCount || col >= levelProperties.ColumnCount)
             {
                 return false;
             }
@@ -231,7 +227,7 @@ namespace ColorBlast.Grid
 
         public bool IsDeadlocked()
         {
-            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
+            ClearVisitedBlocks();
 
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -241,7 +237,7 @@ namespace ColorBlast.Grid
                         continue;
 
                     currentGroup.Clear();
-                    TryMatch(new Vector2Int(row, col), blockGrid[row, col].ColorType);
+                    FindConnectedMatch(row, col, blockGrid[row, col].ColorType);
 
                     if (currentGroup.Count >= LevelRule.MatchThreshold)
                     {
@@ -251,6 +247,11 @@ namespace ColorBlast.Grid
             }
 
             return true;
+        }
+
+        private void ClearVisitedBlocks()
+        {
+            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
         }
     }
 }

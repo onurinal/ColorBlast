@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ColorBlast.Blocks;
 using ColorBlast.Level;
 using ColorBlast.Manager;
-using UnityEngine;
 
 namespace ColorBlast.Grid
 {
@@ -17,6 +16,7 @@ namespace ColorBlast.Grid
         private LevelProperties levelProperties;
         private BlockProperties blockProperties;
 
+
         public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, BlockProperties blockProperties)
         {
             this.blockGrid = blockGrid;
@@ -25,22 +25,22 @@ namespace ColorBlast.Grid
             this.blockProperties = blockProperties;
         }
 
-        public IEnumerator ApplyGravity(List<Block> movedBlocks)
+        public void ApplyGravity(List<Block> movedBlocks)
         {
-            var anyBlockMoved = false;
+            // var anyBlockMoved = false;
 
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 if (ApplyGravityToColumn(row, movedBlocks))
                 {
-                    anyBlockMoved = true;
+                    // anyBlockMoved = true;
                 }
             }
-
-            if (anyBlockMoved)
-            {
-                yield return new WaitForSeconds(blockProperties.MoveDuration);
-            }
+            //
+            // if (anyBlockMoved)
+            // {
+            //     yield return blockProperties.MoveWait;
+            // }
         }
 
         private bool ApplyGravityToColumn(int row, List<Block> movedBlocks)
@@ -60,7 +60,7 @@ namespace ColorBlast.Grid
                         blockGrid[row, col] = null;
                         block.SetGridPosition(row, writeCol);
                         var targetPosition = gridManager.GetCellWorldPosition(row, writeCol);
-                        block.MoveTo(targetPosition);
+                        block.MoveToPosition(targetPosition);
                         movedBlocks.Add(block);
 
                         columnChanged = true;

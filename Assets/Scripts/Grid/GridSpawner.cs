@@ -36,7 +36,7 @@ namespace ColorBlast.Grid
                         var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
                         blockGrid[row, col] = CreateBlock(row, col, spawnPosition);
                         var targetPosition = gridManager.GetCellWorldPosition(row, col);
-                        blockGrid[row, col].MoveTo(targetPosition);
+                        blockGrid[row, col].MoveToPosition(targetPosition);
                     }
 
                     yield return spawnDelayBetweenBlocks;
@@ -62,11 +62,8 @@ namespace ColorBlast.Grid
             return newColor;
         }
 
-        public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks)
+        public void SpawnNewBlocks(List<Block> newSpawnBlocks)
         {
-            var spawnDelayBetweenBlocks = new WaitForSeconds(blockProperties.SpawnDelayBetweenBlocks);
-            var spawnDelay = new WaitForSeconds(blockProperties.SpawnDuration);
-
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 var emptyCount = CountEmptySlotsForColumn(row);
@@ -79,12 +76,12 @@ namespace ColorBlast.Grid
                         var newBlock = SpawnBlockAboveGrid(row, targetCol, i);
                         newSpawnBlocks.Add(newBlock);
 
-                        yield return spawnDelayBetweenBlocks;
+                        // yield return blockProperties.SpawnDelayWait;
                     }
                 }
             }
 
-            yield return spawnDelay;
+            // yield return blockProperties.SpawnWait;
         }
 
         private int CountEmptySlotsForColumn(int row)
@@ -114,7 +111,7 @@ namespace ColorBlast.Grid
             blockGrid[targetRow, targetCol] = newBlock;
 
             var targetPosition = gridManager.GetCellWorldPosition(targetRow, targetCol);
-            newBlock.MoveTo(targetPosition);
+            newBlock.MoveToPosition(targetPosition);
             return newBlock;
         }
     }
