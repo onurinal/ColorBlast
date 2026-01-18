@@ -23,9 +23,9 @@ namespace ColorBlast.Blocks
         public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
 
         public float DestroyDuration { get; private set; } = 0.15f;
-        public float MoveDuration { get; private set; } = 0.2f; // delay for falling and moving
-        public float SpawnDelayBetweenBlocks { get; private set; } = 0.02f; // small delay between block spawn
-        public float SpawnDuration { get; private set; } = 0.15f; // delay for all new  block spawn
+        public float MoveDuration { get; private set; } = 0.2f;
+        public float SpawnDelayBetweenBlocks { get; private set; } = 0.02f;
+        public float SpawnDuration { get; private set; } = 0.15f;
         public float ShuffleDuration { get; private set; } = 2f;
 
 

@@ -25,14 +25,14 @@ namespace ColorBlast.Blocks
 
         public Sprite GetSprite(BlockIconType type)
         {
-            switch (type)
+            return type switch
             {
-                case BlockIconType.Default: return defaultIcon;
-                case BlockIconType.FirstIcon: return firstIcon;
-                case BlockIconType.SecondIcon: return secondIcon;
-                case BlockIconType.ThirdIcon: return thirdIcon;
-                default: return defaultIcon;
-            }
+                BlockIconType.Default => defaultIcon,
+                BlockIconType.FirstIcon => firstIcon,
+                BlockIconType.SecondIcon => secondIcon,
+                BlockIconType.ThirdIcon => thirdIcon,
+                _ => defaultIcon
+            };
         }
     }
 }

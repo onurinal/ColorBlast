@@ -32,6 +32,7 @@ namespace ColorBlast.Manager
             if (levelIndex < 0 || levelIndex >= levels.Length)
             {
                 Debug.LogError($"Level index {levelIndex} is out of range.");
+                return;
             }
 
             currentLevelIndex = levelIndex;

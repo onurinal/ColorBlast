@@ -15,19 +15,14 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
-        private BlockProperties blockProperties;
 
-        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, BlockProperties blockProperties)
+        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
-            this.blockProperties = blockProperties;
         }
 
-        /// <summary>
-        /// Apply gravity - make existing blocks fall to fill gaps
-        /// </summary>
         public IEnumerator ApplyGravity(List<Block> movedBlocks, WaitForSeconds moveDelay)
         {
             var anyBlockMoved = false;
@@ -46,9 +41,6 @@ namespace ColorBlast.Grid
             }
         }
 
-        /// <summary>
-        /// Apply gravity a single row, bottom-up scan
-        /// </summary>
         private bool ApplyGravityToColumn(int row, List<Block> movedBlocks)
         {
             var columnChanged = false;
@@ -67,8 +59,6 @@ namespace ColorBlast.Grid
                         block.SetGridPosition(row, writeCol);
                         var targetPosition = gridManager.GetCellWorldPosition(row, writeCol);
                         block.MoveTo(targetPosition);
-
-                        // for affected blocks
                         movedBlocks.Add(block);
 
                         columnChanged = true;

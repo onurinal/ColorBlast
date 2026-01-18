@@ -16,15 +16,12 @@ namespace ColorBlast.Blocks
         [SerializeField] private SpriteRenderer blockSpriteRenderer;
         [SerializeField] private Transform blockModelTransform;
 
-        // Grid position
         private int gridX;
         private int gridY;
 
-        // Block properties
         private BlockColorType colorType;
         private BlockIconType iconType;
 
-        // Animation tweens
         private Tween destroyTween;
         private Tween moveTween;
 
@@ -33,7 +30,6 @@ namespace ColorBlast.Blocks
         public BlockColorType ColorType => colorType;
         public BlockIconType IconType => iconType;
 
-        // previous grid position before last move. Used to track affected neighbors
         public int PrevGridX { get; private set; }
         public int PrevGridY { get; private set; }
 
@@ -94,7 +90,6 @@ namespace ColorBlast.Blocks
             }
         }
 
-        // updating block local scale just once at start
         private void UpdateBlockScale()
         {
             if (blockModelTransform != null && blockProperties != null)
@@ -128,7 +123,6 @@ namespace ColorBlast.Blocks
 
         public void OnDespawn()
         {
-            // stop tween, reset states, animations if needed
             moveTween?.Kill();
             destroyTween?.Kill();
 

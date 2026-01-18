@@ -12,17 +12,17 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
 
         private bool[,] visitedBlocks;
-        private Queue<Vector2Int> matchQueue; // using for breadth-first search algorithm
-        private List<Block> currentGroup; //  list for finding groups and updating icons
-        private HashSet<Block> affectedBlocks; // blocks that need update visual after input
+        private Queue<Vector2Int> matchQueue;
+        private List<Block> currentGroup;
+        private HashSet<Block> affectedBlocks;
 
 
         private static readonly Vector2Int[] Neighbors = new Vector2Int[]
         {
-            new Vector2Int(1, 0), // up
-            new Vector2Int(-1, 0), // down
-            new Vector2Int(0, 1), // right
-            new Vector2Int(0, -1), // left
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
         };
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties)
@@ -41,12 +41,9 @@ namespace ColorBlast.Grid
             affectedBlocks = new HashSet<Block>((levelProperties.RowCount * levelProperties.ColumnCount) / 2);
         }
 
-        /// <summary>
-        /// Full grid scan - only using at initialization
-        /// </summary>
         public void CheckAllGrid()
         {
-            Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
+            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
 
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -89,12 +86,6 @@ namespace ColorBlast.Grid
             }
         }
 
-        /// <summary>
-        /// It  checks neighbor block which destroyed and new spawned blocks
-        /// </summary>
-        /// <param name="destroyedBlocks">Blocks that were destroyed</param>
-        /// <param name="movedBlocks">Blocks that moved during gravity</param>
-        /// <param name="newSpawnedBlocks">New blocks that spawned from top</param>
         public void CheckAffectedBlocks(List<Block> destroyedBlocks, List<Block> newSpawnedBlocks, List<Block> movedBlocks)
         {
             affectedBlocks.Clear();
@@ -148,7 +139,6 @@ namespace ColorBlast.Grid
             {
                 if (movedBlocks[i] != null)
                 {
-                    // add moved blocks and their old position's neighbors in affected blocks
                     affectedBlocks.Add(movedBlocks[i]);
                     AddNeighborsToAffectedGroup(movedBlocks[i].PrevGridX, movedBlocks[i].PrevGridY);
                 }
@@ -220,7 +210,7 @@ namespace ColorBlast.Grid
                 return currentGroup;
             }
 
-            Array.Clear(visitedBlocks, 0, visitedBlocks.Length); // clear visited array
+            Array.Clear(visitedBlocks, 0, visitedBlocks.Length);
             currentGroup.Clear();
 
             var color = block.ColorType;
@@ -253,7 +243,6 @@ namespace ColorBlast.Grid
                     currentGroup.Clear();
                     TryMatch(new Vector2Int(row, col), blockGrid[row, col].ColorType);
 
-                    // If  ANY valid group >= 2 blocks, exit early
                     if (currentGroup.Count >= LevelRule.MatchThreshold)
                     {
                         return false;
@@ -261,7 +250,6 @@ namespace ColorBlast.Grid
                 }
             }
 
-            // No valid groups found - deadlock!
             return true;
         }
     }

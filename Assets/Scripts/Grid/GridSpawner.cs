@@ -12,17 +12,15 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
-        private BlockProperties blockProperties;
 
-        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, BlockProperties blockProperties)
+        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
-            this.blockProperties = blockProperties;
         }
 
-        public IEnumerator CreateNewBlocksAtStart(WaitForSeconds spawnDelayBetweenBlocks, WaitForSeconds spawnDelay)
+        public IEnumerator CreateNewBlocksAtStart()
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -34,12 +32,13 @@ namespace ColorBlast.Grid
                         blockGrid[row, col] = CreateBlock(row, col, spawnPosition);
                         var targetPosition = gridManager.GetCellWorldPosition(row, col);
                         blockGrid[row, col].MoveTo(targetPosition);
-                        yield return spawnDelayBetweenBlocks;
                     }
-                }
-            }
 
-            yield return spawnDelay;
+                    yield return new WaitForSeconds(0.002f);
+                }
+
+                yield return new WaitForSeconds(0.05f);
+            }
         }
 
         private Block CreateBlock(int row, int col, Vector2 position)
@@ -58,9 +57,6 @@ namespace ColorBlast.Grid
             return newColor;
         }
 
-        /// <summary>
-        /// Spawn new blocks at the top each column to fill empty slots
-        /// </summary>
         public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks, WaitForSeconds spawnDelayBetweenBlocks, WaitForSeconds spawnDelay)
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
@@ -71,7 +67,6 @@ namespace ColorBlast.Grid
                 {
                     for (int i = 0; i < emptyCount; i++)
                     {
-                        // target position in grid from top of column to the bottom
                         var targetCol = levelProperties.ColumnCount - emptyCount + i;
                         var newBlock = SpawnBlockAboveGrid(row, targetCol, i);
                         newSpawnBlocks.Add(newBlock);
@@ -84,10 +79,6 @@ namespace ColorBlast.Grid
             yield return spawnDelay;
         }
 
-        /// <summary>
-        /// Count how many empty slots exist at the top of a column
-        /// It scans from top to bottom, stop at first non-null block
-        /// </summary>
         private int CountEmptySlotsForColumn(int row)
         {
             var count = 0;
@@ -109,7 +100,6 @@ namespace ColorBlast.Grid
 
         private Block SpawnBlockAboveGrid(int targetRow, int targetCol, int spawnOffset)
         {
-            // calculate spawn position above the grid, offset makes blocks spawn higher
             var spawnPosition = gridManager.GetCellWorldPosition(targetRow, levelProperties.ColumnCount + spawnOffset);
 
             var newBlock = CreateBlock(targetRow, targetCol, spawnPosition);

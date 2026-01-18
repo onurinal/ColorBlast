@@ -23,10 +23,8 @@ namespace ColorBlast.Level
 
         private void OnValidate()
         {
-            // make sure thresholds are positive
             firstIconThreshold = Mathf.Max(1, firstIconThreshold);
 
-            // A < B < C
             if (secondIconThreshold <= FirstIconThreshold)
             {
                 secondIconThreshold = FirstIconThreshold + 1;

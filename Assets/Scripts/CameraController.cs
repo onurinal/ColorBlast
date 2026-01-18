@@ -28,7 +28,6 @@ namespace ColorBlast
 
             UpdateCameraPosition();
 
-            // For more rows and columns or after localScale change, it will scale camera size
             UpdateCameraOrthographicSize();
         }
 

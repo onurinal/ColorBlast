@@ -18,7 +18,6 @@ namespace ColorBlast.Manager
 
         private void StartGame()
         {
-            // it could be improved when get more levels
             levelManager.LoadLevel(0);
 
             if (levelManager.CurrentLevel != null)
@@ -32,7 +31,6 @@ namespace ColorBlast.Manager
             }
         }
 
-        // for testing
         public void RestartLevel()
         {
             if (!gridManager.IsBusy)

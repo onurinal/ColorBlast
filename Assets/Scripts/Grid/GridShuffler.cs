@@ -36,16 +36,13 @@ namespace ColorBlast.Grid
 
                 var (randomPosition, randomNeighbor) = GetRandomNeighbor();
 
-                // update guarantee same colors grid position
                 SwapBlocks(first, blockGrid[randomPosition.x, randomPosition.y]);
                 SwapBlocks(second, blockGrid[randomNeighbor.x, randomNeighbor.y]);
 
-                // save these same color block positions before shuffle
                 protectedPositions.Add((randomPosition.x, randomPosition.y));
                 protectedPositions.Add((randomNeighbor.x, randomNeighbor.y));
             }
 
-            // if can't find 2 same color in grid, change forcefully
             else
             {
                 var (randomPosition, randomNeighbor) = GetRandomNeighbor();
@@ -56,7 +53,6 @@ namespace ColorBlast.Grid
                 protectedPositions.Add((randomNeighbor.x, randomNeighbor.y));
             }
 
-            // shuffle rest with Fisher-Yates except [0] and [1] index
             ShuffleGrid(protectedPositions);
 
             ApplyShuffleToGrid();
