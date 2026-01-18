@@ -25,12 +25,6 @@ namespace ColorBlast.Manager
         private Block[,] blockGrid;
         private Vector2 blockSize;
 
-        private WaitForSeconds destroyDelay;
-        private WaitForSeconds moveDelay;
-        private WaitForSeconds spawnDelayBetweenBlocks;
-        private WaitForSeconds spawnDelay;
-        private WaitForSeconds shuffleDelay;
-
         public bool IsBusy { get; private set; }
 
         private readonly List<Block> newSpawnBlocks = new List<Block>();
@@ -51,12 +45,6 @@ namespace ColorBlast.Manager
         private void CacheValues()
         {
             blockSize = blockProperties.GetBlockSpriteBoundSize();
-
-            destroyDelay = new WaitForSeconds(blockProperties.DestroyDuration);
-            moveDelay = new WaitForSeconds(blockProperties.MoveDuration);
-            spawnDelayBetweenBlocks = new WaitForSeconds(blockProperties.SpawnDelayBetweenBlocks);
-            spawnDelay = new WaitForSeconds(blockProperties.SpawnDuration);
-            shuffleDelay = new WaitForSeconds(blockProperties.ShuffleDuration);
         }
 
         private void CreateGrid()
@@ -67,11 +55,11 @@ namespace ColorBlast.Manager
         private void InitializeGridSystems(LevelProperties levelProperties)
         {
             gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockGrid, this, levelProperties);
+            gridSpawner.Initialize(blockGrid, this, levelProperties, blockProperties);
             gridChecker = new GridChecker();
             gridChecker.Initialize(blockGrid, levelProperties);
             gridRefill = new GridRefill();
-            gridRefill.Initialize(blockGrid, this, levelProperties);
+            gridRefill.Initialize(blockGrid, this, levelProperties, blockProperties);
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this);
         }
@@ -96,7 +84,7 @@ namespace ColorBlast.Manager
             if (gridChecker.IsDeadlocked())
             {
                 uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
-                yield return shuffleDelay;
+                yield return new WaitForSeconds(blockProperties.ShuffleDuration);
                 gridShuffler.Shuffle();
             }
 
@@ -127,18 +115,18 @@ namespace ColorBlast.Manager
 
             // existing blocks fall down
             movedBlocks.Clear();
-            yield return gridRefill.ApplyGravity(movedBlocks, moveDelay);
+            yield return gridRefill.ApplyGravity(movedBlocks);
 
             // Spawn new blocks to fill empty slots
             newSpawnBlocks.Clear();
-            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks, spawnDelayBetweenBlocks, spawnDelay);
+            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks);
 
             gridChecker.CheckAffectedBlocks(blocks, newSpawnBlocks, movedBlocks);
 
             if (gridChecker.IsDeadlocked())
             {
                 uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
-                yield return shuffleDelay;
+                yield return new WaitForSeconds(blockProperties.ShuffleDuration);
                 gridShuffler.Shuffle();
             }
 
@@ -156,7 +144,7 @@ namespace ColorBlast.Manager
                 }
             }
 
-            yield return destroyDelay;
+            yield return new WaitForSeconds(blockProperties.DestroyDuration);
         }
     }
 }

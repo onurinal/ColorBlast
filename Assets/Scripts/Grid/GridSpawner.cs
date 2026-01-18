@@ -12,16 +12,21 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
+        private BlockProperties blockProperties;
 
-        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
+        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, BlockProperties blockProperties)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
+            this.blockProperties = blockProperties;
         }
 
         public IEnumerator CreateNewBlocksAtStart()
         {
+            var spawnDelayBetweenBlocks = new WaitForSeconds(0.002f);
+            var spawnDelay = new WaitForSeconds(0.05f);
+
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
@@ -34,10 +39,10 @@ namespace ColorBlast.Grid
                         blockGrid[row, col].MoveTo(targetPosition);
                     }
 
-                    yield return new WaitForSeconds(0.002f);
+                    yield return spawnDelayBetweenBlocks;
                 }
 
-                yield return new WaitForSeconds(0.05f);
+                yield return spawnDelay;
             }
         }
 
@@ -57,8 +62,11 @@ namespace ColorBlast.Grid
             return newColor;
         }
 
-        public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks, WaitForSeconds spawnDelayBetweenBlocks, WaitForSeconds spawnDelay)
+        public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks)
         {
+            var spawnDelayBetweenBlocks = new WaitForSeconds(blockProperties.SpawnDelayBetweenBlocks);
+            var spawnDelay = new WaitForSeconds(blockProperties.SpawnDuration);
+
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 var emptyCount = CountEmptySlotsForColumn(row);

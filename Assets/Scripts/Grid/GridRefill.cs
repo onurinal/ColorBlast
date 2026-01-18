@@ -15,15 +15,17 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
+        private BlockProperties blockProperties;
 
-        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
+        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, BlockProperties blockProperties)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
+            this.blockProperties = blockProperties;
         }
 
-        public IEnumerator ApplyGravity(List<Block> movedBlocks, WaitForSeconds moveDelay)
+        public IEnumerator ApplyGravity(List<Block> movedBlocks)
         {
             var anyBlockMoved = false;
 
@@ -37,7 +39,7 @@ namespace ColorBlast.Grid
 
             if (anyBlockMoved)
             {
-                yield return moveDelay;
+                yield return new WaitForSeconds(blockProperties.MoveDuration);
             }
         }
 

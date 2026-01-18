@@ -17,22 +17,29 @@ namespace ColorBlast.Blocks
         [SerializeField] private float blockSizeX;
         [SerializeField] private float blockSizeY;
 
+        [SerializeField] private float destroyDuration;
+        [SerializeField] private float moveDuration;
+        [SerializeField] private float spawnDelayBetweenBlocks;
+        [SerializeField] private float spawnDuration;
+        [SerializeField] private float shuffleDuration;
+
+
         public float BlockSizeX => blockSizeX;
         public float BlockSizeY => blockSizeY;
         public float SpacingX => BaseSpacingX * (blockSizeX / BaseBlockSizeX);
         public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
 
-        public float DestroyDuration { get; private set; } = 0.15f;
-        public float MoveDuration { get; private set; } = 0.2f;
-        public float SpawnDelayBetweenBlocks { get; private set; } = 0.02f;
-        public float SpawnDuration { get; private set; } = 0.15f;
-        public float ShuffleDuration { get; private set; } = 2f;
+        public float DestroyDuration => destroyDuration;
+        public float MoveDuration => moveDuration;
+        public float SpawnDelayBetweenBlocks => spawnDelayBetweenBlocks;
+        public float SpawnDuration => spawnDuration;
+        public float ShuffleDuration => shuffleDuration;
 
 
         public Vector2 GetBlockSpriteBoundSize()
         {
             var blockSpriteRenderer = blockPrefab.GetComponentInChildren<SpriteRenderer>();
-            if (blockSpriteRenderer == null && blockSpriteRenderer.sprite == null)
+            if (blockSpriteRenderer == null || blockSpriteRenderer.sprite == null)
             {
                 Debug.LogWarning("Block Sprite Renderer is null!");
                 return Vector2.zero;
