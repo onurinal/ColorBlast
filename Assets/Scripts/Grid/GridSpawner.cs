@@ -12,14 +12,12 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
-        private BlockProperties blockProperties;
 
-        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, BlockProperties blockProperties)
+        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
-            this.blockProperties = blockProperties;
         }
 
         public IEnumerator CreateNewBlocksAtStart()
@@ -75,13 +73,9 @@ namespace ColorBlast.Grid
                         var targetCol = levelProperties.ColumnCount - emptyCount + i;
                         var newBlock = SpawnBlockAboveGrid(row, targetCol, i);
                         newSpawnBlocks.Add(newBlock);
-
-                        // yield return blockProperties.SpawnDelayWait;
                     }
                 }
             }
-
-            // yield return blockProperties.SpawnWait;
         }
 
         private int CountEmptySlotsForColumn(int row)

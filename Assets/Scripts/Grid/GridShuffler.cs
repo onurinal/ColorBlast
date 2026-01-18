@@ -6,56 +6,60 @@ using ColorBlast.Manager;
 
 namespace ColorBlast.Grid
 {
+    /// <summary>
+    /// Handles grid shuffling to prevent deadlocks
+    /// Guarantees at least one valid match after shuffle
+    /// </summary>
     public class GridShuffler
     {
         private Block[,] blockGrid;
         private LevelProperties levelProperties;
         private GridManager gridManager;
 
+        private Dictionary<BlockColorType, List<Block>> colorToBlocks;
+        private HashSet<(int row, int col)> protectedPositions;
+        private List<Vector2Int> neighbors;
+
+        private readonly int maxAttempts = 100;
+
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridManager gridManager)
         {
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
             this.gridManager = gridManager;
+
+            InitializeCache();
+        }
+
+        private void InitializeCache()
+        {
+            colorToBlocks = new Dictionary<BlockColorType, List<Block>>();
+            protectedPositions = new HashSet<(int row, int col)>(4);
+            neighbors = new List<Vector2Int>(4);
         }
 
         public void Shuffle()
         {
-            var protectedPositions = new HashSet<(int row, int col)>();
-            var colorToAllBlocks = new Dictionary<BlockColorType, List<Block>>();
+            colorToBlocks.Clear();
+            protectedPositions.Clear();
 
-            UpdateAllColorToList(colorToAllBlocks);
+            UpdateAllColorToList(colorToBlocks);
 
-            var targetColor = GetColorToGuaranteeMatch(colorToAllBlocks);
+            var targetColor = FindColorForGuaranteedMatch(colorToBlocks);
 
             if (targetColor != BlockColorType.None)
             {
-                var colorBlocks = colorToAllBlocks[targetColor];
-                var first = colorBlocks[0];
-                var second = colorBlocks[1];
-
-                var (randomPosition, randomNeighbor) = GetRandomNeighbor();
-
-                SwapBlocks(first, blockGrid[randomPosition.x, randomPosition.y]);
-                SwapBlocks(second, blockGrid[randomNeighbor.x, randomNeighbor.y]);
-
-                protectedPositions.Add((randomPosition.x, randomPosition.y));
-                protectedPositions.Add((randomNeighbor.x, randomNeighbor.y));
+                CreateGuaranteeMatchBySwap(targetColor);
             }
 
             else
             {
-                var (randomPosition, randomNeighbor) = GetRandomNeighbor();
-                targetColor = blockGrid[randomPosition.x, randomPosition.y].ColorType;
-                blockGrid[randomNeighbor.x, randomNeighbor.y].UpdateColor(targetColor);
-
-                protectedPositions.Add((randomPosition.x, randomPosition.y));
-                protectedPositions.Add((randomNeighbor.x, randomNeighbor.y));
+                CreateGuaranteeMatchByRecolor();
             }
 
             ShuffleGrid(protectedPositions);
 
-            ApplyShuffleToGrid();
+            AnimateBlocksToNewPositions();
         }
 
         private void UpdateAllColorToList(Dictionary<BlockColorType, List<Block>> colorToAllBlocks)
@@ -79,12 +83,12 @@ namespace ColorBlast.Grid
             }
         }
 
-        private BlockColorType GetColorToGuaranteeMatch(Dictionary<BlockColorType, List<Block>> colorToAllBlocks)
+        private BlockColorType FindColorForGuaranteedMatch(Dictionary<BlockColorType, List<Block>> colorToAllBlocks)
         {
             for (int i = 0; i < levelProperties.ColorCount; i++)
             {
                 var color = (BlockColorType)i;
-                if (colorToAllBlocks.TryGetValue(color, out var list) && list.Count >= LevelRule.MatchThreshold)
+                if (colorToAllBlocks.TryGetValue(color, out var list) && list.Count >= LevelProperties.MatchThreshold)
                 {
                     return color;
                 }
@@ -93,13 +97,39 @@ namespace ColorBlast.Grid
             return BlockColorType.None;
         }
 
+        private void CreateGuaranteeMatchBySwap(BlockColorType targetColor)
+        {
+            var colorBlocks = colorToBlocks[targetColor];
+
+            var first = colorBlocks[0];
+            var second = colorBlocks[1];
+
+            var (randomPosition, randomNeighbor) = GetRandomNeighbor();
+
+            SwapBlocks(first, blockGrid[randomPosition.x, randomPosition.y]);
+            SwapBlocks(second, blockGrid[randomNeighbor.x, randomNeighbor.y]);
+
+            protectedPositions.Add((randomPosition.x, randomPosition.y));
+            protectedPositions.Add((randomNeighbor.x, randomNeighbor.y));
+        }
+
+        private void CreateGuaranteeMatchByRecolor()
+        {
+            var (randomPosition, randomNeighbor) = GetRandomNeighbor();
+            var targetColor = blockGrid[randomPosition.x, randomPosition.y].ColorType;
+            blockGrid[randomNeighbor.x, randomNeighbor.y].UpdateColor(targetColor);
+
+            protectedPositions.Add((randomPosition.x, randomPosition.y));
+            protectedPositions.Add((randomNeighbor.x, randomNeighbor.y));
+        }
+
         private (Vector2Int, Vector2Int) GetRandomNeighbor()
         {
             var randomRow = Random.Range(0, levelProperties.RowCount);
             var randomCol = Random.Range(0, levelProperties.ColumnCount);
-            var newPosition = new Vector2Int(randomRow, randomCol);
+            var position = new Vector2Int(randomRow, randomCol);
 
-            List<Vector2Int> neighbors = new List<Vector2Int>();
+            neighbors.Clear();
 
             if (randomRow > 0)
             {
@@ -121,8 +151,14 @@ namespace ColorBlast.Grid
                 neighbors.Add(new Vector2Int(randomRow, randomCol + 1));
             }
 
+            if (neighbors.Count == 0)
+            {
+                Debug.LogError("No neighbors found");
+                return (position, position);
+            }
+
             var randomNeighbor = neighbors[Random.Range(0, neighbors.Count)];
-            return (newPosition, randomNeighbor);
+            return (position, randomNeighbor);
         }
 
         private void SwapBlocks(Block block1, Block block2)
@@ -141,35 +177,49 @@ namespace ColorBlast.Grid
 
         private void ShuffleGrid(HashSet<(int row, int col)> protectedPositions)
         {
-            var totalCols = levelProperties.ColumnCount;
+            var totalColumn = levelProperties.ColumnCount;
             var totalBlock = levelProperties.RowCount * levelProperties.ColumnCount;
 
             for (int i = totalBlock - 1; i > 0; i--)
             {
-                var rowI = i / totalCols;
-                var colI = i % totalCols;
+                var rowI = i / totalColumn;
+                var colI = i % totalColumn;
 
                 if (blockGrid[rowI, colI] == null || protectedPositions.Contains((rowI, colI)))
                 {
                     continue;
                 }
 
-                int j, rowJ, colJ;
-                do
-                {
-                    j = Random.Range(0, i + 1);
-                    rowJ = j / totalCols;
-                    colJ = j % totalCols;
-                } while (blockGrid[rowJ, colJ] == null || protectedPositions.Contains((rowJ, colJ)));
+                int j = FindValidSwapTarget(i, totalColumn);
 
-                if (i != j)
+                if (j >= 0)
                 {
+                    var rowJ = j / totalColumn;
+                    var colJ = j % totalColumn;
+
                     SwapBlocks(blockGrid[rowI, colI], blockGrid[rowJ, colJ]);
                 }
             }
         }
 
-        private void ApplyShuffleToGrid()
+        private int FindValidSwapTarget(int index, int totalColumn)
+        {
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                var j = Random.Range(0, index + 1);
+                var rowJ = j / totalColumn;
+                var colJ = j % totalColumn;
+
+                if (blockGrid[rowJ, colJ] != null && !protectedPositions.Contains((rowJ, colJ)))
+                {
+                    return j;
+                }
+            }
+
+            return -1;
+        }
+
+        private void AnimateBlocksToNewPositions()
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {

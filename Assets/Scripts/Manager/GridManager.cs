@@ -29,6 +29,7 @@ namespace ColorBlast.Manager
 
         private List<Block> newSpawnBlocks;
         private List<Block> movedBlocks;
+        private List<Block> clickedGroup;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
@@ -54,16 +55,17 @@ namespace ColorBlast.Manager
             var maxCapacity = levelProperties.RowCount * levelProperties.ColumnCount;
             newSpawnBlocks = new List<Block>(maxCapacity);
             movedBlocks = new List<Block>(maxCapacity);
+            clickedGroup = new List<Block>(maxCapacity / 2);
         }
 
         private void InitializeGridSystems(LevelProperties levelProperties)
         {
             gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockGrid, this, levelProperties, blockProperties);
+            gridSpawner.Initialize(blockGrid, this, levelProperties);
             gridChecker = new GridChecker();
             gridChecker.Initialize(blockGrid, levelProperties);
             gridRefill = new GridRefill();
-            gridRefill.Initialize(blockGrid, this, levelProperties, blockProperties);
+            gridRefill.Initialize(blockGrid, this, levelProperties);
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this);
         }
@@ -97,19 +99,16 @@ namespace ColorBlast.Manager
 
         public void OnBlockClicked(Block block)
         {
-            var groups = gridChecker.GetGroup(block.GridX, block.GridY);
+            clickedGroup.Clear();
+            gridChecker.GetGroup(block.GridX, block.GridY, clickedGroup);
 
-            if (groups.Count >= LevelRule.MatchThreshold)
+            if (clickedGroup.Count >= LevelProperties.MatchThreshold)
             {
-                StartCoroutine(ResolveGrid(groups));
+                StartCoroutine(ResolveGrid(clickedGroup));
                 EventManager.OnMoveChanged();
             }
         }
 
-        /// <summary>
-        /// Destroy blocks, refill existing block to empty slots, spawn new blocks.
-        /// After that it checks all grid
-        /// </summary>
         private IEnumerator ResolveGrid(List<Block> blocks)
         {
             IsBusy = true;

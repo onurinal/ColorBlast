@@ -40,7 +40,10 @@ namespace ColorBlast.Player
             if (hit != null)
             {
                 var selectedBlock = hit.GetComponentInParent<Block>();
-                gridManager.OnBlockClicked(selectedBlock);
+                if (selectedBlock != null)
+                {
+                    gridManager.OnBlockClicked(selectedBlock);
+                }
             }
         }
     }

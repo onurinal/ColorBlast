@@ -61,13 +61,13 @@ namespace ColorBlast.Grid
 
                     currentGroup.Clear();
                     var blockColor = blockGrid[row, col].ColorType;
-                    FindConnectedMatch(row, col, blockColor);
+                    FindConnectedMatch(row, col, blockColor, currentGroup);
                     UpdateGroupIcons(currentGroup);
                 }
             }
         }
 
-        private void FindConnectedMatch(int startRow, int startCol, BlockColorType color)
+        private void FindConnectedMatch(int startRow, int startCol, BlockColorType color, List<Block> targetList)
         {
             matchQueue.Clear();
             matchQueue.Enqueue(new Vector2Int(startRow, startCol));
@@ -86,22 +86,11 @@ namespace ColorBlast.Grid
                 if (block.ColorType != color) continue;
 
                 visitedBlocks[row, col] = true;
-                currentGroup.Add(block);
+                targetList.Add(block);
 
                 for (int i = 0; i < Neighbors.Length; i++)
                 {
-                    var next = currentBlock + Neighbors[i];
-                    if (!IsInsideGrid(next.x, next.y))
-                    {
-                        continue;
-                    }
-
-                    if (visitedBlocks[next.x, next.y])
-                    {
-                        continue;
-                    }
-
-                    matchQueue.Enqueue(next);
+                    matchQueue.Enqueue(currentBlock + Neighbors[i]);
                 }
             }
         }
@@ -123,7 +112,7 @@ namespace ColorBlast.Grid
                 }
 
                 currentGroup.Clear();
-                FindConnectedMatch(block.GridX, block.GridY, block.ColorType);
+                FindConnectedMatch(block.GridX, block.GridY, block.ColorType, currentGroup);
                 UpdateGroupIcons(currentGroup);
             }
         }
@@ -197,22 +186,18 @@ namespace ColorBlast.Grid
             return BlockIconType.Default;
         }
 
-        public List<Block> GetGroup(int row, int col)
+        public void GetGroup(int row, int col, List<Block> resultList)
         {
-            currentGroup.Clear();
-
             var block = blockGrid[row, col];
             if (block == null)
             {
-                return currentGroup;
+                return;
             }
 
             ClearVisitedBlocks();
 
             var color = block.ColorType;
-            FindConnectedMatch(row, col, color);
-
-            return currentGroup;
+            FindConnectedMatch(row, col, color, resultList);
         }
 
         private bool IsInsideGrid(int row, int col)
@@ -237,9 +222,9 @@ namespace ColorBlast.Grid
                         continue;
 
                     currentGroup.Clear();
-                    FindConnectedMatch(row, col, blockGrid[row, col].ColorType);
+                    FindConnectedMatch(row, col, blockGrid[row, col].ColorType, currentGroup);
 
-                    if (currentGroup.Count >= LevelRule.MatchThreshold)
+                    if (currentGroup.Count >= LevelProperties.MatchThreshold)
                     {
                         return false;
                     }
