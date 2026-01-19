@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Green Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   colorType: 2
-  defaultIcon: {fileID: 21300000, guid: 5231f8d8042bd814c89d0cea83fe0985, type: 3}
-  firstIcon: {fileID: 21300000, guid: 022136cd3ad562240bb971bcb53b8e51, type: 3}
-  secondIcon: {fileID: 21300000, guid: 29f76dfdc66b1f84695e4663c578ab87, type: 3}
-  thirdIcon: {fileID: 21300000, guid: b9d7a5e882e082f40b35d02310f86610, type: 3}
+  defaultIcon: {fileID: -7364823422338184377, guid: 5231f8d8042bd814c89d0cea83fe0985, type: 3}
+  firstIcon: {fileID: 3291406690555587084, guid: 022136cd3ad562240bb971bcb53b8e51, type: 3}
+  secondIcon: {fileID: -2176861220364285743, guid: 29f76dfdc66b1f84695e4663c578ab87, type: 3}
+  thirdIcon: {fileID: 6787462199040882907, guid: b9d7a5e882e082f40b35d02310f86610, type: 3}

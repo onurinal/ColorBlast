@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pink Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   colorType: 3
-  defaultIcon: {fileID: 21300000, guid: 50d58f6bd9903d4489855d1befb56b77, type: 3}
-  firstIcon: {fileID: 21300000, guid: 57f95e17ac60b1a4ebfdd293f990f146, type: 3}
-  secondIcon: {fileID: 21300000, guid: 0c73f756cf46a1445ac8760b2c6215df, type: 3}
-  thirdIcon: {fileID: 21300000, guid: 92dea26e531b3c846a3da2096b6a2871, type: 3}
+  defaultIcon: {fileID: 742919511911846744, guid: 50d58f6bd9903d4489855d1befb56b77, type: 3}
+  firstIcon: {fileID: 3519922619171193912, guid: 57f95e17ac60b1a4ebfdd293f990f146, type: 3}
+  secondIcon: {fileID: -578229812787739823, guid: 0c73f756cf46a1445ac8760b2c6215df, type: 3}
+  thirdIcon: {fileID: -7755864299962720444, guid: 92dea26e531b3c846a3da2096b6a2871, type: 3}

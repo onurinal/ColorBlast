@@ -61,7 +61,7 @@ namespace ColorBlast.Manager
             var halfDuration = duration / 2;
 
             shuffleSequence = DOTween.Sequence();
-            shuffleSequence.Append(shuffleUI.DOScale(1.3f, halfDuration).SetEase(Ease.OutBack));
+            shuffleSequence.Append(shuffleUI.DOScale(1f, halfDuration).SetEase(Ease.OutBack));
             shuffleSequence.Append(shuffleUI.DOScale(0f, halfDuration).SetEase(Ease.InBack));
             shuffleSequence.OnComplete(() => { shuffleUI.gameObject.SetActive(false); });
         }

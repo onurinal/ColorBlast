@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Purple Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   colorType: 4
-  defaultIcon: {fileID: 21300000, guid: 1f0852f80a440864490b2805fc0701ae, type: 3}
-  firstIcon: {fileID: 21300000, guid: 83369e76cc1296a449d0705e7267b846, type: 3}
-  secondIcon: {fileID: 21300000, guid: 8e2f835daa1c6cc45870c350ca26a795, type: 3}
-  thirdIcon: {fileID: 21300000, guid: ba4278aee778a0443a3ccd7994715728, type: 3}
+  defaultIcon: {fileID: 8161472552560778960, guid: 1f0852f80a440864490b2805fc0701ae, type: 3}
+  firstIcon: {fileID: -6416537123964203564, guid: 83369e76cc1296a449d0705e7267b846, type: 3}
+  secondIcon: {fileID: -2693315669398477313, guid: 8e2f835daa1c6cc45870c350ca26a795, type: 3}
+  thirdIcon: {fileID: 1386842339749069192, guid: ba4278aee778a0443a3ccd7994715728, type: 3}
