@@ -57,7 +57,7 @@ namespace ColorBlast.Grid
             return newColor;
         }
 
-        public void SpawnNewBlocks(List<Block> newSpawnBlocks)
+        public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks, WaitForSeconds spawnWait)
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -74,6 +74,8 @@ namespace ColorBlast.Grid
                     var newBlock = SpawnBlockWithFallAnimation(row, targetCol, i);
                     newSpawnBlocks.Add(newBlock);
                 }
+
+                yield return spawnWait;
             }
         }
 

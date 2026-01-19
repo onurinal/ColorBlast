@@ -127,8 +127,7 @@ namespace ColorBlast.Manager
             yield return blockProperties.MoveWait;
 
             newSpawnBlocks.Clear();
-            gridSpawner.SpawnNewBlocks(newSpawnBlocks);
-            yield return blockProperties.SpawnWait;
+            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks, blockProperties.SpawnWait);
 
             gridChecker.CheckAffectedBlocks(newSpawnBlocks, movedBlocks);
 

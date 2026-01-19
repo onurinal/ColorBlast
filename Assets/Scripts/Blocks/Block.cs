@@ -107,6 +107,8 @@ namespace ColorBlast.Blocks
 
         private void ReturnToPool()
         {
+            moveTween?.Kill();
+            destroyTween?.Kill();
             ObjectPoolManager.Instance.ReturnBlock(this);
         }
 
