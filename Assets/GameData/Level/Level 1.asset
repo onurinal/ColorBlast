@@ -15,6 +15,6 @@ MonoBehaviour:
   colorCount: 6
   rowCount: 10
   columnCount: 10
-  firstIconThreshold: 3
-  secondIconThreshold: 4
-  thirdIconThreshold: 5
+  firstIconThreshold: 4
+  secondIconThreshold: 5
+  thirdIconThreshold: 6
