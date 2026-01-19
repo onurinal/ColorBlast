@@ -59,6 +59,11 @@ namespace ColorBlast
             var minHeightSize = (gridHeight + (padding * 2f)) / 2f;
 
             mainCamera.orthographicSize = Mathf.Max(minWidthSize, minHeightSize);
+
+            if (mainCamera.orthographicSize <= 11)
+            {
+                mainCamera.orthographicSize = 10;
+            }
         }
     }
 }
