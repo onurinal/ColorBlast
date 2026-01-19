@@ -5,8 +5,6 @@ namespace ColorBlast.Level
     [CreateAssetMenu(fileName = "LevelProperties", menuName = "ColorBlast/Level Properties")]
     public class LevelProperties : ScriptableObject
     {
-        public const int MatchThreshold = 2;
-
         [SerializeField, Range(1, 6)] private int colorCount;
         [SerializeField, Range(2, 10)] private int rowCount;
         [SerializeField] [Range(2, 10)] private int columnCount;
@@ -23,6 +21,7 @@ namespace ColorBlast.Level
         public int SecondIconThreshold => secondIconThreshold;
         public int ThirdIconThreshold => thirdIconThreshold;
 
+#if UNITY_EDITOR
         private void OnValidate()
         {
             firstIconThreshold = Mathf.Max(1, firstIconThreshold);
@@ -37,5 +36,6 @@ namespace ColorBlast.Level
                 thirdIconThreshold = SecondIconThreshold + 1;
             }
         }
+#endif
     }
 }

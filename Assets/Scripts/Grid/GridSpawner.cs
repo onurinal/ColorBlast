@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace ColorBlast.Grid
 {
+    /// <summary>
+    /// Creates new blocks above the grid and animates them falling
+    /// </summary>
     public class GridSpawner
     {
         private Block[,] blockGrid;
@@ -20,11 +23,8 @@ namespace ColorBlast.Grid
             this.levelProperties = levelProperties;
         }
 
-        public IEnumerator CreateNewBlocksAtStart()
+        public void CreateNewBlocksAtStart()
         {
-            var spawnDelayBetweenBlocks = new WaitForSeconds(0.002f);
-            var spawnDelay = new WaitForSeconds(0.05f);
-
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
@@ -36,27 +36,24 @@ namespace ColorBlast.Grid
                         var targetPosition = gridManager.GetCellWorldPosition(row, col);
                         blockGrid[row, col].MoveToPosition(targetPosition);
                     }
-
-                    yield return spawnDelayBetweenBlocks;
                 }
-
-                yield return spawnDelay;
             }
         }
 
         private Block CreateBlock(int row, int col, Vector2 position)
         {
             var newBlock = ObjectPoolManager.Instance.GetBlock();
-            newBlock.Initialize(row, col, GetRandomColor());
+            var randomColor = GetRandomColor();
+            newBlock.Initialize(row, col, randomColor);
             newBlock.transform.position = position;
+
             return newBlock;
         }
 
         private BlockColorType GetRandomColor()
         {
-            var colorSize = levelProperties.ColorCount;
-            var newColorNumber = Random.Range(0, colorSize);
-            var newColor = (BlockColorType)newColorNumber;
+            var colorIndex = Random.Range(0, levelProperties.ColorCount);
+            var newColor = (BlockColorType)colorIndex;
             return newColor;
         }
 
@@ -66,14 +63,16 @@ namespace ColorBlast.Grid
             {
                 var emptyCount = CountEmptySlotsForColumn(row);
 
-                if (emptyCount > 0)
+                if (emptyCount <= 0)
                 {
-                    for (int i = 0; i < emptyCount; i++)
-                    {
-                        var targetCol = levelProperties.ColumnCount - emptyCount + i;
-                        var newBlock = SpawnBlockAboveGrid(row, targetCol, i);
-                        newSpawnBlocks.Add(newBlock);
-                    }
+                    continue;
+                }
+
+                for (int i = 0; i < emptyCount; i++)
+                {
+                    var targetCol = levelProperties.ColumnCount - emptyCount + i;
+                    var newBlock = SpawnBlockWithFallAnimation(row, targetCol, i);
+                    newSpawnBlocks.Add(newBlock);
                 }
             }
         }
@@ -97,7 +96,7 @@ namespace ColorBlast.Grid
             return count;
         }
 
-        private Block SpawnBlockAboveGrid(int targetRow, int targetCol, int spawnOffset)
+        private Block SpawnBlockWithFallAnimation(int targetRow, int targetCol, int spawnOffset)
         {
             var spawnPosition = gridManager.GetCellWorldPosition(targetRow, levelProperties.ColumnCount + spawnOffset);
 

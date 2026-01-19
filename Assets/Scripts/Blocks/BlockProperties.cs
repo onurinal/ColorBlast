@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ColorBlast.Blocks
 {
@@ -34,10 +33,12 @@ namespace ColorBlast.Blocks
             UpdateCacheValues();
         }
 
+#if UNITY_EDITOR
         private void OnValidate()
         {
             UpdateCacheValues();
         }
+#endif
 
         private void UpdateCacheValues()
         {

@@ -17,6 +17,5 @@ MonoBehaviour:
   blockSizeY: 0.4
   destroyDuration: 0.15
   moveDuration: 0.2
-  spawnDelayBetweenBlocks: 0.015
   spawnDuration: 0.15
   shuffleDuration: 2

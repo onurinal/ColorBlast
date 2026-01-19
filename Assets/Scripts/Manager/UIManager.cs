@@ -8,11 +8,11 @@ namespace ColorBlast.Manager
     {
         [SerializeField] private TextMeshProUGUI moveText;
 
+        [Header("Shuffle UI")]
         [SerializeField] private Transform shuffleUI;
-        [SerializeField] private TextMeshProUGUI shuffleText;
 
-        private int currentMove = 0;
-        private Tween shuffleTween;
+        private int currentMove;
+        private Sequence shuffleSequence;
 
         public void Initialize()
         {
@@ -21,41 +21,48 @@ namespace ColorBlast.Manager
 
         private void OnEnable()
         {
-            EventManager.OnMove += UpdateMoveText;
+            EventManager.OnMoveChanged += HandleMoveChanged;
         }
 
         private void OnDisable()
         {
-            EventManager.OnMove -= UpdateMoveText;
+            EventManager.OnMoveChanged -= HandleMoveChanged;
+        }
+
+        private void OnDestroy()
+        {
+            shuffleSequence?.Kill();
         }
 
         private void ResetMove()
         {
             currentMove = 0;
-            moveText.text = currentMove.ToString();
+            moveText.SetText(currentMove.ToString());
         }
 
-        private void UpdateMoveText()
+        private void HandleMoveChanged()
         {
             currentMove++;
-            moveText.text = currentMove.ToString();
+            moveText.SetText(currentMove.ToString());
         }
 
-        public void PopUpShuffleUI(float duration)
+        public void ShowShuffleUI(float duration)
         {
-            if (!shuffleUI) return;
+            if (shuffleUI == null)
+            {
+                return;
+            }
 
+            shuffleSequence?.Kill();
+
+            shuffleUI.localScale = Vector3.zero;
             shuffleUI.gameObject.SetActive(true);
 
-            shuffleUI.DOKill();
+            var halfDuration = duration / 2;
 
-            var growDuration = duration * 0.5f;
-            var shrinkDuration = duration * 0.5f;
-
-            Sequence shuffleSequence = DOTween.Sequence();
-            shuffleSequence.Append(shuffleUI.DOScale(1.3f, growDuration).SetEase(Ease.OutBack));
-            shuffleSequence.Append(shuffleUI.DOScale(0f, shrinkDuration).SetEase(Ease.InBack));
-
+            shuffleSequence = DOTween.Sequence();
+            shuffleSequence.Append(shuffleUI.DOScale(1.3f, halfDuration).SetEase(Ease.OutBack));
+            shuffleSequence.Append(shuffleUI.DOScale(0f, halfDuration).SetEase(Ease.InBack));
             shuffleSequence.OnComplete(() => { shuffleUI.gameObject.SetActive(false); });
         }
     }

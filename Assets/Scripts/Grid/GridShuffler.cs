@@ -16,11 +16,11 @@ namespace ColorBlast.Grid
         private LevelProperties levelProperties;
         private GridManager gridManager;
 
-        private Dictionary<BlockColorType, List<Block>> colorToBlocks;
-        private HashSet<(int row, int col)> protectedPositions;
-        private List<Vector2Int> neighbors;
+        private readonly Dictionary<BlockColorType, List<Block>> colorToBlocks = new();
+        private readonly HashSet<(int row, int col)> protectedPositions = new();
+        private readonly List<Vector2Int> neighbors = new();
 
-        private readonly int maxAttempts = 100;
+        private int maxAttempts;
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridManager gridManager)
         {
@@ -28,22 +28,14 @@ namespace ColorBlast.Grid
             this.levelProperties = levelProperties;
             this.gridManager = gridManager;
 
-            InitializeCache();
-        }
-
-        private void InitializeCache()
-        {
-            colorToBlocks = new Dictionary<BlockColorType, List<Block>>();
-            protectedPositions = new HashSet<(int row, int col)>(4);
-            neighbors = new List<Vector2Int>(4);
+            maxAttempts = levelProperties.ColumnCount * levelProperties.RowCount;
         }
 
         public void Shuffle()
         {
-            colorToBlocks.Clear();
-            protectedPositions.Clear();
-
             UpdateAllColorToList(colorToBlocks);
+
+            protectedPositions.Clear();
 
             var targetColor = FindColorForGuaranteedMatch(colorToBlocks);
 
@@ -57,28 +49,32 @@ namespace ColorBlast.Grid
                 CreateGuaranteeMatchByRecolor();
             }
 
-            ShuffleGrid(protectedPositions);
+            ShuffleGrid();
 
             AnimateBlocksToNewPositions();
         }
 
         private void UpdateAllColorToList(Dictionary<BlockColorType, List<Block>> colorToAllBlocks)
         {
+            colorToBlocks.Clear();
+
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    if (blockGrid[row, col] != null)
+                    if (blockGrid[row, col] == null)
                     {
-                        var color = blockGrid[row, col].ColorType;
-                        if (!colorToAllBlocks.TryGetValue(color, out var newColorList))
-                        {
-                            newColorList = new List<Block>();
-                            colorToAllBlocks.Add(color, newColorList);
-                        }
-
-                        newColorList.Add(blockGrid[row, col]);
+                        continue;
                     }
+
+                    var color = blockGrid[row, col].ColorType;
+                    if (!colorToAllBlocks.TryGetValue(color, out var newColorList))
+                    {
+                        newColorList = new List<Block>();
+                        colorToAllBlocks.Add(color, newColorList);
+                    }
+
+                    newColorList.Add(blockGrid[row, col]);
                 }
             }
         }
@@ -88,7 +84,7 @@ namespace ColorBlast.Grid
             for (int i = 0; i < levelProperties.ColorCount; i++)
             {
                 var color = (BlockColorType)i;
-                if (colorToAllBlocks.TryGetValue(color, out var list) && list.Count >= LevelProperties.MatchThreshold)
+                if (colorToAllBlocks.TryGetValue(color, out var list) && list.Count >= GameRule.MatchThreshold)
                 {
                     return color;
                 }
@@ -175,7 +171,7 @@ namespace ColorBlast.Grid
             block2.SetGridPosition(row1, col1);
         }
 
-        private void ShuffleGrid(HashSet<(int row, int col)> protectedPositions)
+        private void ShuffleGrid()
         {
             var totalColumn = levelProperties.ColumnCount;
             var totalBlock = levelProperties.RowCount * levelProperties.ColumnCount;
@@ -185,20 +181,27 @@ namespace ColorBlast.Grid
                 var rowI = i / totalColumn;
                 var colI = i % totalColumn;
 
-                if (blockGrid[rowI, colI] == null || protectedPositions.Contains((rowI, colI)))
+                if (blockGrid[rowI, colI] == null)
                 {
                     continue;
                 }
 
-                int j = FindValidSwapTarget(i, totalColumn);
-
-                if (j >= 0)
+                if (protectedPositions.Contains((rowI, colI)))
                 {
-                    var rowJ = j / totalColumn;
-                    var colJ = j % totalColumn;
-
-                    SwapBlocks(blockGrid[rowI, colI], blockGrid[rowJ, colJ]);
+                    continue;
                 }
+
+                var j = FindValidSwapTarget(i, totalColumn);
+
+                if (j < 0)
+                {
+                    continue;
+                }
+
+                var rowJ = j / totalColumn;
+                var colJ = j % totalColumn;
+
+                SwapBlocks(blockGrid[rowI, colI], blockGrid[rowJ, colJ]);
             }
         }
 
@@ -225,11 +228,13 @@ namespace ColorBlast.Grid
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    if (blockGrid[row, col] != null)
+                    if (blockGrid[row, col] == null)
                     {
-                        var block = blockGrid[row, col];
-                        block.MoveToPosition(gridManager.GetCellWorldPosition(row, col));
+                        continue;
                     }
+
+                    var block = blockGrid[row, col];
+                    block.MoveToPosition(gridManager.GetCellWorldPosition(row, col));
                 }
             }
         }

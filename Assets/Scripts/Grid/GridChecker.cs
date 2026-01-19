@@ -21,7 +21,7 @@ namespace ColorBlast.Grid
         private HashSet<Block> affectedBlocks;
 
 
-        private static readonly Vector2Int[] Neighbors = new Vector2Int[]
+        private static readonly Vector2Int[] NEIGHBORS = new Vector2Int[]
         {
             new Vector2Int(1, 0),
             new Vector2Int(-1, 0),
@@ -54,7 +54,12 @@ namespace ColorBlast.Grid
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    if (visitedBlocks[row, col] || blockGrid[row, col] == null)
+                    if (visitedBlocks[row, col])
+                    {
+                        continue;
+                    }
+
+                    if (blockGrid[row, col] == null)
                     {
                         continue;
                     }
@@ -78,19 +83,33 @@ namespace ColorBlast.Grid
                 var row = currentBlock.x;
                 var col = currentBlock.y;
 
-                if (!IsInsideGrid(row, col)) continue;
-                if (visitedBlocks[row, col]) continue;
+                if (!IsInsideGrid(row, col))
+                {
+                    continue;
+                }
+
+                if (visitedBlocks[row, col])
+                {
+                    continue;
+                }
 
                 var block = blockGrid[row, col];
-                if (block == null) continue;
-                if (block.ColorType != color) continue;
+                if (block == null)
+                {
+                    continue;
+                }
+
+                if (block.ColorType != color)
+                {
+                    continue;
+                }
 
                 visitedBlocks[row, col] = true;
                 targetList.Add(block);
 
-                for (int i = 0; i < Neighbors.Length; i++)
+                for (int i = 0; i < NEIGHBORS.Length; i++)
                 {
-                    matchQueue.Enqueue(currentBlock + Neighbors[i]);
+                    matchQueue.Enqueue(currentBlock + NEIGHBORS[i]);
                 }
             }
         }
@@ -106,7 +125,12 @@ namespace ColorBlast.Grid
 
             foreach (var block in affectedBlocks)
             {
-                if (block == null || visitedBlocks[block.GridX, block.GridY])
+                if (block == null)
+                {
+                    continue;
+                }
+
+                if (visitedBlocks[block.GridX, block.GridY])
                 {
                     continue;
                 }
@@ -127,28 +151,32 @@ namespace ColorBlast.Grid
             for (int i = 0; i < blocks.Count; i++)
             {
                 var block = blocks[i];
-                if (block != null)
+                if (block == null)
                 {
-                    affectedBlocks.Add(block);
-                    AddNeighborsToAffectedGroup(block.GridX, block.GridY);
+                    continue;
                 }
+
+                affectedBlocks.Add(block);
+                AddNeighborsToAffectedGroup(block.GridX, block.GridY);
             }
         }
 
         private void AddNeighborsToAffectedGroup(int row, int col)
         {
-            for (int i = 0; i < Neighbors.Length; i++)
+            for (int i = 0; i < NEIGHBORS.Length; i++)
             {
-                var neighborRow = row + Neighbors[i].x;
-                var neighborCol = col + Neighbors[i].y;
+                var neighborRow = row + NEIGHBORS[i].x;
+                var neighborCol = col + NEIGHBORS[i].y;
 
-                if (IsInsideGrid(neighborRow, neighborCol))
+                if (!IsInsideGrid(neighborRow, neighborCol))
                 {
-                    var block = blockGrid[neighborRow, neighborCol];
-                    if (block != null)
-                    {
-                        affectedBlocks.Add(block);
-                    }
+                    continue;
+                }
+
+                var block = blockGrid[neighborRow, neighborCol];
+                if (block != null)
+                {
+                    affectedBlocks.Add(block);
                 }
             }
         }
@@ -218,13 +246,20 @@ namespace ColorBlast.Grid
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
-                    if (visitedBlocks[row, col] || blockGrid[row, col] == null)
+                    if (visitedBlocks[row, col])
+                    {
                         continue;
+                    }
+
+                    if (blockGrid[row, col] == null)
+                    {
+                        continue;
+                    }
 
                     currentGroup.Clear();
                     FindConnectedMatch(row, col, blockGrid[row, col].ColorType, currentGroup);
 
-                    if (currentGroup.Count >= LevelProperties.MatchThreshold)
+                    if (currentGroup.Count >= GameRule.MatchThreshold)
                     {
                         return false;
                     }

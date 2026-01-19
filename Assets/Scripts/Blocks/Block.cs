@@ -29,8 +29,6 @@ namespace ColorBlast.Blocks
         public int GridY => gridY;
         public BlockColorType ColorType => colorType;
         public BlockIconType IconType => iconType;
-        public int PrevGridX { get; private set; }
-        public int PrevGridY { get; private set; }
 
         private void Awake()
         {
@@ -46,9 +44,6 @@ namespace ColorBlast.Blocks
 
         public void SetGridPosition(int gridX, int gridY)
         {
-            PrevGridX = this.gridX;
-            PrevGridY = this.gridY;
-
             this.gridX = gridX;
             this.gridY = gridY;
 

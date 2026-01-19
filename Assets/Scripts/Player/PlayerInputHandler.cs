@@ -18,18 +18,21 @@ namespace ColorBlast.Player
             if (playerInputActions == null)
             {
                 playerInputActions = new PlayerInputActions();
-                playerInputActions.Player.Tap.performed += HandleTap;
-                playerInputActions.Enable();
             }
+
+            playerInputActions.Player.Tap.performed += HandleTap;
+            playerInputActions.Enable();
         }
 
         private void OnDisable()
         {
-            if (playerInputActions != null)
+            if (playerInputActions == null)
             {
-                playerInputActions.Player.Tap.performed -= HandleTap;
-                playerInputActions.Disable();
+                return;
             }
+
+            playerInputActions.Player.Tap.performed -= HandleTap;
+            playerInputActions.Disable();
         }
 
         private void HandleTap(InputAction.CallbackContext context)

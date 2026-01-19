@@ -7,15 +7,22 @@ namespace ColorBlast.Manager
 {
     public class ObjectPoolManager : MonoBehaviour
     {
-        public static ObjectPoolManager Instance;
+        public static ObjectPoolManager Instance { get; private set; }
 
-        [Header("Block Settings")]
+        [Header("Block Pool Settings")]
         [SerializeField] private Block blockPrefab;
         [SerializeField] private Transform blockParent;
+        [SerializeField] private int poolMultiplier = 2;
 
         private PoolableObject<Block> blockPool;
+        private bool isInitialized;
 
         private void Awake()
+        {
+            InitializeSingleton();
+        }
+
+        private void InitializeSingleton()
         {
             if (Instance != null && Instance != this)
             {
@@ -28,11 +35,35 @@ namespace ColorBlast.Manager
 
         public void InitializePool(LevelProperties levelProperties)
         {
-            var initialBlockSize = 2 * levelProperties.RowCount * levelProperties.ColumnCount;
+            if (isInitialized)
+            {
+                return;
+            }
+
+            var initialBlockSize = poolMultiplier * levelProperties.RowCount * levelProperties.ColumnCount;
             blockPool = new PoolableObject<Block>(blockPrefab, initialBlockSize, blockParent);
+
+            isInitialized = true;
         }
 
-        public Block GetBlock() => blockPool.Get();
-        public void ReturnBlock(Block block) => blockPool.Return(block);
+        public Block GetBlock()
+        {
+            if (!isInitialized)
+            {
+                return null;
+            }
+
+            return blockPool.Get();
+        }
+
+        public void ReturnBlock(Block block)
+        {
+            if (!isInitialized)
+            {
+                return;
+            }
+
+            blockPool.Return(block);
+        }
     }
 }

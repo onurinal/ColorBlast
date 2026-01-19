@@ -3,16 +3,17 @@ using UnityEngine;
 
 namespace ColorBlast.ObjectPool
 {
-    public class PoolableObject<T> where T : Component
+    public class PoolableObject<T> where T : MonoBehaviour
     {
         private readonly T prefab;
         private readonly Transform parent;
-        private readonly Queue<T> pool = new Queue<T>();
+        private readonly Queue<T> pool;
 
         public PoolableObject(T prefab, int initialPoolSize, Transform parent)
         {
             this.prefab = prefab;
             this.parent = parent;
+            pool = new Queue<T>(initialPoolSize);
 
             for (int i = 0; i < initialPoolSize; i++)
             {
@@ -24,7 +25,7 @@ namespace ColorBlast.ObjectPool
 
         public T Get()
         {
-            if (pool.Count < 0)
+            if (pool.Count == 0)
             {
                 CreateNewObject();
             }
@@ -42,13 +43,13 @@ namespace ColorBlast.ObjectPool
 
         public void Return(T obj)
         {
-            obj.gameObject.SetActive(false);
-            pool.Enqueue(obj);
-
             if (obj is IPoolable poolable)
             {
                 poolable.OnDespawn();
             }
+
+            obj.gameObject.SetActive(false);
+            pool.Enqueue(obj);
         }
 
         private void CreateNewObject()

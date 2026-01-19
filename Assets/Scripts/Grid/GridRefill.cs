@@ -38,20 +38,22 @@ namespace ColorBlast.Grid
             {
                 var block = blockGrid[row, col];
 
-                if (block != null)
+                if (block == null)
                 {
-                    if (writeCol != col)
-                    {
-                        blockGrid[row, writeCol] = block;
-                        blockGrid[row, col] = null;
-                        block.SetGridPosition(row, writeCol);
-                        var targetPosition = gridManager.GetCellWorldPosition(row, writeCol);
-                        block.MoveToPosition(targetPosition);
-                        movedBlocks.Add(block);
-                    }
-
-                    writeCol++;
+                    continue;
                 }
+
+                if (writeCol != col)
+                {
+                    blockGrid[row, writeCol] = block;
+                    blockGrid[row, col] = null;
+                    block.SetGridPosition(row, writeCol);
+                    var targetPosition = gridManager.GetCellWorldPosition(row, writeCol);
+                    block.MoveToPosition(targetPosition);
+                    movedBlocks.Add(block);
+                }
+
+                writeCol++;
             }
         }
     }

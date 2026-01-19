@@ -7,7 +7,7 @@ namespace ColorBlast
     public class CameraController : MonoBehaviour
     {
         [Header("Settings")]
-        [SerializeField] private float padding = 1f;
+        [SerializeField] private float padding;
 
         private Camera mainCamera;
         private GridManager gridManager;
@@ -59,10 +59,6 @@ namespace ColorBlast
             var minHeightSize = (gridHeight + (padding * 2f)) / 2f;
 
             mainCamera.orthographicSize = Mathf.Max(minWidthSize, minHeightSize);
-            if (mainCamera.orthographicSize < 11)
-            {
-                mainCamera.orthographicSize = 10;
-            }
         }
     }
 }

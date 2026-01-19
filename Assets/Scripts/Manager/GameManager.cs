@@ -13,6 +13,7 @@ namespace ColorBlast.Manager
 
         private void Start()
         {
+            Application.targetFrameRate = 60;
             StartGame();
         }
 
@@ -20,15 +21,17 @@ namespace ColorBlast.Manager
         {
             levelManager.LoadLevel(0);
 
-            if (levelManager.CurrentLevel != null)
+            if (levelManager.CurrentLevel == null)
             {
-                uiManager.Initialize();
-                objectPoolManager.InitializePool(levelManager.CurrentLevel);
-                gridManager.Initialize(levelManager.CurrentLevel, uiManager);
-                playerController.Initialize(gridManager);
-
-                StartCoroutine(gridManager.OnGameStart());
+                return;
             }
+
+            uiManager.Initialize();
+            objectPoolManager.InitializePool(levelManager.CurrentLevel);
+            gridManager.Initialize(levelManager.CurrentLevel, uiManager);
+            playerController.Initialize(gridManager);
+
+            StartCoroutine(gridManager.OnGameStart());
         }
 
         public void RestartLevel()

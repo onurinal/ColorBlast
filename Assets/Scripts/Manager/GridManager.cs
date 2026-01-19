@@ -7,7 +7,10 @@ using UnityEngine;
 
 namespace ColorBlast.Manager
 {
-    public class GridManager : MonoBehaviour
+    /// <summary>
+    /// Handles grid-related systems such as spawning, gravity, matching and shuffling
+    /// </summary>
+    public class GridManager : MonoBehaviour, IGridInteraction
     {
         [Header("Grid Configuration")]
         [SerializeField] private BlockProperties blockProperties;
@@ -19,17 +22,18 @@ namespace ColorBlast.Manager
         private GridChecker gridChecker;
         private GridRefill gridRefill;
         private GridShuffler gridShuffler;
+
         private LevelProperties levelProperties;
         private UIManager uiManager;
 
         private Block[,] blockGrid;
         private Vector2 blockSize;
 
-        public bool IsBusy { get; private set; }
-
         private List<Block> newSpawnBlocks;
         private List<Block> movedBlocks;
         private List<Block> clickedGroup;
+
+        public bool IsBusy { get; private set; }
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
@@ -84,12 +88,12 @@ namespace ColorBlast.Manager
         {
             IsBusy = true;
 
-            yield return gridSpawner.CreateNewBlocksAtStart();
+            gridSpawner.CreateNewBlocksAtStart();
             gridChecker.CheckAllGrid();
 
             if (gridChecker.IsDeadlocked())
             {
-                uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
+                uiManager.ShowShuffleUI(blockProperties.ShuffleDuration);
                 yield return blockProperties.ShuffleWait;
                 gridShuffler.Shuffle();
             }
@@ -102,27 +106,26 @@ namespace ColorBlast.Manager
             clickedGroup.Clear();
             gridChecker.GetGroup(block.GridX, block.GridY, clickedGroup);
 
-            if (clickedGroup.Count >= LevelProperties.MatchThreshold)
+            if (clickedGroup.Count < GameRule.MatchThreshold)
             {
-                StartCoroutine(ResolveGrid(clickedGroup));
-                EventManager.OnMoveChanged();
+                return;
             }
+
+            StartCoroutine(ResolveGrid(clickedGroup));
+            EventManager.TriggerOnMoveChanged();
         }
 
         private IEnumerator ResolveGrid(List<Block> blocks)
         {
             IsBusy = true;
 
-            // Destroy blocks with animation
             DestroyBlocks(blocks);
             yield return blockProperties.DestroyWait;
 
-            // existing blocks fall down
             movedBlocks.Clear();
             gridRefill.ApplyGravity(movedBlocks);
             yield return blockProperties.MoveWait;
 
-            // Spawn new blocks to fill empty slots
             newSpawnBlocks.Clear();
             gridSpawner.SpawnNewBlocks(newSpawnBlocks);
             yield return blockProperties.SpawnWait;
@@ -131,7 +134,7 @@ namespace ColorBlast.Manager
 
             if (gridChecker.IsDeadlocked())
             {
-                uiManager.PopUpShuffleUI(blockProperties.ShuffleDuration);
+                uiManager.ShowShuffleUI(blockProperties.ShuffleDuration);
                 yield return blockProperties.ShuffleWait;
                 gridShuffler.Shuffle();
             }
@@ -143,11 +146,13 @@ namespace ColorBlast.Manager
         {
             for (int i = 0; i < blocks.Count; i++)
             {
-                if (blocks[i] != null)
+                if (blocks[i] == null)
                 {
-                    blocks[i].PlayDestroyAnimation();
-                    blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
+                    continue;
                 }
+
+                blocks[i].PlayDestroyAnimation();
+                blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
             }
         }
     }

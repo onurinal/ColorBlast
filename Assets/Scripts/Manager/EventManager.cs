@@ -4,11 +4,11 @@ namespace ColorBlast.Manager
 {
     public static class EventManager
     {
-        public static event Action OnMove;
+        public static event Action OnMoveChanged;
 
-        public static void OnMoveChanged()
+        public static void TriggerOnMoveChanged()
         {
-            OnMove?.Invoke();
+            OnMoveChanged?.Invoke();
         }
     }
 }

@@ -143,12 +143,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 13100944}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 826034686}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &28515042
 GameObject:
@@ -564,10 +564,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 28515043}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -183, y: 247}
-  m_SizeDelta: {x: 196.3146, y: 170.71948}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 298, y: -325}
+  m_SizeDelta: {x: 196.31458, y: 170.71948}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &444494848
 MonoBehaviour:
@@ -861,7 +861,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.UIManager
   moveText: {fileID: 62734199}
   shuffleUI: {fileID: 2111151796}
-  shuffleText: {fileID: 236292333}
 --- !u!1 &812123270
 GameObject:
   m_ObjectHideFlags: 0
@@ -953,6 +952,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.ObjectPoolManager
   blockPrefab: {fileID: 7525893087664308989, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
   blockParent: {fileID: 13100945}
+  poolMultiplier: 2
 --- !u!4 &826034686
 Transform:
   m_ObjectHideFlags: 0
@@ -965,7 +965,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 13100945}
   m_Father: {fileID: 2131891846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1167649800
@@ -1234,7 +1235,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -227.39624, y: -267.11066}
+  m_AnchoredPosition: {x: -308, y: -325}
   m_SizeDelta: {x: 387.5883, y: 452.1854}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1958770885
@@ -1482,4 +1483,3 @@ SceneRoots:
   - {fileID: 1958770888}
   - {fileID: 2131891846}
   - {fileID: 812123273}
-  - {fileID: 13100945}
