@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 148fa390a2cf43a9b6506adeacd13633, type: 3}
   m_Name: Red Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
-  colorType: 5
-  defaultIcon: {fileID: 887387325851772620, guid: 60ba5253d682c2f43b1c2f230ffd274f, type: 3}
-  firstIcon: {fileID: 5413993767572339121, guid: e0220090eae2f884db8a62e1637fe401, type: 3}
-  secondIcon: {fileID: -8329150480449018202, guid: 0b60e98c87c2fa84c89a95b9d9bc74a3, type: 3}
-  thirdIcon: {fileID: -257787592545182917, guid: d10a8641621b53841a7c943b4c56fb04, type: 3}
+  colorID: 5
+  defaultIcon: {fileID: 887387325851772620, guid: 037d8ff1f933d2d4c88d580f914f09bf, type: 3}
+  rocketIcon: {fileID: 5413993767572339121, guid: 9f24b717ed1f50148876c9665f44edc3, type: 3}
+  tntIcon: {fileID: -8329150480449018202, guid: 15f380fb27a0dc64db87ce7f4f087bd0, type: 3}
+  rainbowIcon: {fileID: -257787592545182917, guid: e403d34c87849ad419edc5705cfd47aa, type: 3}

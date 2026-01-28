@@ -13,13 +13,12 @@ namespace ColorBlast.Blocks
     {
         [Header("References")]
         [SerializeField] private BlockProperties blockProperties;
-        [SerializeField] private BlockColorDatabase blockColorDatabase;
         [SerializeField] private SpriteRenderer blockSpriteRenderer;
         [SerializeField] private Transform blockModelTransform;
 
-        private int gridX;
-        private int gridY;
-        private BlockColorType colorType;
+        private BlockColorData blockColorData;
+
+        private int gridX, gridY;
         private BlockIconType iconType;
 
         private Tween destroyTween;
@@ -27,7 +26,7 @@ namespace ColorBlast.Blocks
 
         public int GridX => gridX;
         public int GridY => gridY;
-        public BlockColorType ColorType => colorType;
+        public BlockColorData BlockColorData => blockColorData;
         public BlockIconType IconType => iconType;
 
         private void Awake()
@@ -35,10 +34,10 @@ namespace ColorBlast.Blocks
             UpdateBlockScale();
         }
 
-        public void Initialize(int gridX, int gridY, BlockColorType colorType)
+        public void Initialize(int gridX, int gridY, BlockColorData blockColorData)
         {
             SetGridPosition(gridX, gridY);
-            this.colorType = colorType;
+            this.blockColorData = blockColorData;
             UpdateVisual();
         }
 
@@ -46,27 +45,25 @@ namespace ColorBlast.Blocks
         {
             this.gridX = gridX;
             this.gridY = gridY;
-
-            UpdateOrderLayer();
         }
 
-        public void UpdateIcon(BlockIconType iconType)
+        public void UpdateIcon(BlockIconType newIconType)
         {
-            this.iconType = iconType;
+            iconType = newIconType;
             UpdateVisual();
         }
 
-        public void UpdateColor(BlockColorType colorType)
+        public void UpdateColor(BlockColorData newColorData)
         {
-            this.colorType = colorType;
+            blockColorData = newColorData;
             UpdateVisual();
         }
 
         private void UpdateVisual()
         {
-            if (blockSpriteRenderer != null && blockColorDatabase != null)
+            if (blockSpriteRenderer != null)
             {
-                blockSpriteRenderer.sprite = blockColorDatabase.GetSpriteForType(colorType, iconType);
+                blockSpriteRenderer.sprite = blockColorData.GetSprite(iconType);
             }
         }
 
@@ -95,7 +92,7 @@ namespace ColorBlast.Blocks
         public void MoveToPosition(Vector2 targetPosition)
         {
             moveTween?.Kill();
-            moveTween = transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic);
+            moveTween = transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic).OnComplete(UpdateOrderLayer);
         }
 
         public void PlayDestroyAnimation()

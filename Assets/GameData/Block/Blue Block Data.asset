@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 148fa390a2cf43a9b6506adeacd13633, type: 3}
   m_Name: Blue Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
-  colorType: 1
-  defaultIcon: {fileID: -4624011131410558117, guid: d075ba64bac1585469069d4c48420176, type: 3}
-  firstIcon: {fileID: -8923791490832965560, guid: c9fa23117fbcab546b4a306231c908b9, type: 3}
-  secondIcon: {fileID: -812536794617419617, guid: 25a7ffd0710e19c4b8729b0f4a4366f2, type: 3}
-  thirdIcon: {fileID: -2915790821876642617, guid: ec571039930a1c041a3577c533666aa4, type: 3}
+  colorID: 1
+  defaultIcon: {fileID: -4624011131410558117, guid: e0023bd2bcc3d1c42b27fa1cd872e949, type: 3}
+  rocketIcon: {fileID: -8923791490832965560, guid: 1060064d88955e840bd7e1d7e77e93cd, type: 3}
+  tntIcon: {fileID: -812536794617419617, guid: 1a1a735ad465e83419a7e4d9e71ddcb7, type: 3}
+  rainbowIcon: {fileID: -2915790821876642617, guid: e495efe12ed60414aadc7b5a975dcd17, type: 3}

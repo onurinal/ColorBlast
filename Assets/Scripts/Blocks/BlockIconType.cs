@@ -3,8 +3,8 @@
     public enum BlockIconType
     {
         Default,
-        FirstIcon, // A tier
-        SecondIcon, // B tier
-        ThirdIcon // C tier
+        RocketIcon, // A tier
+        TntIcon, // B tier
+        RainbowIcon // C tier
     }
 }

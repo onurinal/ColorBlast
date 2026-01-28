@@ -8,7 +8,7 @@ namespace ColorBlast.Blocks
     {
         [SerializeField] private List<BlockColorData> blockColorDataList;
 
-        private Dictionary<BlockColorType, BlockColorData> blockColorDataDict;
+        public List<BlockColorData> BlockColorDataList => blockColorDataList;
 
         private void OnEnable()
         {
@@ -20,30 +20,34 @@ namespace ColorBlast.Blocks
             if (blockColorDataList == null || blockColorDataList.Count == 0)
             {
                 Debug.LogWarning("BlockColorDataList is null or empty");
-                return;
-            }
-
-            blockColorDataDict = new Dictionary<BlockColorType, BlockColorData>(blockColorDataList.Count);
-
-            for (int i = 0; i < blockColorDataList.Count; i++)
-            {
-                var data = blockColorDataList[i];
-                if (data != null)
-                {
-                    blockColorDataDict[data.ColorType] = data;
-                }
             }
         }
 
-        public Sprite GetSpriteForType(BlockColorType colorType, BlockIconType iconType)
+        public BlockColorData GetRandomBlockColorData(int maxColorCount)
         {
-            if (blockColorDataDict.TryGetValue(colorType, out var colorData))
+            if (blockColorDataList == null || blockColorDataList.Count == 0)
             {
-                return colorData.GetSprite(iconType);
+                Debug.LogError("BlockColorDataList is empty");
+                return null;
             }
 
-            Debug.LogWarning($"BlockColorDatabase Color type '{colorType}' not found");
-            return blockColorDataList[0].GetSprite(BlockIconType.Default);
+            if (maxColorCount < 0 || maxColorCount > blockColorDataList.Count)
+            {
+                Debug.LogError("ColorCount is invalid");
+                return null;
+            }
+
+            return blockColorDataList[Random.Range(0, maxColorCount)];
+        }
+
+        public BlockColorData GetColorDataByIndex(int index)
+        {
+            if (blockColorDataList == null || index < 0 || index >= blockColorDataList.Count)
+            {
+                return null;
+            }
+
+            return blockColorDataList[index];
         }
     }
 }

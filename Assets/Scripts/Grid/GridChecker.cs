@@ -21,7 +21,7 @@ namespace ColorBlast.Grid
         private HashSet<Block> affectedBlocks;
 
 
-        private static readonly Vector2Int[] NEIGHBORS = new Vector2Int[]
+        private static readonly Vector2Int[] Neighbors = new Vector2Int[]
         {
             new Vector2Int(1, 0),
             new Vector2Int(-1, 0),
@@ -64,16 +64,16 @@ namespace ColorBlast.Grid
                         continue;
                     }
 
-                    currentGroup.Clear();
-                    var blockColor = blockGrid[row, col].ColorType;
-                    FindConnectedMatch(row, col, blockColor, currentGroup);
+                    var blockColorData = blockGrid[row, col].BlockColorData;
+                    FindConnectedMatch(row, col, blockColorData, currentGroup);
                     UpdateGroupIcons(currentGroup);
                 }
             }
         }
 
-        private void FindConnectedMatch(int startRow, int startCol, BlockColorType color, List<Block> targetList)
+        private void FindConnectedMatch(int startRow, int startCol, BlockColorData blockColorData, List<Block> targetList)
         {
+            targetList.Clear();
             matchQueue.Clear();
             matchQueue.Enqueue(new Vector2Int(startRow, startCol));
 
@@ -99,7 +99,7 @@ namespace ColorBlast.Grid
                     continue;
                 }
 
-                if (block.ColorType != color)
+                if (block.BlockColorData != blockColorData)
                 {
                     continue;
                 }
@@ -107,9 +107,9 @@ namespace ColorBlast.Grid
                 visitedBlocks[row, col] = true;
                 targetList.Add(block);
 
-                for (int i = 0; i < NEIGHBORS.Length; i++)
+                for (int i = 0; i < Neighbors.Length; i++)
                 {
-                    matchQueue.Enqueue(currentBlock + NEIGHBORS[i]);
+                    matchQueue.Enqueue(currentBlock + Neighbors[i]);
                 }
             }
         }
@@ -135,8 +135,7 @@ namespace ColorBlast.Grid
                     continue;
                 }
 
-                currentGroup.Clear();
-                FindConnectedMatch(block.GridX, block.GridY, block.ColorType, currentGroup);
+                FindConnectedMatch(block.GridX, block.GridY, block.BlockColorData, currentGroup);
                 UpdateGroupIcons(currentGroup);
             }
         }
@@ -163,10 +162,10 @@ namespace ColorBlast.Grid
 
         private void AddNeighborsToAffectedGroup(int row, int col)
         {
-            for (int i = 0; i < NEIGHBORS.Length; i++)
+            for (int i = 0; i < Neighbors.Length; i++)
             {
-                var neighborRow = row + NEIGHBORS[i].x;
-                var neighborCol = col + NEIGHBORS[i].y;
+                var neighborRow = row + Neighbors[i].x;
+                var neighborCol = col + Neighbors[i].y;
 
                 if (!IsInsideGrid(neighborRow, neighborCol))
                 {
@@ -196,19 +195,19 @@ namespace ColorBlast.Grid
 
         private BlockIconType DetermineBlockIconType(int groupSize)
         {
-            if (groupSize > levelProperties.ThirdIconThreshold)
+            if (groupSize > GameConstRules.RainbowThreshold)
             {
-                return BlockIconType.ThirdIcon;
+                return BlockIconType.RainbowIcon;
             }
 
-            if (groupSize > levelProperties.SecondIconThreshold)
+            if (groupSize > GameConstRules.TntThreshold)
             {
-                return BlockIconType.SecondIcon;
+                return BlockIconType.TntIcon;
             }
 
-            if (groupSize > levelProperties.FirstIconThreshold)
+            if (groupSize > GameConstRules.RocketThreshold)
             {
-                return BlockIconType.FirstIcon;
+                return BlockIconType.RocketIcon;
             }
 
             return BlockIconType.Default;
@@ -224,8 +223,8 @@ namespace ColorBlast.Grid
 
             ClearVisitedBlocks();
 
-            var color = block.ColorType;
-            FindConnectedMatch(row, col, color, resultList);
+            var blockColorData = block.BlockColorData;
+            FindConnectedMatch(row, col, blockColorData, resultList);
         }
 
         private bool IsInsideGrid(int row, int col)
@@ -256,10 +255,9 @@ namespace ColorBlast.Grid
                         continue;
                     }
 
-                    currentGroup.Clear();
-                    FindConnectedMatch(row, col, blockGrid[row, col].ColorType, currentGroup);
+                    FindConnectedMatch(row, col, blockGrid[row, col].BlockColorData, currentGroup);
 
-                    if (currentGroup.Count >= GameRule.MatchThreshold)
+                    if (currentGroup.Count >= GameConstRules.MatchThreshold)
                     {
                         return false;
                     }

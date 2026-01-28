@@ -578,7 +578,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3410242278743114965, guid: 1d2695bcc49569f44818ad602d7a29c7, type: 3}
+  m_Sprite: {fileID: -9009641426861971402, guid: ff7476974d8b04941a41914e7c71c19c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1398,6 +1398,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.GridManager
   blockProperties: {fileID: 11400000, guid: 67b4abd68b90aa24d810e2ff1f3846f7, type: 2}
+  blockColorDatabase: {fileID: 11400000, guid: a0941e110f26e3048aa65ec6a8abd566, type: 2}
   cameraController: {fileID: 519420033}
 --- !u!1 &2131891845
 GameObject:

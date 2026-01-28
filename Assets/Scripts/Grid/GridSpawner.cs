@@ -15,12 +15,14 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
+        private BlockColorDatabase blockColorDatabase;
 
-        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
+        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, BlockColorDatabase blockColorDatabase)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
+            this.blockColorDatabase = blockColorDatabase;
         }
 
         public void CreateNewBlocksAtStart()
@@ -43,18 +45,17 @@ namespace ColorBlast.Grid
         private Block CreateBlock(int row, int col, Vector2 position)
         {
             var newBlock = ObjectPoolManager.Instance.GetBlock();
-            var randomColor = GetRandomColor();
-            newBlock.Initialize(row, col, randomColor);
+            var randomColorData = GetRandomColor();
+            newBlock.Initialize(row, col, randomColorData);
             newBlock.transform.position = position;
 
             return newBlock;
         }
 
-        private BlockColorType GetRandomColor()
+        private BlockColorData GetRandomColor()
         {
-            var colorIndex = Random.Range(0, levelProperties.ColorCount);
-            var newColor = (BlockColorType)colorIndex;
-            return newColor;
+            var randomColorData = blockColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
+            return randomColorData;
         }
 
         public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks, WaitForSeconds spawnWait)

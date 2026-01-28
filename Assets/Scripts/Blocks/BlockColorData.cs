@@ -9,28 +9,24 @@ namespace ColorBlast.Blocks
     [CreateAssetMenu(fileName = "BlockColorData", menuName = "ColorBlast/Block Color Data")]
     public class BlockColorData : ScriptableObject
     {
-        [SerializeField] private BlockColorType colorType;
-
         [Header("Icon Sprites")]
-        [Tooltip("Default icon - show up when group size < firstIcon threshold")]
+        [Tooltip("Default icon - show up when group size < rocketIcon threshold")]
         [SerializeField] private Sprite defaultIcon;
         [Tooltip("First icon - show up when group size > defaultIcon threshold")]
-        [SerializeField] private Sprite firstIcon; // A tier
-        [Tooltip("Second icon - show up when group size > firstIcon threshold")]
-        [SerializeField] private Sprite secondIcon; // B tier
-        [Tooltip("Third icon - show up when group size > secondIcon threshold")]
-        [SerializeField] private Sprite thirdIcon; // C tier
-
-        public BlockColorType ColorType => colorType;
+        [SerializeField] private Sprite rocketIcon;
+        [Tooltip("Second icon - show up when group size > rocketIcon threshold")]
+        [SerializeField] private Sprite tntIcon;
+        [Tooltip("Third icon - show up when group size > tntIcon threshold")]
+        [SerializeField] private Sprite rainbowIcon;
 
         public Sprite GetSprite(BlockIconType type)
         {
             return type switch
             {
                 BlockIconType.Default => defaultIcon,
-                BlockIconType.FirstIcon => firstIcon,
-                BlockIconType.SecondIcon => secondIcon,
-                BlockIconType.ThirdIcon => thirdIcon,
+                BlockIconType.RocketIcon => rocketIcon,
+                BlockIconType.TntIcon => tntIcon,
+                BlockIconType.RainbowIcon => rainbowIcon,
                 _ => defaultIcon
             };
         }

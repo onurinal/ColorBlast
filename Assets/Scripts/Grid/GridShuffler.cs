@@ -15,18 +15,20 @@ namespace ColorBlast.Grid
         private Block[,] blockGrid;
         private LevelProperties levelProperties;
         private GridManager gridManager;
+        private BlockColorDatabase blockColorDatabase;
 
-        private readonly Dictionary<BlockColorType, List<Block>> colorToBlocks = new();
+        private readonly Dictionary<BlockColorData, List<Block>> colorToBlocks = new();
         private readonly HashSet<(int row, int col)> protectedPositions = new();
         private readonly List<Vector2Int> neighbors = new();
 
         private int maxAttempts;
 
-        public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridManager gridManager)
+        public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridManager gridManager, BlockColorDatabase blockColorDatabase)
         {
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
             this.gridManager = gridManager;
+            this.blockColorDatabase = blockColorDatabase;
 
             maxAttempts = levelProperties.ColumnCount * levelProperties.RowCount;
         }
@@ -39,7 +41,7 @@ namespace ColorBlast.Grid
 
             var targetColor = FindColorForGuaranteedMatch(colorToBlocks);
 
-            if (targetColor != BlockColorType.None)
+            if (targetColor != null)
             {
                 CreateGuaranteeMatchBySwap(targetColor);
             }
@@ -54,7 +56,7 @@ namespace ColorBlast.Grid
             AnimateBlocksToNewPositions();
         }
 
-        private void UpdateAllColorToList(Dictionary<BlockColorType, List<Block>> colorToAllBlocks)
+        private void UpdateAllColorToList(Dictionary<BlockColorData, List<Block>> colorToAllBlocks)
         {
             colorToBlocks.Clear();
 
@@ -67,7 +69,7 @@ namespace ColorBlast.Grid
                         continue;
                     }
 
-                    var color = blockGrid[row, col].ColorType;
+                    var color = blockGrid[row, col].BlockColorData;
                     if (!colorToAllBlocks.TryGetValue(color, out var newColorList))
                     {
                         newColorList = new List<Block>();
@@ -79,21 +81,21 @@ namespace ColorBlast.Grid
             }
         }
 
-        private BlockColorType FindColorForGuaranteedMatch(Dictionary<BlockColorType, List<Block>> colorToAllBlocks)
+        private BlockColorData FindColorForGuaranteedMatch(Dictionary<BlockColorData, List<Block>> colorToAllBlocks)
         {
             for (int i = 0; i < levelProperties.ColorCount; i++)
             {
-                var color = (BlockColorType)i;
-                if (colorToAllBlocks.TryGetValue(color, out var list) && list.Count >= GameRule.MatchThreshold)
+                var colorData = blockColorDatabase.GetColorDataByIndex(i);
+                if (colorToAllBlocks.TryGetValue(colorData, out var list) && list.Count >= GameConstRules.MatchThreshold)
                 {
-                    return color;
+                    return colorData;
                 }
             }
 
-            return BlockColorType.None;
+            return null;
         }
 
-        private void CreateGuaranteeMatchBySwap(BlockColorType targetColor)
+        private void CreateGuaranteeMatchBySwap(BlockColorData targetColor)
         {
             var colorBlocks = colorToBlocks[targetColor];
 
@@ -112,7 +114,7 @@ namespace ColorBlast.Grid
         private void CreateGuaranteeMatchByRecolor()
         {
             var (randomPosition, randomNeighbor) = GetRandomNeighbor();
-            var targetColor = blockGrid[randomPosition.x, randomPosition.y].ColorType;
+            var targetColor = blockGrid[randomPosition.x, randomPosition.y].BlockColorData;
             blockGrid[randomNeighbor.x, randomNeighbor.y].UpdateColor(targetColor);
 
             protectedPositions.Add((randomPosition.x, randomPosition.y));

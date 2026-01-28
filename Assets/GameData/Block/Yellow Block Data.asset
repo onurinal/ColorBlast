@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Yellow Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   colorType: 0
-  defaultIcon: {fileID: 7985042018138347892, guid: b913c8cf1ef566c468a9561d43543c1e, type: 3}
-  firstIcon: {fileID: 414921610477409366, guid: 10a5a2c8be6e115488619d4712c37719, type: 3}
-  secondIcon: {fileID: -6038182108957047188, guid: 457369398e5be2f469089c6bfb1feba4, type: 3}
-  thirdIcon: {fileID: -7586140276444505714, guid: 9bab5a0068cd94f4d90ba3de71e500bb, type: 3}
+  defaultIcon: {fileID: 7985042018138347892, guid: 76e617a76456c2b43a97f0dd4a26bb7b, type: 3}
+  rocketIcon: {fileID: 414921610477409366, guid: b79f5ea52b0ff844798c1fa3f66ad48a, type: 3}
+  tntIcon: {fileID: -6038182108957047188, guid: 33406374c2036c24288bd18f022bb14a, type: 3}
+  rainbowIcon: {fileID: -7586140276444505714, guid: d53e516ba1b89fc4c980b97ea76c3054, type: 3}

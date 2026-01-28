@@ -14,6 +14,7 @@ namespace ColorBlast.Manager
     {
         [Header("Grid Configuration")]
         [SerializeField] private BlockProperties blockProperties;
+        [SerializeField] private BlockColorDatabase blockColorDatabase;
 
         [Header("References")]
         [SerializeField] private CameraController cameraController;
@@ -65,13 +66,13 @@ namespace ColorBlast.Manager
         private void InitializeGridSystems(LevelProperties levelProperties)
         {
             gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockGrid, this, levelProperties);
+            gridSpawner.Initialize(blockGrid, this, levelProperties, blockColorDatabase);
             gridChecker = new GridChecker();
             gridChecker.Initialize(blockGrid, levelProperties);
             gridRefill = new GridRefill();
             gridRefill.Initialize(blockGrid, this, levelProperties);
             gridShuffler = new GridShuffler();
-            gridShuffler.Initialize(blockGrid, levelProperties, this);
+            gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase);
         }
 
         private void InitializeCamera(LevelProperties levelProperties)
@@ -106,7 +107,7 @@ namespace ColorBlast.Manager
             clickedGroup.Clear();
             gridChecker.GetGroup(block.GridX, block.GridY, clickedGroup);
 
-            if (clickedGroup.Count < GameRule.MatchThreshold)
+            if (clickedGroup.Count < GameConstRules.MatchThreshold)
             {
                 return;
             }
@@ -154,5 +155,7 @@ namespace ColorBlast.Manager
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
             }
         }
+
+        public BlockColorDatabase BlockColorDatabase => blockColorDatabase;
     }
 }
