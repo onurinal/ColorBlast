@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 148fa390a2cf43a9b6506adeacd13633, type: 3}
   m_Name: Green Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
-  colorID: 2
-  defaultIcon: {fileID: -7364823422338184377, guid: b21a83e1a882290479fe3ba74c7c6bd3, type: 3}
-  rocketIcon: {fileID: 3291406690555587084, guid: 60000889ed4df5743a1cdfdcca89ba0d, type: 3}
-  tntIcon: {fileID: -2176861220364285743, guid: b7ba63d790ac2c148b0b7291ce9a594f, type: 3}
-  rainbowIcon: {fileID: 6787462199040882907, guid: 64b1f9cf67e0c64489ad0abaf5c72997, type: 3}
+  defaultSprite: {fileID: -7364823422338184377, guid: b21a83e1a882290479fe3ba74c7c6bd3, type: 3}
+  rewardStates:
+  - minGroupSize: 4
+    rewardHintSprite: {fileID: 3291406690555587084, guid: 60000889ed4df5743a1cdfdcca89ba0d, type: 3}
+    rewardPrefab: {fileID: 0}
+  - minGroupSize: 5
+    rewardHintSprite: {fileID: -2176861220364285743, guid: b7ba63d790ac2c148b0b7291ce9a594f, type: 3}
+    rewardPrefab: {fileID: 0}
+  - minGroupSize: 6
+    rewardHintSprite: {fileID: 6787462199040882907, guid: 64b1f9cf67e0c64489ad0abaf5c72997, type: 3}
+    rewardPrefab: {fileID: 0}

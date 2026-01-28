@@ -182,35 +182,13 @@ namespace ColorBlast.Grid
 
         private void UpdateGroupIcons(List<Block> group)
         {
-            var newIcon = DetermineBlockIconType(group.Count);
-
             for (int i = 0; i < group.Count; i++)
             {
-                if (newIcon != group[i].IconType)
+                if (group.Count != group[i].CurrentGroupSize)
                 {
-                    group[i].UpdateIcon(newIcon);
+                    group[i].UpdateIcon(group.Count);
                 }
             }
-        }
-
-        private BlockIconType DetermineBlockIconType(int groupSize)
-        {
-            if (groupSize > GameConstRules.RainbowThreshold)
-            {
-                return BlockIconType.RainbowIcon;
-            }
-
-            if (groupSize > GameConstRules.TntThreshold)
-            {
-                return BlockIconType.TntIcon;
-            }
-
-            if (groupSize > GameConstRules.RocketThreshold)
-            {
-                return BlockIconType.RocketIcon;
-            }
-
-            return BlockIconType.Default;
         }
 
         public void GetGroup(int row, int col, List<Block> resultList)

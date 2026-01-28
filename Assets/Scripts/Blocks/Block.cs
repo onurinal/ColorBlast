@@ -16,18 +16,15 @@ namespace ColorBlast.Blocks
         [SerializeField] private SpriteRenderer blockSpriteRenderer;
         [SerializeField] private Transform blockModelTransform;
 
-        private BlockColorData blockColorData;
-
-        private int gridX, gridY;
-        private BlockIconType iconType;
-
         private Tween destroyTween;
         private Tween moveTween;
 
-        public int GridX => gridX;
-        public int GridY => gridY;
-        public BlockColorData BlockColorData => blockColorData;
-        public BlockIconType IconType => iconType;
+        public BlockColorData BlockColorData { get; private set; }
+
+        public int CurrentGroupSize { get; private set; }
+        public int GridX { get; private set; }
+
+        public int GridY { get; private set; }
 
         private void Awake()
         {
@@ -37,25 +34,25 @@ namespace ColorBlast.Blocks
         public void Initialize(int gridX, int gridY, BlockColorData blockColorData)
         {
             SetGridPosition(gridX, gridY);
-            this.blockColorData = blockColorData;
+            BlockColorData = blockColorData;
             UpdateVisual();
         }
 
         public void SetGridPosition(int gridX, int gridY)
         {
-            this.gridX = gridX;
-            this.gridY = gridY;
+            GridX = gridX;
+            GridY = gridY;
         }
 
-        public void UpdateIcon(BlockIconType newIconType)
+        public void UpdateIcon(int groupSize)
         {
-            iconType = newIconType;
+            CurrentGroupSize = groupSize;
             UpdateVisual();
         }
 
         public void UpdateColor(BlockColorData newColorData)
         {
-            blockColorData = newColorData;
+            BlockColorData = newColorData;
             UpdateVisual();
         }
 
@@ -63,13 +60,13 @@ namespace ColorBlast.Blocks
         {
             if (blockSpriteRenderer != null)
             {
-                blockSpriteRenderer.sprite = blockColorData.GetSprite(iconType);
+                blockSpriteRenderer.sprite = BlockColorData.GetVisual(CurrentGroupSize);
             }
         }
 
         private void ResetVisual()
         {
-            iconType = BlockIconType.Default;
+            CurrentGroupSize = 0;
             UpdateVisual();
         }
 
@@ -77,7 +74,7 @@ namespace ColorBlast.Blocks
         {
             if (blockSpriteRenderer != null)
             {
-                blockSpriteRenderer.sortingOrder = gridY;
+                blockSpriteRenderer.sortingOrder = GridY;
             }
         }
 

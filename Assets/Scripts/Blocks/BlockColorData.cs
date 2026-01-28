@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace ColorBlast.Blocks
 {
@@ -9,26 +10,45 @@ namespace ColorBlast.Blocks
     [CreateAssetMenu(fileName = "BlockColorData", menuName = "ColorBlast/Block Color Data")]
     public class BlockColorData : ScriptableObject
     {
-        [Header("Icon Sprites")]
-        [Tooltip("Default icon - show up when group size < rocketIcon threshold")]
-        [SerializeField] private Sprite defaultIcon;
-        [Tooltip("First icon - show up when group size > defaultIcon threshold")]
-        [SerializeField] private Sprite rocketIcon;
-        [Tooltip("Second icon - show up when group size > rocketIcon threshold")]
-        [SerializeField] private Sprite tntIcon;
-        [Tooltip("Third icon - show up when group size > tntIcon threshold")]
-        [SerializeField] private Sprite rainbowIcon;
+        [SerializeField] private Sprite defaultSprite;
 
-        public Sprite GetSprite(BlockIconType type)
+        [SerializeField] private List<BlockRewardState> rewardStates;
+
+#if UNITY_EDITOR
+        private void OnValidate()
         {
-            return type switch
+            rewardStates.Sort((a, b) => a.MinGroupSize.CompareTo(b.MinGroupSize));
+        }
+#endif
+
+        private BlockRewardState GetRewardState(int groupSize)
+        {
+            if (rewardStates == null || rewardStates.Count == 0)
             {
-                BlockIconType.Default => defaultIcon,
-                BlockIconType.RocketIcon => rocketIcon,
-                BlockIconType.TntIcon => tntIcon,
-                BlockIconType.RainbowIcon => rainbowIcon,
-                _ => defaultIcon
-            };
+                return null;
+            }
+
+            for (int i = rewardStates.Count - 1; i >= 0; i--)
+            {
+                if (groupSize >= rewardStates[i].MinGroupSize)
+                {
+                    return rewardStates[i];
+                }
+            }
+
+            return null;
+        }
+
+        public Sprite GetVisual(int groupSize)
+        {
+            var reward = GetRewardState(groupSize);
+
+            if (reward == null)
+            {
+                return defaultSprite;
+            }
+
+            return reward.RewardHintSprite;
         }
     }
 }

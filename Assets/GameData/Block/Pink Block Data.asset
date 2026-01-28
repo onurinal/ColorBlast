@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 148fa390a2cf43a9b6506adeacd13633, type: 3}
   m_Name: Pink Block Data
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
-  colorID: 3
-  defaultIcon: {fileID: 742919511911846744, guid: ef0c6e3542ee95047a70da55523aff45, type: 3}
-  rocketIcon: {fileID: 3519922619171193912, guid: 8f704a92dfb1c9b42b98b0140853ba54, type: 3}
-  tntIcon: {fileID: -578229812787739823, guid: ee810b5fed31c6c488e3446f7dd10907, type: 3}
-  rainbowIcon: {fileID: -7755864299962720444, guid: b05232e775331f64bb8b241dc6f0f5ed, type: 3}
+  defaultSprite: {fileID: 742919511911846744, guid: ef0c6e3542ee95047a70da55523aff45, type: 3}
+  rewardStates:
+  - minGroupSize: 4
+    rewardHintSprite: {fileID: 3519922619171193912, guid: 8f704a92dfb1c9b42b98b0140853ba54, type: 3}
+    rewardPrefab: {fileID: 0}
+  - minGroupSize: 5
+    rewardHintSprite: {fileID: -578229812787739823, guid: ee810b5fed31c6c488e3446f7dd10907, type: 3}
+    rewardPrefab: {fileID: 0}
+  - minGroupSize: 6
+    rewardHintSprite: {fileID: -7755864299962720444, guid: b05232e775331f64bb8b241dc6f0f5ed, type: 3}
+    rewardPrefab: {fileID: 0}

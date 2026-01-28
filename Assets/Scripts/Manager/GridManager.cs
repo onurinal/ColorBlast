@@ -155,7 +155,5 @@ namespace ColorBlast.Manager
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
             }
         }
-
-        public BlockColorDatabase BlockColorDatabase => blockColorDatabase;
     }
 }
