@@ -48,7 +48,11 @@ namespace ColorBlast.Grid
                     blockGrid[row, writeCol] = block;
                     blockGrid[row, col] = null;
                     block.SetGridPosition(row, writeCol);
-                    movedBlocks.Add(block);
+
+                    if (block.IsVisible())
+                    {
+                        movedBlocks.Add(block);
+                    }
                 }
 
                 writeCol++;

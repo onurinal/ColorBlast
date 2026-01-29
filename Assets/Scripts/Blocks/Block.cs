@@ -144,5 +144,14 @@ namespace ColorBlast.Blocks
                 blockSpriteRenderer.enabled = visible;
             }
         }
+
+        public bool IsVisible()
+        {
+            if (blockSpriteRenderer != null)
+            {
+                return  blockSpriteRenderer.enabled;
+            }
+            return false;
+        }
     }
 }

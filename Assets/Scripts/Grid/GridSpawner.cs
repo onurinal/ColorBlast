@@ -35,6 +35,7 @@ namespace ColorBlast.Grid
                     {
                         var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
                         var newBlock = CreateBlock(row, col, spawnPosition);
+                        blockGrid[row, col] = newBlock;
                         var targetPosition = gridManager.GetCellWorldPosition(row, col);
                         newBlock.MoveToPosition(targetPosition);
                     }
@@ -48,7 +49,6 @@ namespace ColorBlast.Grid
             var randomColorData = GetRandomColor();
             newBlock.Initialize(row, col, randomColorData);
             newBlock.transform.position = spawnPosition;
-            blockGrid[row, col] = newBlock;
 
             return newBlock;
         }
@@ -75,6 +75,7 @@ namespace ColorBlast.Grid
                     var targetCol = levelProperties.ColumnCount - emptyCount + i;
                     var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i);
                     var newBlock = CreateBlock(row, targetCol, spawnPosition);
+                    blockGrid[row, targetCol] = newBlock;
                     newBlock.SetVisible(false);
                     newSpawnBlocks.Add(newBlock);
                 }
@@ -109,8 +110,8 @@ namespace ColorBlast.Grid
                     continue;
                 }
 
-                var targetPosition = gridManager.GetCellWorldPosition(newSpawnBlocks[i].GridX, newSpawnBlocks[i].GridY);
                 newSpawnBlocks[i].SetVisible(true);
+                var targetPosition = gridManager.GetCellWorldPosition(newSpawnBlocks[i].GridX, newSpawnBlocks[i].GridY);
                 newSpawnBlocks[i].MoveToPosition(targetPosition);
             }
         }

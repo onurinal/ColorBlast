@@ -32,6 +32,8 @@ namespace ColorBlast.Manager
 
         private List<Block> selectedGroup;
 
+        private bool isShuffling = false;
+
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
             this.levelProperties = levelProperties;
@@ -102,11 +104,11 @@ namespace ColorBlast.Manager
                 return;
             }
 
-            StartCoroutine(ResolveGrid(selectedGroup));
+            ResolveGrid(selectedGroup);
             EventManager.TriggerOnMoveChanged();
         }
 
-        private IEnumerator ResolveGrid(List<Block> blocks)
+        private void ResolveGrid(List<Block> blocks)
         {
             var movedBlocks = new List<Block>();
             var newSpawnBlocks = new List<Block>();
@@ -116,20 +118,7 @@ namespace ColorBlast.Manager
             gridSpawner.SpawnNewBlocks(newSpawnBlocks);
             gridChecker.CheckAffectedBlocks(newSpawnBlocks, movedBlocks);
 
-            PlayDestroyAnimation(blocks);
-            yield return blockProperties.DestroyWait;
-            gridRefill.PlayRefillAnimation(movedBlocks);
-            yield return blockProperties.SpawnWait;
-            gridSpawner.PlayNewSpawnBlocksAnimation(newSpawnBlocks);
-
-            // StartCoroutine(PlayAnimations(blocks, movedBlocks, newSpawnBlocks));
-
-            if (gridChecker.IsDeadlocked())
-            {
-                uiManager.ShowShuffleUI(blockProperties.ShuffleDuration);
-                yield return blockProperties.ShuffleWait;
-                gridShuffler.Shuffle();
-            }
+            StartCoroutine(PlayAnimations(blocks, movedBlocks, newSpawnBlocks));
         }
 
         private void DestroyBlocks(List<Block> blocks)
@@ -156,13 +145,28 @@ namespace ColorBlast.Manager
             }
         }
 
-        // private IEnumerator PlayAnimations(List<Block> destroyBlocks, List<Block> movedBlocks, List<Block> newSpawnBlocks)
-        // {
-        //     PlayDestroyAnimation(destroyBlocks);
-        //     yield return blockProperties.DestroyWait;
-        //     gridRefill.PlayRefillAnimation(movedBlocks);
-        //     yield return blockProperties.SpawnWait;
-        //     gridSpawner.PlayNewSpawnBlocksAnimation(newSpawnBlocks);
-        // }
+        private IEnumerator PlayAnimations(List<Block> destroyBlocks, List<Block> movedBlocks, List<Block> newSpawnBlocks)
+        {
+            PlayDestroyAnimation(destroyBlocks);
+            yield return blockProperties.DestroyWait;
+            gridRefill.PlayRefillAnimation(movedBlocks);
+            yield return blockProperties.SpawnWait;
+            gridSpawner.PlayNewSpawnBlocksAnimation(newSpawnBlocks);
+            yield return blockProperties.MoveWait;
+
+            if (isShuffling)
+            {
+                yield break;
+            }
+
+            if (gridChecker.IsDeadlocked())
+            {
+                isShuffling = true;
+                uiManager.ShowShuffleUI(blockProperties.ShuffleDuration);
+                yield return blockProperties.ShuffleWait;
+                gridShuffler.Shuffle();
+                isShuffling = false;
+            }
+        }
     }
 }
