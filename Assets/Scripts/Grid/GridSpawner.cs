@@ -34,20 +34,21 @@ namespace ColorBlast.Grid
                     if (blockGrid[row, col] == null)
                     {
                         var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
-                        blockGrid[row, col] = CreateBlock(row, col, spawnPosition);
+                        var newBlock = CreateBlock(row, col, spawnPosition);
                         var targetPosition = gridManager.GetCellWorldPosition(row, col);
-                        blockGrid[row, col].MoveToPosition(targetPosition);
+                        newBlock.MoveToPosition(targetPosition);
                     }
                 }
             }
         }
 
-        private Block CreateBlock(int row, int col, Vector2 position)
+        private Block CreateBlock(int row, int col, Vector2 spawnPosition)
         {
             var newBlock = ObjectPoolManager.Instance.GetBlock();
             var randomColorData = GetRandomColor();
             newBlock.Initialize(row, col, randomColorData);
-            newBlock.transform.position = position;
+            newBlock.transform.position = spawnPosition;
+            blockGrid[row, col] = newBlock;
 
             return newBlock;
         }
@@ -58,7 +59,7 @@ namespace ColorBlast.Grid
             return randomColorData;
         }
 
-        public IEnumerator SpawnNewBlocks(List<Block> newSpawnBlocks, WaitForSeconds spawnWait)
+        public void SpawnNewBlocks(List<Block> newSpawnBlocks)
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -72,11 +73,11 @@ namespace ColorBlast.Grid
                 for (int i = 0; i < emptyCount; i++)
                 {
                     var targetCol = levelProperties.ColumnCount - emptyCount + i;
-                    var newBlock = SpawnBlockWithFallAnimation(row, targetCol, i);
+                    var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i);
+                    var newBlock = CreateBlock(row, targetCol, spawnPosition);
+                    newBlock.SetVisible(false);
                     newSpawnBlocks.Add(newBlock);
                 }
-
-                yield return spawnWait;
             }
         }
 
@@ -99,16 +100,19 @@ namespace ColorBlast.Grid
             return count;
         }
 
-        private Block SpawnBlockWithFallAnimation(int targetRow, int targetCol, int spawnOffset)
+        public void PlayNewSpawnBlocksAnimation(List<Block> newSpawnBlocks)
         {
-            var spawnPosition = gridManager.GetCellWorldPosition(targetRow, levelProperties.ColumnCount + spawnOffset);
+            for (int i = 0; i < newSpawnBlocks.Count; i++)
+            {
+                if (newSpawnBlocks[i] == null)
+                {
+                    continue;
+                }
 
-            var newBlock = CreateBlock(targetRow, targetCol, spawnPosition);
-            blockGrid[targetRow, targetCol] = newBlock;
-
-            var targetPosition = gridManager.GetCellWorldPosition(targetRow, targetCol);
-            newBlock.MoveToPosition(targetPosition);
-            return newBlock;
+                var targetPosition = gridManager.GetCellWorldPosition(newSpawnBlocks[i].GridX, newSpawnBlocks[i].GridY);
+                newSpawnBlocks[i].SetVisible(true);
+                newSpawnBlocks[i].MoveToPosition(targetPosition);
+            }
         }
     }
 }

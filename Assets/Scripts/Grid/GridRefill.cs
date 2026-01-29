@@ -48,12 +48,24 @@ namespace ColorBlast.Grid
                     blockGrid[row, writeCol] = block;
                     blockGrid[row, col] = null;
                     block.SetGridPosition(row, writeCol);
-                    var targetPosition = gridManager.GetCellWorldPosition(row, writeCol);
-                    block.MoveToPosition(targetPosition);
                     movedBlocks.Add(block);
                 }
 
                 writeCol++;
+            }
+        }
+
+        public void PlayRefillAnimation(List<Block> movedBlocks)
+        {
+            for (int i = 0; i < movedBlocks.Count; i++)
+            {
+                if (movedBlocks[i] == null)
+                {
+                    continue;
+                }
+
+                var targetPosition = gridManager.GetCellWorldPosition(movedBlocks[i].GridX, movedBlocks[i].GridY);
+                movedBlocks[i].MoveToPosition(targetPosition);
             }
         }
     }

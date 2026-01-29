@@ -30,11 +30,7 @@ namespace ColorBlast.Manager
         private Block[,] blockGrid;
         private Vector2 blockSize;
 
-        private List<Block> newSpawnBlocks;
-        private List<Block> movedBlocks;
-        private List<Block> clickedGroup;
-
-        public bool IsBusy { get; private set; }
+        private List<Block> selectedGroup;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
@@ -58,9 +54,7 @@ namespace ColorBlast.Manager
             blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
 
             var maxCapacity = levelProperties.RowCount * levelProperties.ColumnCount;
-            newSpawnBlocks = new List<Block>(maxCapacity);
-            movedBlocks = new List<Block>(maxCapacity);
-            clickedGroup = new List<Block>(maxCapacity / 2);
+            selectedGroup = new List<Block>(maxCapacity / 2);
         }
 
         private void InitializeGridSystems(LevelProperties levelProperties)
@@ -87,8 +81,6 @@ namespace ColorBlast.Manager
 
         public IEnumerator OnGameStart()
         {
-            IsBusy = true;
-
             gridSpawner.CreateNewBlocksAtStart();
             gridChecker.CheckAllGrid();
 
@@ -98,39 +90,39 @@ namespace ColorBlast.Manager
                 yield return blockProperties.ShuffleWait;
                 gridShuffler.Shuffle();
             }
-
-            IsBusy = false;
         }
 
         public void OnBlockClicked(Block block)
         {
-            clickedGroup.Clear();
-            gridChecker.GetGroup(block.GridX, block.GridY, clickedGroup);
+            selectedGroup.Clear();
+            gridChecker.GetGroup(block.GridX, block.GridY, selectedGroup);
 
-            if (clickedGroup.Count < GameConstRules.MatchThreshold)
+            if (selectedGroup.Count < GameConstRules.MatchThreshold)
             {
                 return;
             }
 
-            StartCoroutine(ResolveGrid(clickedGroup));
+            StartCoroutine(ResolveGrid(selectedGroup));
             EventManager.TriggerOnMoveChanged();
         }
 
         private IEnumerator ResolveGrid(List<Block> blocks)
         {
-            IsBusy = true;
+            var movedBlocks = new List<Block>();
+            var newSpawnBlocks = new List<Block>();
 
             DestroyBlocks(blocks);
-            yield return blockProperties.DestroyWait;
-
-            movedBlocks.Clear();
             gridRefill.ApplyGravity(movedBlocks);
-            yield return blockProperties.MoveWait;
-
-            newSpawnBlocks.Clear();
-            yield return gridSpawner.SpawnNewBlocks(newSpawnBlocks, blockProperties.SpawnWait);
-
+            gridSpawner.SpawnNewBlocks(newSpawnBlocks);
             gridChecker.CheckAffectedBlocks(newSpawnBlocks, movedBlocks);
+
+            PlayDestroyAnimation(blocks);
+            yield return blockProperties.DestroyWait;
+            gridRefill.PlayRefillAnimation(movedBlocks);
+            yield return blockProperties.SpawnWait;
+            gridSpawner.PlayNewSpawnBlocksAnimation(newSpawnBlocks);
+
+            // StartCoroutine(PlayAnimations(blocks, movedBlocks, newSpawnBlocks));
 
             if (gridChecker.IsDeadlocked())
             {
@@ -138,8 +130,6 @@ namespace ColorBlast.Manager
                 yield return blockProperties.ShuffleWait;
                 gridShuffler.Shuffle();
             }
-
-            IsBusy = false;
         }
 
         private void DestroyBlocks(List<Block> blocks)
@@ -151,9 +141,28 @@ namespace ColorBlast.Manager
                     continue;
                 }
 
-                blocks[i].PlayDestroyAnimation();
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
             }
         }
+
+        private static void PlayDestroyAnimation(List<Block> blocks)
+        {
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                if (blocks[i] != null)
+                {
+                    blocks[i].HandleDestroy();
+                }
+            }
+        }
+
+        // private IEnumerator PlayAnimations(List<Block> destroyBlocks, List<Block> movedBlocks, List<Block> newSpawnBlocks)
+        // {
+        //     PlayDestroyAnimation(destroyBlocks);
+        //     yield return blockProperties.DestroyWait;
+        //     gridRefill.PlayRefillAnimation(movedBlocks);
+        //     yield return blockProperties.SpawnWait;
+        //     gridSpawner.PlayNewSpawnBlocksAnimation(newSpawnBlocks);
+        // }
     }
 }

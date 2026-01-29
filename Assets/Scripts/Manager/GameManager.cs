@@ -35,10 +35,7 @@ namespace ColorBlast.Manager
 
         public void RestartLevel()
         {
-            if (!gridManager.IsBusy)
-            {
-                SceneLoader.LoadSameScene();
-            }
+            SceneLoader.LoadSameScene();
         }
     }
 }

@@ -25,6 +25,7 @@ namespace ColorBlast.Blocks
         public int GridX { get; private set; }
 
         public int GridY { get; private set; }
+        public bool IsAnimating { get; private set; }
 
         private void Awake()
         {
@@ -42,6 +43,8 @@ namespace ColorBlast.Blocks
         {
             GridX = gridX;
             GridY = gridY;
+
+            UpdateOrderLayer();
         }
 
         public void UpdateIcon(int groupSize)
@@ -66,6 +69,7 @@ namespace ColorBlast.Blocks
 
         private void ResetVisual()
         {
+            transform.localScale = Vector3.one;
             CurrentGroupSize = 0;
             UpdateVisual();
         }
@@ -88,12 +92,17 @@ namespace ColorBlast.Blocks
 
         public void MoveToPosition(Vector2 targetPosition)
         {
+            IsAnimating = true;
+
             moveTween?.Kill();
-            moveTween = transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic).OnComplete(UpdateOrderLayer);
+            moveTween = transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic).OnComplete(() => { IsAnimating = false; });
         }
 
-        public void PlayDestroyAnimation()
+        public void HandleDestroy()
         {
+            IsAnimating = false;
+
+            moveTween?.Kill();
             destroyTween?.Kill();
             destroyTween =
                 transform.DOScale(Vector2.zero, blockProperties.DestroyDuration).SetEase(Ease.InOutBounce).OnComplete(ReturnToPool);
@@ -119,8 +128,21 @@ namespace ColorBlast.Blocks
             moveTween = null;
             destroyTween = null;
 
-            transform.localScale = Vector3.one;
+            IsAnimating = false;
             ResetVisual();
+        }
+
+        public bool CanBeInteract()
+        {
+            return !IsAnimating;
+        }
+
+        public void SetVisible(bool visible)
+        {
+            if (blockSpriteRenderer != null)
+            {
+                blockSpriteRenderer.enabled = visible;
+            }
         }
     }
 }

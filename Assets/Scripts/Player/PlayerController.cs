@@ -27,11 +27,6 @@ namespace ColorBlast.Player
 
         public void HandleTap(Vector2 position)
         {
-            if (gridInteraction.IsBusy)
-            {
-                return;
-            }
-
             var worldPosition = mainCamera.ScreenToWorldPoint(position);
             worldPosition.z = 0f;
 
@@ -43,10 +38,17 @@ namespace ColorBlast.Player
             }
 
             var selectedBlock = hit.GetComponentInParent<Block>();
-            if (selectedBlock != null)
+            if (selectedBlock == null)
             {
-                gridInteraction.OnBlockClicked(selectedBlock);
+                return;
             }
+
+            if (!selectedBlock.CanBeInteract())
+            {
+                return;
+            }
+
+            gridInteraction.OnBlockClicked(selectedBlock);
         }
     }
 }
