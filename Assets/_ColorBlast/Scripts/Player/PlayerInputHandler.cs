@@ -1,48 +1,39 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace ColorBlast.Player
 {
-    public class PlayerInputHandler : MonoBehaviour
+    public class PlayerInputHandler : IDisposable
     {
-        private PlayerInputActions playerInputActions;
-        private PlayerController playerController;
+        private readonly PlayerInputActions playerInputActions;
 
-        public void Initialize(PlayerController playerController)
+        public event Action<Vector2> OnTap;
+
+        public PlayerInputHandler()
         {
-            this.playerController = playerController;
-        }
-
-        private void OnEnable()
-        {
-            if (playerInputActions == null)
-            {
-                playerInputActions = new PlayerInputActions();
-            }
-
+            playerInputActions = new PlayerInputActions();
             playerInputActions.Player.Tap.performed += HandleTap;
+
             playerInputActions.Enable();
-        }
-
-        private void OnDisable()
-        {
-            if (playerInputActions == null)
-            {
-                return;
-            }
-
-            playerInputActions.Player.Tap.performed -= HandleTap;
-            playerInputActions.Disable();
         }
 
         private void HandleTap(InputAction.CallbackContext context)
         {
-            var position = Pointer.current.position.ReadValue();
+            Vector2 position = playerInputActions.Player.PointerPosition.ReadValue<Vector2>();
+            TriggerOnTap(position);
+        }
 
-            if (playerController != null)
-            {
-                playerController.HandleTap(position);
-            }
+        public void Dispose()
+        {
+            playerInputActions.Player.Tap.performed -= HandleTap;
+            playerInputActions.Disable();
+            playerInputActions?.Dispose();
+        }
+
+        private void TriggerOnTap(Vector2 position)
+        {
+            OnTap?.Invoke(position);
         }
     }
 }

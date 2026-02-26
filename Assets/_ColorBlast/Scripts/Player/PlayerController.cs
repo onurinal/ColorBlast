@@ -16,15 +16,24 @@ namespace ColorBlast.Player
             mainCamera = Camera.main;
         }
 
-        public void Initialize(IGridInteraction gridInteraction)
+        private void OnDestroy()
         {
-            this.gridInteraction = gridInteraction;
-
-            playerInputHandler = GetComponent<PlayerInputHandler>();
-            playerInputHandler.Initialize(this);
+            if (playerInputHandler != null)
+            {
+                playerInputHandler.OnTap -= HandleTap;
+                playerInputHandler.Dispose();
+            }
         }
 
-        public void HandleTap(Vector2 position)
+        public void Initialize(IGridInteraction gridInteraction)
+        {
+            playerInputHandler = new PlayerInputHandler();
+            playerInputHandler.OnTap += HandleTap;
+
+            this.gridInteraction = gridInteraction;
+        }
+
+        private void HandleTap(Vector2 position)
         {
             var worldPosition = mainCamera.ScreenToWorldPoint(position);
             worldPosition.z = 0f;
@@ -37,6 +46,7 @@ namespace ColorBlast.Player
             }
 
             var selectedBlock = hit.GetComponentInParent<Block>();
+
             if (selectedBlock == null)
             {
                 return;
