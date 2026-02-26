@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PromptTemplates">
+    <option name="builtInPromptOverrides">
+      <list>
+        <BuiltInPromptOverride>
+          <option name="groupId" value="rules" />
+          <option name="promptId" value="project" />
+          <option name="text" value="Whenever you respond, always use English, even if I write in Turkish. When discussing Unity or C# code: - Follow SOLID principles where appropriate, ensure decoupling. - Prefer clean, maintainable, testable, and extensible architecture. - Suggest relevant design patterns when meaningful (avoid overengineering). - Consider edge cases and scalability. - Prioritize production-quality code over quick solutions. - Explain architectural decisions briefly and keep explanations technically structured. - Keep the code concise, clear and easy to read. Point out industry-level improvements and best practices even if I don’t explicitly ask for them." />
+        </BuiltInPromptOverride>
+      </list>
+    </option>
+  </component>
+</project>
