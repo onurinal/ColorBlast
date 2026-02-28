@@ -14,12 +14,17 @@ namespace ColorBlast.Gameplay
 
         [SerializeField] private List<BlockRewardState> rewardStates;
 
-#if UNITY_EDITOR
-        private void OnValidate()
+        public Sprite GetVisual(int groupSize)
         {
-            rewardStates.Sort((a, b) => a.MinGroupSize.CompareTo(b.MinGroupSize));
+            var rewardHint = GetRewardState(groupSize);
+
+            if (rewardHint == null)
+            {
+                return defaultSprite;
+            }
+
+            return rewardHint.RewardHintSprite;
         }
-#endif
 
         private BlockRewardState GetRewardState(int groupSize)
         {
@@ -37,18 +42,6 @@ namespace ColorBlast.Gameplay
             }
 
             return null;
-        }
-
-        public Sprite GetVisual(int groupSize)
-        {
-            var reward = GetRewardState(groupSize);
-
-            if (reward == null)
-            {
-                return defaultSprite;
-            }
-
-            return reward.RewardHintSprite;
         }
     }
 }

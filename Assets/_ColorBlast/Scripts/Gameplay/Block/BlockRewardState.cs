@@ -9,10 +9,10 @@ namespace ColorBlast.Gameplay
         [Tooltip("Minimum connected group size required to unlock this reward")]
         [SerializeField] private int minGroupSize;
 
-        [Tooltip("Icon shows on the block before it gets destroyed")]
+        [Tooltip("Reward icon shows on the block before it gets destroyed")]
         [SerializeField] private Sprite rewardHintSprite;
 
-        [Tooltip("Prefab spawns when this block group is destroy")]
+        [Tooltip("Prefab spawns when the group of this block is destroyed")]
         [SerializeField] private GameObject rewardPrefab;
 
         public int MinGroupSize => minGroupSize;
