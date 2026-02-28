@@ -9,11 +9,13 @@ namespace ColorBlast.Gameplay
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Transform modelTransform;
 
-        private Tween activeTween;
+        private Tween moveTween;
+        private Tween destroyTween;
 
         private void OnDestroy()
         {
-            activeTween?.Kill();
+            moveTween?.Kill();
+            destroyTween?.Kill();
         }
 
         public void SetBlockScale(float scaleX, float scaleY)
@@ -36,21 +38,22 @@ namespace ColorBlast.Gameplay
 
         public void ResetView()
         {
-            activeTween?.Kill();
+            moveTween?.Kill();
+            destroyTween?.Kill();
             transform.localScale = Vector3.one;
         }
 
         public void PlayMoveAnim(Vector2 targetPosition, float duration, Action onComplete)
         {
-            activeTween?.Kill();
-            activeTween = transform.DOMove(targetPosition, duration).SetEase(Ease.InOutCubic)
+            moveTween?.Kill();
+            moveTween = transform.DOMove(targetPosition, duration).SetEase(Ease.InOutCubic)
                 .OnComplete(() => onComplete?.Invoke());
         }
 
         public void PlayDestroyAnim(float duration, Action onComplete)
         {
-            activeTween?.Kill();
-            activeTween = transform.DOScale(Vector2.zero, duration).SetEase(Ease.InOutBounce)
+            destroyTween?.Kill();
+            destroyTween = transform.DOScale(Vector2.zero, duration).SetEase(Ease.InOutBounce)
                 .OnComplete(() => onComplete?.Invoke());
         }
 
