@@ -11,6 +11,14 @@ namespace ColorBlast.Player
         private Camera mainCamera;
         private IGridInteraction gridInteraction;
 
+        public void Initialize(IGridInteraction gridInteraction)
+        {
+            playerInputHandler = new PlayerInputHandler();
+            playerInputHandler.OnTap += HandleTap;
+
+            this.gridInteraction = gridInteraction;
+        }
+
         private void Awake()
         {
             mainCamera = Camera.main;
@@ -23,14 +31,6 @@ namespace ColorBlast.Player
                 playerInputHandler.OnTap -= HandleTap;
                 playerInputHandler.Dispose();
             }
-        }
-
-        public void Initialize(IGridInteraction gridInteraction)
-        {
-            playerInputHandler = new PlayerInputHandler();
-            playerInputHandler.OnTap += HandleTap;
-
-            this.gridInteraction = gridInteraction;
         }
 
         private void HandleTap(Vector2 position)
@@ -52,7 +52,7 @@ namespace ColorBlast.Player
                 return;
             }
 
-            if (!selectedBlock.CanBeInteract())
+            if (!selectedBlock.CanInteract())
             {
                 return;
             }

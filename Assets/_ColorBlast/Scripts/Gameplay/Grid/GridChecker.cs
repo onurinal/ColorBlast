@@ -11,6 +11,13 @@ namespace ColorBlast.Gameplay
     /// </summary>
     public class GridChecker
     {
+        private static readonly Vector2Int[] Neighbors = new Vector2Int[]
+        {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
         private LevelProperties levelProperties;
         private Block[,] blockGrid;
 
@@ -19,30 +26,12 @@ namespace ColorBlast.Gameplay
         private List<Block> currentGroup;
         private HashSet<Block> affectedBlocks;
 
-
-        private static readonly Vector2Int[] Neighbors = new Vector2Int[]
-        {
-            new Vector2Int(1, 0),
-            new Vector2Int(-1, 0),
-            new Vector2Int(0, 1),
-            new Vector2Int(0, -1)
-        };
-
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties)
         {
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
 
             InitializeLists();
-        }
-
-        private void InitializeLists()
-        {
-            var capacity = levelProperties.RowCount * levelProperties.ColumnCount / 2;
-            visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
-            matchQueue = new Queue<Vector2Int>(capacity);
-            currentGroup = new List<Block>(capacity);
-            affectedBlocks = new HashSet<Block>(capacity);
         }
 
         public void CheckAllGrid()
@@ -63,11 +52,90 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
-                    var blockColorData = blockGrid[row, col].BlockColorData;
+                    var blockColorData = blockGrid[row, col].ColorData;
                     FindConnectedMatch(row, col, blockColorData, currentGroup);
                     UpdateGroupIcons(currentGroup);
                 }
             }
+        }
+
+        public void CheckAffectedBlocks(List<Block> newSpawnedBlocks, List<Block> movedBlocks)
+        {
+            affectedBlocks.Clear();
+
+            AddBlocksToAffected(movedBlocks);
+            AddBlocksToAffected(newSpawnedBlocks);
+
+            ClearVisitedBlocks();
+
+            foreach (var block in affectedBlocks)
+            {
+                if (block == null)
+                {
+                    continue;
+                }
+
+                if (visitedBlocks[block.GridX, block.GridY])
+                {
+                    continue;
+                }
+
+                FindConnectedMatch(block.GridX, block.GridY, block.ColorData, currentGroup);
+                UpdateGroupIcons(currentGroup);
+            }
+        }
+
+        public void GetGroup(int row, int col, List<Block> resultList)
+        {
+            var block = blockGrid[row, col];
+            if (block == null)
+            {
+                return;
+            }
+
+            ClearVisitedBlocks();
+
+            var blockColorData = block.ColorData;
+            FindConnectedMatch(row, col, blockColorData, resultList);
+        }
+
+        public bool IsDeadlocked()
+        {
+            ClearVisitedBlocks();
+
+            for (int row = 0; row < levelProperties.RowCount; row++)
+            {
+                for (int col = 0; col < levelProperties.ColumnCount; col++)
+                {
+                    if (visitedBlocks[row, col])
+                    {
+                        continue;
+                    }
+
+                    if (blockGrid[row, col] == null)
+                    {
+                        continue;
+                    }
+
+                    FindConnectedMatch(row, col, blockGrid[row, col].ColorData, currentGroup);
+
+                    if (currentGroup.Count >= GameConstRules.MatchThreshold)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private void InitializeLists()
+        {
+            var capacity = levelProperties.RowCount * levelProperties.ColumnCount / 2;
+            visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
+            matchQueue = new Queue<Vector2Int>(capacity);
+            currentGroup = new List<Block>(capacity);
+            affectedBlocks = new HashSet<Block>(capacity);
         }
 
         private void FindConnectedMatch(int startRow, int startCol, BlockColorData blockColorData,
@@ -99,7 +167,7 @@ namespace ColorBlast.Gameplay
                     continue;
                 }
 
-                if (block.BlockColorData != blockColorData)
+                if (block.ColorData != blockColorData)
                 {
                     continue;
                 }
@@ -111,32 +179,6 @@ namespace ColorBlast.Gameplay
                 {
                     matchQueue.Enqueue(currentBlock + Neighbors[i]);
                 }
-            }
-        }
-
-        public void CheckAffectedBlocks(List<Block> newSpawnedBlocks, List<Block> movedBlocks)
-        {
-            affectedBlocks.Clear();
-
-            AddBlocksToAffected(movedBlocks);
-            AddBlocksToAffected(newSpawnedBlocks);
-
-            ClearVisitedBlocks();
-
-            foreach (var block in affectedBlocks)
-            {
-                if (block == null)
-                {
-                    continue;
-                }
-
-                if (visitedBlocks[block.GridX, block.GridY])
-                {
-                    continue;
-                }
-
-                FindConnectedMatch(block.GridX, block.GridY, block.BlockColorData, currentGroup);
-                UpdateGroupIcons(currentGroup);
             }
         }
 
@@ -186,23 +228,9 @@ namespace ColorBlast.Gameplay
             {
                 if (group.Count != group[i].CurrentGroupSize)
                 {
-                    group[i].UpdateIcon(group.Count);
+                    group[i].UpdateGroupSize(group.Count);
                 }
             }
-        }
-
-        public void GetGroup(int row, int col, List<Block> resultList)
-        {
-            var block = blockGrid[row, col];
-            if (block == null)
-            {
-                return;
-            }
-
-            ClearVisitedBlocks();
-
-            var blockColorData = block.BlockColorData;
-            FindConnectedMatch(row, col, blockColorData, resultList);
         }
 
         private bool IsInsideGrid(int row, int col)
@@ -210,36 +238,6 @@ namespace ColorBlast.Gameplay
             if (row < 0 || col < 0 || row >= levelProperties.RowCount || col >= levelProperties.ColumnCount)
             {
                 return false;
-            }
-
-            return true;
-        }
-
-        public bool IsDeadlocked()
-        {
-            ClearVisitedBlocks();
-
-            for (int row = 0; row < levelProperties.RowCount; row++)
-            {
-                for (int col = 0; col < levelProperties.ColumnCount; col++)
-                {
-                    if (visitedBlocks[row, col])
-                    {
-                        continue;
-                    }
-
-                    if (blockGrid[row, col] == null)
-                    {
-                        continue;
-                    }
-
-                    FindConnectedMatch(row, col, blockGrid[row, col].BlockColorData, currentGroup);
-
-                    if (currentGroup.Count >= GameConstRules.MatchThreshold)
-                    {
-                        return false;
-                    }
-                }
             }
 
             return true;

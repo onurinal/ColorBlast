@@ -33,29 +33,13 @@ namespace ColorBlast.Gameplay
                     if (blockGrid[row, col] == null)
                     {
                         var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
-                        var newBlock = CreateBlock(row, col, spawnPosition);
+                        var newBlock = CreateBlockAt(row, col, spawnPosition);
                         blockGrid[row, col] = newBlock;
                         var targetPosition = gridManager.GetCellWorldPosition(row, col);
                         newBlock.MoveToPosition(targetPosition);
                     }
                 }
             }
-        }
-
-        private Block CreateBlock(int row, int col, Vector2 spawnPosition)
-        {
-            var newBlock = ObjectPoolManager.Instance.GetBlock();
-            var randomColorData = GetRandomColor();
-            newBlock.Initialize(row, col, randomColorData);
-            newBlock.transform.position = spawnPosition;
-
-            return newBlock;
-        }
-
-        private BlockColorData GetRandomColor()
-        {
-            var randomColorData = blockColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
-            return randomColorData;
         }
 
         public void SpawnNewBlocks(List<Block> newSpawnBlocks)
@@ -73,12 +57,44 @@ namespace ColorBlast.Gameplay
                 {
                     var targetCol = levelProperties.ColumnCount - emptyCount + i;
                     var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i);
-                    var newBlock = CreateBlock(row, targetCol, spawnPosition);
-                    blockGrid[row, targetCol] = newBlock;
+                    var newBlock = CreateBlockAt(row, targetCol, spawnPosition);
                     newBlock.SetVisible(false);
+
+                    blockGrid[row, targetCol] = newBlock;
                     newSpawnBlocks.Add(newBlock);
                 }
             }
+        }
+
+        public void PlayNewSpawnBlocksAnimation(List<Block> newSpawnBlocks)
+        {
+            for (int i = 0; i < newSpawnBlocks.Count; i++)
+            {
+                if (newSpawnBlocks[i] == null)
+                {
+                    continue;
+                }
+
+                newSpawnBlocks[i].SetVisible(true);
+                var targetPosition = gridManager.GetCellWorldPosition(newSpawnBlocks[i].GridX, newSpawnBlocks[i].GridY);
+                newSpawnBlocks[i].MoveToPosition(targetPosition);
+            }
+        }
+
+        private Block CreateBlockAt(int row, int col, Vector2 spawnPosition)
+        {
+            var newBlock = ObjectPoolManager.Instance.GetBlock();
+            var randomColorData = GetRandomColor();
+            newBlock.Initialize(row, col, randomColorData);
+            newBlock.transform.position = spawnPosition;
+
+            return newBlock;
+        }
+
+        private BlockColorData GetRandomColor()
+        {
+            var randomColorData = blockColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
+            return randomColorData;
         }
 
         private int CountEmptySlotsForColumn(int row)
@@ -98,21 +114,6 @@ namespace ColorBlast.Gameplay
             }
 
             return count;
-        }
-
-        public void PlayNewSpawnBlocksAnimation(List<Block> newSpawnBlocks)
-        {
-            for (int i = 0; i < newSpawnBlocks.Count; i++)
-            {
-                if (newSpawnBlocks[i] == null)
-                {
-                    continue;
-                }
-
-                newSpawnBlocks[i].SetVisible(true);
-                var targetPosition = gridManager.GetCellWorldPosition(newSpawnBlocks[i].GridX, newSpawnBlocks[i].GridY);
-                newSpawnBlocks[i].MoveToPosition(targetPosition);
-            }
         }
     }
 }

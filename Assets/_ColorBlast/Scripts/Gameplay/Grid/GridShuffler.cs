@@ -11,14 +11,13 @@ namespace ColorBlast.Gameplay
     /// </summary>
     public class GridShuffler
     {
+        private readonly Dictionary<BlockColorData, List<Block>> colorToBlocks = new();
+        private readonly HashSet<(int row, int col)> protectedPositions = new();
+        private readonly List<Vector2Int> neighbors = new();
         private Block[,] blockGrid;
         private LevelProperties levelProperties;
         private GridManager gridManager;
         private BlockColorDatabase blockColorDatabase;
-
-        private readonly Dictionary<BlockColorData, List<Block>> colorToBlocks = new();
-        private readonly HashSet<(int row, int col)> protectedPositions = new();
-        private readonly List<Vector2Int> neighbors = new();
 
         private int maxAttempts;
 
@@ -69,7 +68,7 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
-                    var color = blockGrid[row, col].BlockColorData;
+                    var color = blockGrid[row, col].ColorData;
                     if (!colorToAllBlocks.TryGetValue(color, out var newColorList))
                     {
                         newColorList = new List<Block>();
@@ -115,8 +114,8 @@ namespace ColorBlast.Gameplay
         private void CreateGuaranteeMatchByRecolor()
         {
             var (randomPosition, randomNeighbor) = GetRandomNeighbor();
-            var targetColor = blockGrid[randomPosition.x, randomPosition.y].BlockColorData;
-            blockGrid[randomNeighbor.x, randomNeighbor.y].UpdateColor(targetColor);
+            var targetColor = blockGrid[randomPosition.x, randomPosition.y].ColorData;
+            blockGrid[randomNeighbor.x, randomNeighbor.y].SetColor(targetColor);
 
             protectedPositions.Add((randomPosition.x, randomPosition.y));
             protectedPositions.Add((randomNeighbor.x, randomNeighbor.y));

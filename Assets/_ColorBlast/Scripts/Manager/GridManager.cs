@@ -13,7 +13,6 @@ namespace ColorBlast.Manager
     {
         [Header("Grid Configuration")]
         [SerializeField] private BlockProperties blockProperties;
-
         [SerializeField] private BlockColorDatabase blockColorDatabase;
 
         [Header("References")]
@@ -44,36 +43,6 @@ namespace ColorBlast.Manager
 
             InitializeGridSystems(levelProperties);
             InitializeCamera(levelProperties);
-        }
-
-        private void CacheValues()
-        {
-            blockSize = blockProperties.GetBlockSpriteBoundSize();
-        }
-
-        private void CreateGrid()
-        {
-            blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
-
-            var maxCapacity = levelProperties.RowCount * levelProperties.ColumnCount;
-            selectedGroup = new List<Block>(maxCapacity / 2);
-        }
-
-        private void InitializeGridSystems(LevelProperties levelProperties)
-        {
-            gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockGrid, this, levelProperties, blockColorDatabase);
-            gridChecker = new GridChecker();
-            gridChecker.Initialize(blockGrid, levelProperties);
-            gridRefill = new GridRefill();
-            gridRefill.Initialize(blockGrid, this, levelProperties);
-            gridShuffler = new GridShuffler();
-            gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase);
-        }
-
-        private void InitializeCamera(LevelProperties levelProperties)
-        {
-            cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
         }
 
         public Vector2 GetCellWorldPosition(int row, int col)
@@ -109,6 +78,47 @@ namespace ColorBlast.Manager
             EventManager.TriggerOnMoveChanged();
         }
 
+        private static void PlayDestroyAnimation(List<Block> blocks)
+        {
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                if (blocks[i] != null)
+                {
+                    blocks[i].HandleDestroy();
+                }
+            }
+        }
+
+        private void CacheValues()
+        {
+            blockSize = blockProperties.GetBlockSpriteBoundSize();
+        }
+
+        private void CreateGrid()
+        {
+            blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
+
+            var maxCapacity = levelProperties.RowCount * levelProperties.ColumnCount;
+            selectedGroup = new List<Block>(maxCapacity / 2);
+        }
+
+        private void InitializeGridSystems(LevelProperties levelProperties)
+        {
+            gridSpawner = new GridSpawner();
+            gridSpawner.Initialize(blockGrid, this, levelProperties, blockColorDatabase);
+            gridChecker = new GridChecker();
+            gridChecker.Initialize(blockGrid, levelProperties);
+            gridRefill = new GridRefill();
+            gridRefill.Initialize(blockGrid, this, levelProperties);
+            gridShuffler = new GridShuffler();
+            gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase);
+        }
+
+        private void InitializeCamera(LevelProperties levelProperties)
+        {
+            cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
+        }
+
         private void ResolveGrid(List<Block> blocks)
         {
             var movedBlocks = new List<Block>();
@@ -132,17 +142,6 @@ namespace ColorBlast.Manager
                 }
 
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
-            }
-        }
-
-        private static void PlayDestroyAnimation(List<Block> blocks)
-        {
-            for (int i = 0; i < blocks.Count; i++)
-            {
-                if (blocks[i] != null)
-                {
-                    blocks[i].HandleDestroy();
-                }
             }
         }
 

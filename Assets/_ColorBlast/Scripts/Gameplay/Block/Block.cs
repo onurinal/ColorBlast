@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using ColorBlast.Manager;
 using ColorBlast.Core;
-using DG.Tweening;
+using ColorBlast.Manager;
 
 namespace ColorBlast.Gameplay
 {
@@ -13,31 +12,24 @@ namespace ColorBlast.Gameplay
     {
         [Header("References")]
         [SerializeField] private BlockProperties blockProperties;
+        [SerializeField] private BlockView blockView;
 
-        [SerializeField] private SpriteRenderer blockSpriteRenderer;
-        [SerializeField] private Transform blockModelTransform;
-
-        private Tween destroyTween;
-        private Tween moveTween;
-
-        public BlockColorData BlockColorData { get; private set; }
-
+        public BlockColorData ColorData { get; private set; }
         public int CurrentGroupSize { get; private set; }
         public int GridX { get; private set; }
-
         public int GridY { get; private set; }
         public bool IsAnimating { get; private set; }
 
         private void Awake()
         {
-            UpdateBlockScale();
+            blockView.SetBlockScale(blockProperties.BlockSizeX, blockProperties.BlockSizeY);
         }
 
-        public void Initialize(int gridX, int gridY, BlockColorData blockColorData)
+        public void Initialize(int gridX, int gridY, BlockColorData colorData)
         {
             SetGridPosition(gridX, gridY);
-            BlockColorData = blockColorData;
-            UpdateVisual();
+            ColorData = colorData;
+            RefreshVisual();
         }
 
         public void SetGridPosition(int gridX, int gridY)
@@ -45,77 +37,25 @@ namespace ColorBlast.Gameplay
             GridX = gridX;
             GridY = gridY;
 
-            UpdateOrderLayer();
+            blockView.UpdateSortingOrder(gridY);
         }
 
-        public void UpdateIcon(int groupSize)
+        public void UpdateGroupSize(int groupSize)
         {
             CurrentGroupSize = groupSize;
-            UpdateVisual();
-        }
-
-        public void UpdateColor(BlockColorData newColorData)
-        {
-            BlockColorData = newColorData;
-            UpdateVisual();
-        }
-
-        private void UpdateVisual()
-        {
-            if (blockSpriteRenderer != null)
-            {
-                blockSpriteRenderer.sprite = BlockColorData.GetVisual(CurrentGroupSize);
-            }
-        }
-
-        private void ResetVisual()
-        {
-            transform.localScale = Vector3.one;
-            CurrentGroupSize = 0;
-            UpdateVisual();
-        }
-
-        private void UpdateOrderLayer()
-        {
-            if (blockSpriteRenderer != null)
-            {
-                blockSpriteRenderer.sortingOrder = GridY;
-            }
-        }
-
-        private void UpdateBlockScale()
-        {
-            if (blockModelTransform != null && blockProperties != null)
-            {
-                blockModelTransform.localScale = new Vector3(blockProperties.BlockSizeX, blockProperties.BlockSizeY, 1);
-            }
+            RefreshVisual();
         }
 
         public void MoveToPosition(Vector2 targetPosition)
         {
             IsAnimating = true;
-
-            moveTween?.Kill();
-            moveTween = transform.DOMove(targetPosition, blockProperties.MoveDuration).SetEase(Ease.InOutCubic)
-                .OnComplete(() => { IsAnimating = false; });
+            blockView.PlayMoveAnim(targetPosition, blockProperties.MoveDuration, () => IsAnimating = false);
         }
 
         public void HandleDestroy()
         {
             IsAnimating = false;
-
-            moveTween?.Kill();
-            destroyTween?.Kill();
-            destroyTween =
-                transform.DOScale(Vector2.zero, blockProperties.DestroyDuration).SetEase(Ease.InOutBounce)
-                    .OnComplete(ReturnToPool);
-        }
-
-        private void ReturnToPool()
-        {
-            moveTween?.Kill();
-            destroyTween?.Kill();
-            ObjectPoolManager.Instance.ReturnBlock(this);
+            blockView.PlayDestroyAnim(blockProperties.DestroyDuration, (ReturnToPool));
         }
 
         public void OnSpawn()
@@ -125,37 +65,43 @@ namespace ColorBlast.Gameplay
 
         public void OnDespawn()
         {
-            moveTween?.Kill();
-            destroyTween?.Kill();
-
-            moveTween = null;
-            destroyTween = null;
-
             IsAnimating = false;
-            ResetVisual();
+            CurrentGroupSize = 0;
+            blockView.ResetView();
         }
 
-        public bool CanBeInteract()
+        public bool CanInteract()
         {
             return !IsAnimating;
         }
 
         public void SetVisible(bool visible)
         {
-            if (blockSpriteRenderer != null)
-            {
-                blockSpriteRenderer.enabled = visible;
-            }
+            blockView.SetVisible(visible);
         }
 
-        public bool IsVisible()
+        public void SetColor(BlockColorData newColorData)
         {
-            if (blockSpriteRenderer != null)
+            ColorData = newColorData;
+            RefreshVisual();
+        }
+
+        public bool IsVisible() => blockView.IsVisible();
+
+        private void RefreshVisual()
+        {
+            if (ColorData == null)
             {
-                return blockSpriteRenderer.enabled;
+                return;
             }
 
-            return false;
+            var sprite = ColorData.GetVisual(CurrentGroupSize);
+            blockView.UpdateVisual(sprite);
+        }
+
+        private void ReturnToPool()
+        {
+            ObjectPoolManager.Instance.ReturnBlock(this);
         }
     }
 }
