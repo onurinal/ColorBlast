@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using ColorBlast.Gameplay;
 using Cysharp.Threading.Tasks;
@@ -31,7 +30,7 @@ namespace ColorBlast.Manager
 
         private List<Block> selectedGroup;
 
-        private bool isShuffling = false;
+        private bool isBusy = false;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
@@ -67,6 +66,11 @@ namespace ColorBlast.Manager
 
         public void OnBlockClicked(Block block)
         {
+            if (isBusy)
+            {
+                return;
+            }
+
             selectedGroup.Clear();
             gridChecker.GetGroup(block.GridX, block.GridY, selectedGroup);
 
@@ -75,19 +79,8 @@ namespace ColorBlast.Manager
                 return;
             }
 
-            ResolveGrid(selectedGroup);
+            ResolveGrid(selectedGroup).Forget();
             EventManager.TriggerOnMoveChanged();
-        }
-
-        private static void PlayDestroyAnimation(List<Block> blocks)
-        {
-            for (int i = 0; i < blocks.Count; i++)
-            {
-                if (blocks[i] != null)
-                {
-                    blocks[i].HandleDestroy();
-                }
-            }
         }
 
         private void CacheValues()
@@ -120,17 +113,56 @@ namespace ColorBlast.Manager
             cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
         }
 
-        private void ResolveGrid(List<Block> blocks)
+        private async UniTask ResolveGrid(List<Block> blocks)
+        {
+            isBusy = true;
+
+            try
+            {
+                await ExecuteDestroyPhase(blocks);
+                await ExecuteGravityPhase();
+                await ExecuteSpawnPhase();
+
+                gridChecker.CheckAllGrid();
+
+                if (gridChecker.IsDeadlocked())
+                    await ExecuteShufflePhase();
+            }
+            finally
+            {
+                isBusy = false;
+            }
+        }
+
+        private async UniTask ExecuteDestroyPhase(List<Block> blocks)
+        {
+            DestroyBlocks(blocks);
+            await UniTask.Delay(blockProperties.DestroyDurationMs,
+                cancellationToken: this.GetCancellationTokenOnDestroy());
+        }
+
+        private async UniTask ExecuteGravityPhase()
         {
             var movedBlocks = new List<Block>();
-            var newSpawnBlocks = new List<Block>();
-
-            DestroyBlocks(blocks);
             gridRefill.ApplyGravity(movedBlocks);
-            gridSpawner.SpawnNewBlocks(newSpawnBlocks);
-            gridChecker.CheckAffectedBlocks(newSpawnBlocks, movedBlocks);
+            await UniTask.Delay(blockProperties.SpawnDurationMs,
+                cancellationToken: this.GetCancellationTokenOnDestroy());
+        }
 
-            PlayAnimations(blocks, movedBlocks, newSpawnBlocks).Forget();
+        private async UniTask ExecuteSpawnPhase()
+        {
+            var newSpawnBlocks = new List<Block>();
+            gridSpawner.SpawnNewBlocks(newSpawnBlocks);
+            await UniTask.Delay(blockProperties.MoveDurationMs,
+                cancellationToken: this.GetCancellationTokenOnDestroy());
+        }
+
+        private async UniTask ExecuteShufflePhase()
+        {
+            uiManager.ShowShuffleUI(blockProperties.ShuffleDurationMs);
+            await UniTask.Delay(blockProperties.ShuffleDurationMs,
+                cancellationToken: this.GetCancellationTokenOnDestroy());
+            gridShuffler.Shuffle();
         }
 
         private void DestroyBlocks(List<Block> blocks)
@@ -143,35 +175,7 @@ namespace ColorBlast.Manager
                 }
 
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
-            }
-        }
-
-        private async UniTaskVoid PlayAnimations(List<Block> destroyBlocks, List<Block> movedBlocks,
-            List<Block> newSpawnBlocks)
-        {
-            PlayDestroyAnimation(destroyBlocks);
-            await UniTask.Delay(blockProperties.DestroyDurationMs,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
-            gridRefill.PlayRefillAnimation(movedBlocks);
-            await UniTask.Delay(blockProperties.SpawnDurationMs,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
-            gridSpawner.PlayNewSpawnBlocksAnimation(newSpawnBlocks);
-            await UniTask.Delay(blockProperties.MoveDurationMs,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
-
-            if (isShuffling)
-            {
-                return;
-            }
-
-            if (gridChecker.IsDeadlocked())
-            {
-                isShuffling = true;
-                uiManager.ShowShuffleUI(blockProperties.ShuffleDurationMs);
-                await UniTask.Delay(blockProperties.ShuffleDurationMs,
-                    cancellationToken: this.GetCancellationTokenOnDestroy());
-                gridShuffler.Shuffle();
-                isShuffling = false;
+                blocks[i].HandleDestroy();
             }
         }
     }

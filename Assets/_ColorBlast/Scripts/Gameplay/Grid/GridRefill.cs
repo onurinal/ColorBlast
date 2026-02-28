@@ -12,7 +12,6 @@ namespace ColorBlast.Gameplay
         private GridManager gridManager;
         private LevelProperties levelProperties;
 
-
         public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
         {
             this.blockGrid = blockGrid;
@@ -46,28 +45,12 @@ namespace ColorBlast.Gameplay
                     blockGrid[row, writeCol] = block;
                     blockGrid[row, col] = null;
                     block.SetGridPosition(row, writeCol);
-
-                    if (block.IsVisible())
-                    {
-                        movedBlocks.Add(block);
-                    }
+                    var targetPosition = gridManager.GetCellWorldPosition(block.GridX, block.GridY);
+                    block.MoveToPosition(targetPosition);
+                    movedBlocks.Add(block);
                 }
 
                 writeCol++;
-            }
-        }
-
-        public void PlayRefillAnimation(List<Block> movedBlocks)
-        {
-            for (int i = 0; i < movedBlocks.Count; i++)
-            {
-                if (movedBlocks[i] == null)
-                {
-                    continue;
-                }
-
-                var targetPosition = gridManager.GetCellWorldPosition(movedBlocks[i].GridX, movedBlocks[i].GridY);
-                movedBlocks[i].MoveToPosition(targetPosition);
             }
         }
     }

@@ -15,7 +15,7 @@ MonoBehaviour:
   blockPrefab: {fileID: 7525893087664308989, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
   blockSizeX: 0.45
   blockSizeY: 0.4
-  destroyDuration: 0.15
-  moveDuration: 0.3
-  spawnDuration: 0.25
-  shuffleDuration: 2
+  destroyDuration: 200
+  moveDuration: 250
+  spawnDuration: 250
+  shuffleDuration: 300

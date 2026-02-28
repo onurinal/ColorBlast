@@ -58,26 +58,12 @@ namespace ColorBlast.Gameplay
                     var targetCol = levelProperties.ColumnCount - emptyCount + i;
                     var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i);
                     var newBlock = CreateBlockAt(row, targetCol, spawnPosition);
-                    newBlock.SetVisible(false);
 
+                    var targetPosition = gridManager.GetCellWorldPosition(newBlock.GridX, newBlock.GridY);
+                    newBlock.MoveToPosition(targetPosition);
                     blockGrid[row, targetCol] = newBlock;
                     newSpawnBlocks.Add(newBlock);
                 }
-            }
-        }
-
-        public void PlayNewSpawnBlocksAnimation(List<Block> newSpawnBlocks)
-        {
-            for (int i = 0; i < newSpawnBlocks.Count; i++)
-            {
-                if (newSpawnBlocks[i] == null)
-                {
-                    continue;
-                }
-
-                newSpawnBlocks[i].SetVisible(true);
-                var targetPosition = gridManager.GetCellWorldPosition(newSpawnBlocks[i].GridX, newSpawnBlocks[i].GridY);
-                newSpawnBlocks[i].MoveToPosition(targetPosition);
             }
         }
 
