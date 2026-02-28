@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
-using ColorBlast.Config;
 
 namespace ColorBlast.Gameplay
 {

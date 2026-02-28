@@ -1,4 +1,4 @@
-﻿namespace ColorBlast.Config
+﻿namespace ColorBlast.Gameplay
 {
     /// <summary>
     /// Contains data that never change between levels

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using ColorBlast.Player;
 using ColorBlast.Core;
+using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Manager
 {
@@ -17,6 +18,11 @@ namespace ColorBlast.Manager
             StartGame();
         }
 
+        public void RestartLevel()
+        {
+            SceneLoader.LoadSameScene();
+        }
+
         private void StartGame()
         {
             levelManager.LoadLevel(0);
@@ -31,12 +37,7 @@ namespace ColorBlast.Manager
             gridManager.Initialize(levelManager.CurrentLevel, uiManager);
             playerController.Initialize(gridManager);
 
-            StartCoroutine(gridManager.OnGameStart());
-        }
-
-        public void RestartLevel()
-        {
-            SceneLoader.LoadSameScene();
+            gridManager.OnGameStart().Forget();
         }
     }
 }

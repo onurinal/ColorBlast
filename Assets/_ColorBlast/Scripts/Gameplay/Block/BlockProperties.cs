@@ -19,36 +19,22 @@ namespace ColorBlast.Gameplay
         [SerializeField] private float blockSizeY;
 
         [Header("Animation Durations")]
-        [SerializeField] private float destroyDuration;
+        [SerializeField] private int destroyDuration;
+        [SerializeField] private int moveDuration;
+        [SerializeField] private int spawnDuration;
+        [SerializeField] private int shuffleDuration;
 
-        [SerializeField] private float moveDuration;
-        [SerializeField] private float spawnDuration;
-        [SerializeField] private float shuffleDuration;
+        public float BlockSizeX => blockSizeX;
+        public float BlockSizeY => blockSizeY;
+        public float SpacingX => BaseSpacingX * (blockSizeX / BaseBlockSizeX);
+        public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
 
-        private WaitForSeconds cachedDestroyWait;
-        private WaitForSeconds cachedMoveWait;
-        private WaitForSeconds cachedSpawnWait;
-        private WaitForSeconds cachedShuffleWait;
-
-        private void OnEnable()
-        {
-            UpdateCacheValues();
-        }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            UpdateCacheValues();
-        }
-#endif
-
-        private void UpdateCacheValues()
-        {
-            cachedDestroyWait = new WaitForSeconds(destroyDuration);
-            cachedMoveWait = new WaitForSeconds(moveDuration);
-            cachedSpawnWait = new WaitForSeconds(spawnDuration);
-            cachedShuffleWait = new WaitForSeconds(shuffleDuration);
-        }
+        public int MoveDurationMs => moveDuration;
+        public int DestroyDurationMs => destroyDuration;
+        public int SpawnDurationMs => spawnDuration;
+        public int ShuffleDurationMs => shuffleDuration;
+        public float MoveDurationSec => moveDuration / 1000f;
+        public float DestroyDurationSec => destroyDuration / 1000f;
 
         public Vector2 GetBlockSpriteBoundSize()
         {
@@ -67,20 +53,5 @@ namespace ColorBlast.Gameplay
             var blockSize = new Vector2(baseSpriteWidth * blockSizeX, baseSpriteHeight * blockSizeY);
             return blockSize;
         }
-
-
-        public float BlockSizeX => blockSizeX;
-        public float BlockSizeY => blockSizeY;
-        public float SpacingX => BaseSpacingX * (blockSizeX / BaseBlockSizeX);
-        public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
-
-        public float MoveDuration => moveDuration;
-        public float DestroyDuration => destroyDuration;
-        public float ShuffleDuration => shuffleDuration;
-
-        public WaitForSeconds DestroyWait => cachedDestroyWait;
-        public WaitForSeconds MoveWait => cachedMoveWait;
-        public WaitForSeconds SpawnWait => cachedSpawnWait;
-        public WaitForSeconds ShuffleWait => cachedShuffleWait;
     }
 }

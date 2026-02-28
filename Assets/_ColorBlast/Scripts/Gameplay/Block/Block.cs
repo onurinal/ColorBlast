@@ -49,13 +49,13 @@ namespace ColorBlast.Gameplay
         public void MoveToPosition(Vector2 targetPosition)
         {
             IsAnimating = true;
-            blockView.PlayMoveAnim(targetPosition, blockProperties.MoveDuration, () => IsAnimating = false);
+            blockView.PlayMoveAnim(targetPosition, blockProperties.MoveDurationSec, () => IsAnimating = false);
         }
 
         public void HandleDestroy()
         {
             IsAnimating = false;
-            blockView.PlayDestroyAnim(blockProperties.DestroyDuration, (ReturnToPool));
+            blockView.PlayDestroyAnim(blockProperties.DestroyDurationSec, (ReturnToPool));
         }
 
         public void OnSpawn()
