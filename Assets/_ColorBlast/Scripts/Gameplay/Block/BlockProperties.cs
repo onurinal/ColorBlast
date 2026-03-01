@@ -34,6 +34,7 @@ namespace ColorBlast.Gameplay
         public int ShuffleDurationMs => shuffleDuration;
         public float MoveDurationSec => moveDuration / 1000f;
         public float DestroyDurationSec => destroyDuration / 1000f;
+        public float ShuffleDurationSec => shuffleDuration / 1000f;
 
         public Vector2 BlockSpriteBoundSize { get; private set; }
 

@@ -14,11 +14,6 @@ namespace ColorBlast.Manager
         private int currentMove;
         private Sequence shuffleSequence;
 
-        public void Initialize()
-        {
-            ResetMove();
-        }
-
         private void OnEnable()
         {
             EventManager.OnMoveChanged += HandleMoveChanged;
@@ -34,16 +29,9 @@ namespace ColorBlast.Manager
             shuffleSequence?.Kill();
         }
 
-        private void ResetMove()
+        public void Initialize()
         {
-            currentMove = 0;
-            moveText.SetText(currentMove.ToString());
-        }
-
-        private void HandleMoveChanged()
-        {
-            currentMove++;
-            moveText.SetText(currentMove.ToString());
+            ResetMove();
         }
 
         public void ShowShuffleUI(float duration)
@@ -64,6 +52,18 @@ namespace ColorBlast.Manager
             shuffleSequence.Append(shuffleUI.DOScale(1f, halfDuration).SetEase(Ease.OutBack));
             shuffleSequence.Append(shuffleUI.DOScale(0f, halfDuration).SetEase(Ease.InBack));
             shuffleSequence.OnComplete(() => { shuffleUI.gameObject.SetActive(false); });
+        }
+
+        private void ResetMove()
+        {
+            currentMove = 0;
+            moveText.SetText(currentMove.ToString());
+        }
+
+        private void HandleMoveChanged()
+        {
+            currentMove++;
+            moveText.SetText(currentMove.ToString());
         }
     }
 }

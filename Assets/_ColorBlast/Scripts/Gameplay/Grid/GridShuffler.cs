@@ -36,7 +36,7 @@ namespace ColorBlast.Gameplay
 
         public void Shuffle()
         {
-            UpdateAllColorToList(colorToBlocks);
+            UpdateAllColorToList();
 
             protectedPositions.Clear();
 
@@ -57,7 +57,7 @@ namespace ColorBlast.Gameplay
             AnimateBlocksToNewPositions();
         }
 
-        private void UpdateAllColorToList(Dictionary<BlockColorData, List<Block>> colorToAllBlocks)
+        private void UpdateAllColorToList()
         {
             colorToBlocks.Clear();
 
@@ -71,10 +71,10 @@ namespace ColorBlast.Gameplay
                     }
 
                     var color = blockGrid[row, col].ColorData;
-                    if (!colorToAllBlocks.TryGetValue(color, out var newColorList))
+                    if (!colorToBlocks.TryGetValue(color, out var newColorList))
                     {
                         newColorList = new List<Block>();
-                        colorToAllBlocks.Add(color, newColorList);
+                        colorToBlocks.Add(color, newColorList);
                     }
 
                     newColorList.Add(blockGrid[row, col]);
@@ -237,8 +237,7 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
-                    var block = blockGrid[row, col];
-                    block.MoveToPosition(gridManager.GetCellWorldPosition(row, col));
+                    blockGrid[row, col].MoveToPosition(gridManager.GetCellWorldPosition(row, col));
                 }
             }
         }

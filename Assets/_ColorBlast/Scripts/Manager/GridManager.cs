@@ -53,15 +53,21 @@ namespace ColorBlast.Manager
 
         public async UniTaskVoid OnGameStart()
         {
-            gridSpawner.CreateNewBlocksAtStart();
-            gridChecker.CheckAllGrid();
+            isBusy = true;
 
-            if (gridChecker.IsDeadlocked())
+            try
             {
-                uiManager.ShowShuffleUI(blockProperties.ShuffleDurationMs);
-                await UniTask.Delay(blockProperties.ShuffleDurationMs,
-                    cancellationToken: this.GetCancellationTokenOnDestroy());
-                gridShuffler.Shuffle();
+                gridSpawner.CreateNewBlocksAtStart();
+                gridChecker.CheckAllGrid();
+
+                if (gridChecker.IsDeadlocked())
+                {
+                    await ExecuteShufflePhase();
+                }
+            }
+            finally
+            {
+                isBusy = false;
             }
         }
 
@@ -162,7 +168,7 @@ namespace ColorBlast.Manager
 
         private async UniTask ExecuteShufflePhase()
         {
-            uiManager.ShowShuffleUI(blockProperties.ShuffleDurationMs);
+            uiManager.ShowShuffleUI(blockProperties.ShuffleDurationSec);
             await UniTask.Delay(blockProperties.ShuffleDurationMs,
                 cancellationToken: this.GetCancellationTokenOnDestroy());
             gridShuffler.Shuffle();
