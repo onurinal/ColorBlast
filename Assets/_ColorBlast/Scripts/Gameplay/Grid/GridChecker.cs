@@ -6,37 +6,41 @@ namespace ColorBlast.Gameplay
 {
     /// <summary>
     /// Handles group detection, icon updates and deadlock detection on the game board
-    /// Uses flood-fill algorithm to find connected groups of same colored blocks
+    /// Uses flood-fill (BFS) to find connected groups of same colored blocks
     /// </summary>
     public class GridChecker
     {
-        private static readonly Vector2Int[] Neighbors = new Vector2Int[]
+        private static readonly Vector2Int[] Neighbors =
         {
             new Vector2Int(1, 0),
             new Vector2Int(-1, 0),
             new Vector2Int(0, 1),
             new Vector2Int(0, -1)
         };
+
+        private MatchRulesConfig matchRulesConfig;
         private LevelProperties levelProperties;
         private Block[,] blockGrid;
 
         private bool[,] visitedBlocks;
-        private Queue<Vector2Int> matchQueue;
+        private Queue<Vector2Int> queue;
         private List<Block> currentGroup;
-        private HashSet<Block> affectedBlocks;
 
-        public void Initialize(Block[,] blockGrid, LevelProperties levelProperties)
+        public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, MatchRulesConfig matchRulesConfig)
         {
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
+            this.matchRulesConfig = matchRulesConfig;
 
-            InitializeLists();
+            var capacity = levelProperties.RowCount * levelProperties.ColumnCount;
+            visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
+            queue = new Queue<Vector2Int>(capacity / 2);
+            currentGroup = new List<Block>(capacity / 2);
         }
 
         public void CheckAllGrid()
         {
             ClearVisitedBlocks();
-
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
@@ -51,51 +55,24 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
-                    var blockColorData = blockGrid[row, col].ColorData;
-                    FindConnectedMatch(row, col, blockColorData, currentGroup);
+                    FindConnectedMatch(row, col, blockGrid[row, col].ColorData, currentGroup);
                     UpdateGroupIcons(currentGroup);
                 }
             }
         }
 
-        public void CheckAffectedBlocks(List<Block> newSpawnedBlocks, List<Block> movedBlocks)
-        {
-            affectedBlocks.Clear();
-
-            AddBlocksToAffected(movedBlocks);
-            AddBlocksToAffected(newSpawnedBlocks);
-
-            ClearVisitedBlocks();
-
-            foreach (var block in affectedBlocks)
-            {
-                if (block == null)
-                {
-                    continue;
-                }
-
-                if (visitedBlocks[block.GridX, block.GridY])
-                {
-                    continue;
-                }
-
-                FindConnectedMatch(block.GridX, block.GridY, block.ColorData, currentGroup);
-                UpdateGroupIcons(currentGroup);
-            }
-        }
-
-        public void GetGroup(int row, int col, List<Block> resultList)
+        public List<Block> GetGroupAt(int row, int col, List<Block> result)
         {
             var block = blockGrid[row, col];
             if (block == null)
             {
-                return;
+                return null;
             }
 
             ClearVisitedBlocks();
 
-            var blockColorData = block.ColorData;
-            FindConnectedMatch(row, col, blockColorData, resultList);
+            FindConnectedMatch(row, col, block.ColorData, result);
+            return result;
         }
 
         public bool IsDeadlocked()
@@ -118,7 +95,7 @@ namespace ColorBlast.Gameplay
 
                     FindConnectedMatch(row, col, blockGrid[row, col].ColorData, currentGroup);
 
-                    if (currentGroup.Count >= GameConstRules.MatchThreshold)
+                    if (currentGroup.Count >= matchRulesConfig.MatchThreshold)
                     {
                         return false;
                     }
@@ -128,25 +105,15 @@ namespace ColorBlast.Gameplay
             return true;
         }
 
-        private void InitializeLists()
+        private void FindConnectedMatch(int startRow, int startCol, BlockColorData colorData, List<Block> group)
         {
-            var capacity = levelProperties.RowCount * levelProperties.ColumnCount / 2;
-            visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
-            matchQueue = new Queue<Vector2Int>(capacity);
-            currentGroup = new List<Block>(capacity);
-            affectedBlocks = new HashSet<Block>(capacity);
-        }
+            group.Clear();
+            queue.Clear();
+            queue.Enqueue(new Vector2Int(startRow, startCol));
 
-        private void FindConnectedMatch(int startRow, int startCol, BlockColorData blockColorData,
-            List<Block> targetList)
-        {
-            targetList.Clear();
-            matchQueue.Clear();
-            matchQueue.Enqueue(new Vector2Int(startRow, startCol));
-
-            while (matchQueue.Count > 0)
+            while (queue.Count > 0)
             {
-                var currentBlock = matchQueue.Dequeue();
+                var currentBlock = queue.Dequeue();
                 var row = currentBlock.x;
                 var col = currentBlock.y;
 
@@ -166,68 +133,29 @@ namespace ColorBlast.Gameplay
                     continue;
                 }
 
-                if (block.ColorData != blockColorData)
+                if (block.ColorData != colorData)
                 {
                     continue;
                 }
 
                 visitedBlocks[row, col] = true;
-                targetList.Add(block);
+                group.Add(block);
 
                 for (int i = 0; i < Neighbors.Length; i++)
                 {
-                    matchQueue.Enqueue(currentBlock + Neighbors[i]);
-                }
-            }
-        }
-
-        private void AddBlocksToAffected(List<Block> blocks)
-        {
-            if (blocks == null || blocks.Count == 0)
-            {
-                return;
-            }
-
-            for (int i = 0; i < blocks.Count; i++)
-            {
-                var block = blocks[i];
-                if (block == null)
-                {
-                    continue;
-                }
-
-                affectedBlocks.Add(block);
-                AddNeighborsToAffectedGroup(block.GridX, block.GridY);
-            }
-        }
-
-        private void AddNeighborsToAffectedGroup(int row, int col)
-        {
-            for (int i = 0; i < Neighbors.Length; i++)
-            {
-                var neighborRow = row + Neighbors[i].x;
-                var neighborCol = col + Neighbors[i].y;
-
-                if (!IsInsideGrid(neighborRow, neighborCol))
-                {
-                    continue;
-                }
-
-                var block = blockGrid[neighborRow, neighborCol];
-                if (block != null)
-                {
-                    affectedBlocks.Add(block);
+                    queue.Enqueue(currentBlock + Neighbors[i]);
                 }
             }
         }
 
         private void UpdateGroupIcons(List<Block> group)
         {
-            for (int i = 0; i < group.Count; i++)
+            var count = group.Count;
+            foreach (var block in group)
             {
-                if (group.Count != group[i].CurrentGroupSize)
+                if (block.CurrentGroupSize != count)
                 {
-                    group[i].UpdateGroupSize(group.Count);
+                    block.UpdateGroupSize(count);
                 }
             }
         }

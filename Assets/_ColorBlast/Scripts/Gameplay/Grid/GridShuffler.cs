@@ -13,20 +13,23 @@ namespace ColorBlast.Gameplay
         private readonly Dictionary<BlockColorData, List<Block>> colorToBlocks = new();
         private readonly HashSet<(int row, int col)> protectedPositions = new();
         private readonly List<Vector2Int> neighbors = new();
+
         private Block[,] blockGrid;
         private LevelProperties levelProperties;
         private GridManager gridManager;
         private BlockColorDatabase blockColorDatabase;
+        private MatchRulesConfig matchRulesConfig;
 
         private int maxAttempts;
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridManager gridManager,
-            BlockColorDatabase blockColorDatabase)
+            BlockColorDatabase blockColorDatabase, MatchRulesConfig matchRulesConfig)
         {
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
             this.gridManager = gridManager;
             this.blockColorDatabase = blockColorDatabase;
+            this.matchRulesConfig = matchRulesConfig;
 
             maxAttempts = levelProperties.ColumnCount * levelProperties.RowCount;
         }
@@ -85,7 +88,7 @@ namespace ColorBlast.Gameplay
             {
                 var colorData = blockColorDatabase.GetColorDataByIndex(i);
                 if (colorToAllBlocks.TryGetValue(colorData, out var list) &&
-                    list.Count >= GameConstRules.MatchThreshold)
+                    list.Count >= matchRulesConfig.MatchThreshold)
                 {
                     return colorData;
                 }

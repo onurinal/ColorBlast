@@ -11,6 +11,7 @@ namespace ColorBlast.Manager
     public class GridManager : MonoBehaviour, IGridInteraction
     {
         [Header("Grid Configuration")]
+        [SerializeField] private MatchRulesConfig matchRulesConfig;
         [SerializeField] private BlockProperties blockProperties;
         [SerializeField] private BlockColorDatabase blockColorDatabase;
 
@@ -72,9 +73,9 @@ namespace ColorBlast.Manager
             }
 
             selectedGroup.Clear();
-            gridChecker.GetGroup(block.GridX, block.GridY, selectedGroup);
+            selectedGroup = gridChecker.GetGroupAt(block.GridX, block.GridY, selectedGroup);
 
-            if (selectedGroup.Count < GameConstRules.MatchThreshold)
+            if (selectedGroup.Count < matchRulesConfig.MatchThreshold)
             {
                 return;
             }
@@ -85,7 +86,7 @@ namespace ColorBlast.Manager
 
         private void CacheValues()
         {
-            blockSize = blockProperties.GetBlockSpriteBoundSize();
+            blockSize = blockProperties.BlockSpriteBoundSize;
         }
 
         private void CreateGrid()
@@ -101,11 +102,11 @@ namespace ColorBlast.Manager
             gridSpawner = new GridSpawner();
             gridSpawner.Initialize(blockGrid, this, levelProperties, blockColorDatabase);
             gridChecker = new GridChecker();
-            gridChecker.Initialize(blockGrid, levelProperties);
+            gridChecker.Initialize(blockGrid, levelProperties, matchRulesConfig);
             gridRefill = new GridRefill();
             gridRefill.Initialize(blockGrid, this, levelProperties);
             gridShuffler = new GridShuffler();
-            gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase);
+            gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase, matchRulesConfig);
         }
 
         private void InitializeCamera(LevelProperties levelProperties)
@@ -126,7 +127,9 @@ namespace ColorBlast.Manager
                 gridChecker.CheckAllGrid();
 
                 if (gridChecker.IsDeadlocked())
+                {
                     await ExecuteShufflePhase();
+                }
             }
             finally
             {

@@ -15,14 +15,13 @@ namespace ColorBlast.Gameplay
 
         [Header("Block Size")]
         [SerializeField] private float blockSizeX;
-
         [SerializeField] private float blockSizeY;
 
         [Header("Animation Durations")]
-        [SerializeField] private int destroyDuration;
-        [SerializeField] private int moveDuration;
-        [SerializeField] private int spawnDuration;
-        [SerializeField] private int shuffleDuration;
+        [SerializeField] private int destroyDuration = 200;
+        [SerializeField] private int moveDuration = 250;
+        [SerializeField] private int spawnDuration = 250;
+        [SerializeField] private int shuffleDuration = 300;
 
         public float BlockSizeX => blockSizeX;
         public float BlockSizeY => blockSizeY;
@@ -36,22 +35,37 @@ namespace ColorBlast.Gameplay
         public float MoveDurationSec => moveDuration / 1000f;
         public float DestroyDurationSec => destroyDuration / 1000f;
 
-        public Vector2 GetBlockSpriteBoundSize()
+        public Vector2 BlockSpriteBoundSize { get; private set; }
+
+#if UNITY_EDITOR
+        private void OnValidate()
         {
-            var blockSpriteRenderer = blockPrefab.GetComponentInChildren<SpriteRenderer>();
-            if (blockSpriteRenderer == null || blockSpriteRenderer.sprite == null)
+            CacheBlockSpriteBoundSize();
+        }
+
+        private void CacheBlockSpriteBoundSize()
+        {
+            if (blockPrefab == null)
             {
-                Debug.LogWarning("Block Sprite Renderer is null!");
-                return Vector2.zero;
+                Debug.LogWarning($"[{name}] Block prefab is not assigned.", this);
+                BlockSpriteBoundSize = Vector2.zero;
+                return;
             }
 
-            var blockSprite = blockSpriteRenderer.sprite;
+            var spriteRenderer = blockPrefab.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer == null || spriteRenderer.sprite == null)
+            {
+                Debug.LogWarning($"[{name}] Block prefab has no valid SpriteRenderer or Sprite.", this);
+                BlockSpriteBoundSize = Vector2.zero;
+                return;
+            }
 
-            var baseSpriteWidth = blockSprite.rect.width / blockSprite.pixelsPerUnit;
-            var baseSpriteHeight = blockSprite.rect.height / blockSprite.pixelsPerUnit;
+            var sprite = spriteRenderer.sprite;
+            var spriteWidth = sprite.rect.width / sprite.pixelsPerUnit;
+            var spriteHeight = sprite.rect.height / sprite.pixelsPerUnit;
 
-            var blockSize = new Vector2(baseSpriteWidth * blockSizeX, baseSpriteHeight * blockSizeY);
-            return blockSize;
+            BlockSpriteBoundSize = new Vector2(spriteWidth * blockSizeX, spriteHeight * blockSizeY);
         }
+#endif
     }
 }

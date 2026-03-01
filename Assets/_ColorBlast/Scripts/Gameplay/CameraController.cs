@@ -51,8 +51,8 @@ namespace ColorBlast.Gameplay
 
         private void UpdateCameraOrthographicSize()
         {
-            var gridWidth = rowCount * blockProperties.GetBlockSpriteBoundSize().x;
-            var gridHeight = columnCount * blockProperties.GetBlockSpriteBoundSize().y;
+            var gridWidth = rowCount * blockProperties.BlockSpriteBoundSize.x;
+            var gridHeight = columnCount * blockProperties.BlockSpriteBoundSize.y;
 
             var minWidthSize = (gridWidth + (padding * 2f)) / 2f / mainCamera.aspect;
             var minHeightSize = (gridHeight + (padding * 2f)) / 2f;
