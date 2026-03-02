@@ -61,7 +61,7 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        public List<Block> GetGroupAt(int row, int col, List<Block> result)
+        public List<Block> GetGroupAt(int row, int col)
         {
             var block = blockGrid[row, col];
             if (block == null)
@@ -71,8 +71,8 @@ namespace ColorBlast.Gameplay
 
             ClearVisitedBlocks();
 
-            FindConnectedMatch(row, col, block.ColorData, result);
-            return result;
+            FindConnectedMatch(row, col, block.ColorData, currentGroup);
+            return currentGroup;
         }
 
         public bool IsDeadlocked()

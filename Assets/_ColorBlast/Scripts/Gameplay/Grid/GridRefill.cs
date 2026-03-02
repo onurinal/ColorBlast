@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ColorBlast.Manager;
+﻿using ColorBlast.Manager;
 
 namespace ColorBlast.Gameplay
 {
@@ -19,15 +18,15 @@ namespace ColorBlast.Gameplay
             this.levelProperties = levelProperties;
         }
 
-        public void ApplyGravity(List<Block> movedBlocks)
+        public void ApplyGravity()
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
-                ApplyGravityToColumn(row, movedBlocks);
+                ApplyGravityToColumn(row);
             }
         }
 
-        private void ApplyGravityToColumn(int row, List<Block> movedBlocks)
+        private void ApplyGravityToColumn(int row)
         {
             var writeCol = 0;
 
@@ -47,7 +46,6 @@ namespace ColorBlast.Gameplay
                     block.SetGridPosition(row, writeCol);
                     var targetPosition = gridManager.GetCellWorldPosition(block.GridX, block.GridY);
                     block.MoveToPosition(targetPosition);
-                    movedBlocks.Add(block);
                 }
 
                 writeCol++;

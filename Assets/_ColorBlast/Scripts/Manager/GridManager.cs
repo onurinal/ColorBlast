@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Threading;
 using ColorBlast.Gameplay;
 using Cysharp.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace ColorBlast.Manager
     /// </summary>
     public class GridManager : MonoBehaviour, IGridInteraction
     {
-        [Header("Grid Configuration")]
+        [Header("Configurations")]
         [SerializeField] private MatchRulesConfig matchRulesConfig;
         [SerializeField] private BlockProperties blockProperties;
         [SerializeField] private BlockColorDatabase blockColorDatabase;
@@ -28,42 +29,35 @@ namespace ColorBlast.Manager
 
         private Block[,] blockGrid;
         private Vector2 blockSize;
-        private List<Block> selectedGroup;
         private bool isBusy = false;
-        private Vector2 gridCenterWorldPosition;
-        private Vector2 gridWorldSize;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
             this.levelProperties = levelProperties;
             this.uiManager = uiManager;
+            blockSize = blockProperties.BlockSpriteBoundSize;
+            blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
 
-            CacheValues();
-            CreateGrid();
-
-            InitializeGridSystems(levelProperties);
+            InitializeSystems();
             InitializeCamera();
         }
 
         public Vector2 GetCellWorldPosition(int row, int col)
         {
-            return new Vector2(row * (blockSize.x + blockProperties.SpacingX),
+            return new Vector2(
+                row * (blockSize.x + blockProperties.SpacingX),
                 col * (blockSize.y + blockProperties.SpacingY));
         }
 
         public async UniTaskVoid OnGameStart()
         {
             isBusy = true;
-
+            var ct = this.GetCancellationTokenOnDestroy();
             try
             {
-                gridSpawner.CreateNewBlocksAtStart();
+                gridSpawner.SpawnNewBlocks();
                 gridChecker.CheckAllGrid();
-
-                if (gridChecker.IsDeadlocked())
-                {
-                    await ExecuteShufflePhase();
-                }
+                await CheckAndHandleDeadlock(ct);
             }
             finally
             {
@@ -78,66 +72,58 @@ namespace ColorBlast.Manager
                 return;
             }
 
-            selectedGroup.Clear();
-            selectedGroup = gridChecker.GetGroupAt(block.GridX, block.GridY, selectedGroup);
+            List<Block> group = gridChecker.GetGroupAt(block.GridX, block.GridY);
 
-            if (selectedGroup.Count < matchRulesConfig.MatchThreshold)
+            if (group.Count < matchRulesConfig.MatchThreshold)
             {
                 return;
             }
 
-            ResolveGrid(selectedGroup).Forget();
+            ResolveGrid(group).Forget();
             EventManager.TriggerOnMoveChanged();
         }
 
-        private void CacheValues()
-        {
-            blockSize = blockProperties.BlockSpriteBoundSize;
-            gridCenterWorldPosition = GetGridCenterPosition();
-            gridWorldSize = GetGridWorldSize();
-        }
-
-        private void CreateGrid()
-        {
-            blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
-
-            var maxCapacity = levelProperties.RowCount * levelProperties.ColumnCount;
-            selectedGroup = new List<Block>(maxCapacity / 2);
-        }
-
-        private void InitializeGridSystems(LevelProperties levelProperties)
+        private void InitializeSystems()
         {
             gridSpawner = new GridSpawner();
             gridSpawner.Initialize(blockGrid, this, levelProperties, blockColorDatabase);
+
             gridChecker = new GridChecker();
             gridChecker.Initialize(blockGrid, levelProperties, matchRulesConfig);
+
             gridRefill = new GridRefill();
             gridRefill.Initialize(blockGrid, this, levelProperties);
+
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase, matchRulesConfig);
         }
 
         private void InitializeCamera()
         {
+            var gridWidth = levelProperties.RowCount * blockProperties.BlockSpriteBoundSize.x;
+            var gridHeight = levelProperties.ColumnCount * blockProperties.BlockSpriteBoundSize.y;
+            Vector2 gridWorldSize = new Vector2(gridWidth, gridHeight);
+
+            Vector2 bottomLeft = GetCellWorldPosition(0, 0);
+            Vector2 topRight = GetCellWorldPosition(levelProperties.RowCount - 1, levelProperties.ColumnCount - 1);
+            Vector2 gridCenterWorldPosition = (bottomLeft + topRight) / 2f;
+
             cameraController.Initialize(gridCenterWorldPosition, gridWorldSize);
         }
 
         private async UniTask ResolveGrid(List<Block> blocks)
         {
             isBusy = true;
+            var ct = this.GetCancellationTokenOnDestroy();
 
             try
             {
-                await ExecuteDestroyPhase(blocks);
-                await ExecuteGravityPhase();
-                await ExecuteSpawnPhase();
+                await ExecuteDestroyPhase(blocks, ct);
+                await ExecuteGravityPhase(ct);
+                await ExecuteSpawnPhase(ct);
 
                 gridChecker.CheckAllGrid();
-
-                if (gridChecker.IsDeadlocked())
-                {
-                    await ExecuteShufflePhase();
-                }
+                await CheckAndHandleDeadlock(ct);
             }
             finally
             {
@@ -145,35 +131,32 @@ namespace ColorBlast.Manager
             }
         }
 
-        private async UniTask ExecuteDestroyPhase(List<Block> blocks)
+        private async UniTask ExecuteDestroyPhase(List<Block> blocks, CancellationToken ct)
         {
             DestroyBlocks(blocks);
-            await UniTask.Delay(blockProperties.DestroyDurationMs,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(blockProperties.DestroyDurationMs, cancellationToken: ct);
         }
 
-        private async UniTask ExecuteGravityPhase()
+        private async UniTask ExecuteGravityPhase(CancellationToken ct)
         {
-            var movedBlocks = new List<Block>();
-            gridRefill.ApplyGravity(movedBlocks);
-            await UniTask.Delay(blockProperties.SpawnDurationMs,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
+            gridRefill.ApplyGravity();
+            await UniTask.Delay(blockProperties.FallDurationMs, cancellationToken: ct);
         }
 
-        private async UniTask ExecuteSpawnPhase()
+        private async UniTask ExecuteSpawnPhase(CancellationToken ct)
         {
-            var newSpawnBlocks = new List<Block>();
-            gridSpawner.SpawnNewBlocks(newSpawnBlocks);
-            await UniTask.Delay(blockProperties.MoveDurationMs,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
+            gridSpawner.SpawnNewBlocks();
+            await UniTask.Delay(blockProperties.SpawnDurationMs, cancellationToken: ct);
         }
 
-        private async UniTask ExecuteShufflePhase()
+        private async UniTask CheckAndHandleDeadlock(CancellationToken ct)
         {
-            uiManager.ShowShuffleUI(blockProperties.ShuffleDurationSec);
-            await UniTask.Delay(blockProperties.ShuffleDurationMs,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
-            gridShuffler.Shuffle();
+            if (gridChecker.IsDeadlocked())
+            {
+                uiManager.ShowShuffleUI(blockProperties.ShuffleDurationSec);
+                await UniTask.Delay(blockProperties.ShuffleDurationMs, cancellationToken: ct);
+                gridShuffler.Shuffle();
+            }
         }
 
         private void DestroyBlocks(List<Block> blocks)
@@ -188,22 +171,6 @@ namespace ColorBlast.Manager
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
                 blocks[i].HandleDestroy();
             }
-        }
-
-        private Vector2 GetGridCenterPosition()
-        {
-            Vector2 bottomLeft = GetCellWorldPosition(0, 0);
-            Vector2 topRight = GetCellWorldPosition(levelProperties.RowCount - 1, levelProperties.ColumnCount - 1);
-
-            return (bottomLeft + topRight) / 2f;
-        }
-
-        private Vector2 GetGridWorldSize()
-        {
-            var gridWidth = levelProperties.RowCount * blockProperties.BlockSpriteBoundSize.x;
-            var gridHeight = levelProperties.ColumnCount * blockProperties.BlockSpriteBoundSize.y;
-
-            return new Vector2(gridWidth, gridHeight);
         }
     }
 }

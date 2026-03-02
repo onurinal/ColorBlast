@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ColorBlast.Manager;
+﻿using ColorBlast.Manager;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay
@@ -24,26 +23,7 @@ namespace ColorBlast.Gameplay
             this.blockColorDatabase = blockColorDatabase;
         }
 
-        public void CreateNewBlocksAtStart()
-        {
-            for (int row = 0; row < levelProperties.RowCount; row++)
-            {
-                for (int col = 0; col < levelProperties.ColumnCount; col++)
-                {
-                    if (blockGrid[row, col] == null)
-                    {
-                        // Spawn above the grid, offset per column
-                        var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
-                        var newBlock = CreateBlockAt(row, col, spawnPosition);
-                        blockGrid[row, col] = newBlock;
-                        var targetPosition = gridManager.GetCellWorldPosition(row, col);
-                        newBlock.MoveToPosition(targetPosition);
-                    }
-                }
-            }
-        }
-
-        public void SpawnNewBlocks(List<Block> newSpawnBlocks)
+        public void SpawnNewBlocks()
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -63,7 +43,6 @@ namespace ColorBlast.Gameplay
                     var targetPosition = gridManager.GetCellWorldPosition(newBlock.GridX, newBlock.GridY);
                     newBlock.MoveToPosition(targetPosition);
                     blockGrid[row, targetCol] = newBlock;
-                    newSpawnBlocks.Add(newBlock);
                 }
             }
         }

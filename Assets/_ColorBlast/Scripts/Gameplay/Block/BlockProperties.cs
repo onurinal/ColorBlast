@@ -19,7 +19,7 @@ namespace ColorBlast.Gameplay
 
         [Header("Animation Durations")]
         [SerializeField] private int destroyDuration = 200;
-        [SerializeField] private int moveDuration = 250;
+        [SerializeField] private int fallDuration = 250;
         [SerializeField] private int spawnDuration = 250;
         [SerializeField] private int shuffleDuration = 300;
 
@@ -28,11 +28,11 @@ namespace ColorBlast.Gameplay
         public float SpacingX => BaseSpacingX * (blockSizeX / BaseBlockSizeX);
         public float SpacingY => BaseSpacingY * (blockSizeY / BaseBlockSizeY);
 
-        public int MoveDurationMs => moveDuration;
+        public int FallDurationMs => fallDuration;
         public int DestroyDurationMs => destroyDuration;
         public int SpawnDurationMs => spawnDuration;
         public int ShuffleDurationMs => shuffleDuration;
-        public float MoveDurationSec => moveDuration / 1000f;
+        public float FallDurationSec => fallDuration / 1000f;
         public float DestroyDurationSec => destroyDuration / 1000f;
         public float ShuffleDurationSec => shuffleDuration / 1000f;
 
