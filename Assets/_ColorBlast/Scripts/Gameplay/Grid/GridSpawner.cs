@@ -32,6 +32,7 @@ namespace ColorBlast.Gameplay
                 {
                     if (blockGrid[row, col] == null)
                     {
+                        // Spawn above the grid, offset per column
                         var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + col);
                         var newBlock = CreateBlockAt(row, col, spawnPosition);
                         blockGrid[row, col] = newBlock;
@@ -70,17 +71,11 @@ namespace ColorBlast.Gameplay
         private Block CreateBlockAt(int row, int col, Vector2 spawnPosition)
         {
             var newBlock = ObjectPoolManager.Instance.GetBlock();
-            var randomColorData = GetRandomColor();
+            var randomColorData = blockColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
             newBlock.Initialize(row, col, randomColorData);
             newBlock.transform.position = spawnPosition;
 
             return newBlock;
-        }
-
-        private BlockColorData GetRandomColor()
-        {
-            var randomColorData = blockColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
-            return randomColorData;
         }
 
         private int CountEmptySlotsForColumn(int row)

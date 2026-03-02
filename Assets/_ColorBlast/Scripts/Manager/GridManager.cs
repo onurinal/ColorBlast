@@ -28,10 +28,10 @@ namespace ColorBlast.Manager
 
         private Block[,] blockGrid;
         private Vector2 blockSize;
-
         private List<Block> selectedGroup;
-
         private bool isBusy = false;
+        private Vector2 gridCenterWorldPosition;
+        private Vector2 gridWorldSize;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
@@ -42,7 +42,7 @@ namespace ColorBlast.Manager
             CreateGrid();
 
             InitializeGridSystems(levelProperties);
-            InitializeCamera(levelProperties);
+            InitializeCamera();
         }
 
         public Vector2 GetCellWorldPosition(int row, int col)
@@ -93,6 +93,8 @@ namespace ColorBlast.Manager
         private void CacheValues()
         {
             blockSize = blockProperties.BlockSpriteBoundSize;
+            gridCenterWorldPosition = GetGridCenterPosition();
+            gridWorldSize = GetGridWorldSize();
         }
 
         private void CreateGrid()
@@ -115,9 +117,9 @@ namespace ColorBlast.Manager
             gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase, matchRulesConfig);
         }
 
-        private void InitializeCamera(LevelProperties levelProperties)
+        private void InitializeCamera()
         {
-            cameraController.Initialize(levelProperties.RowCount, levelProperties.ColumnCount, this, blockProperties);
+            cameraController.Initialize(gridCenterWorldPosition, gridWorldSize);
         }
 
         private async UniTask ResolveGrid(List<Block> blocks)
@@ -186,6 +188,22 @@ namespace ColorBlast.Manager
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
                 blocks[i].HandleDestroy();
             }
+        }
+
+        private Vector2 GetGridCenterPosition()
+        {
+            Vector2 bottomLeft = GetCellWorldPosition(0, 0);
+            Vector2 topRight = GetCellWorldPosition(levelProperties.RowCount - 1, levelProperties.ColumnCount - 1);
+
+            return (bottomLeft + topRight) / 2f;
+        }
+
+        private Vector2 GetGridWorldSize()
+        {
+            var gridWidth = levelProperties.RowCount * blockProperties.BlockSpriteBoundSize.x;
+            var gridHeight = levelProperties.ColumnCount * blockProperties.BlockSpriteBoundSize.y;
+
+            return new Vector2(gridWidth, gridHeight);
         }
     }
 }

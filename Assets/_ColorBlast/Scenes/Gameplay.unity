@@ -1384,6 +1384,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1eb34e6570374541940a0bfe9d294cb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.GridManager
+  matchRulesConfig: {fileID: 11400000, guid: 4a738b1d4aedaf44f9839c9714e26715, type: 2}
   blockProperties: {fileID: 11400000, guid: 67b4abd68b90aa24d810e2ff1f3846f7, type: 2}
   blockColorDatabase: {fileID: 11400000, guid: a0941e110f26e3048aa65ec6a8abd566, type: 2}
   cameraController: {fileID: 519420033}

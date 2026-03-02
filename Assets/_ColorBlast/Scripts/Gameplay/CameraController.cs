@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using ColorBlast.Manager;
 
 namespace ColorBlast.Gameplay
 {
@@ -7,62 +6,34 @@ namespace ColorBlast.Gameplay
     {
         [Header("Settings")]
         [SerializeField] private float padding;
+        [SerializeField] private float minOrthographicSize = 10f;
 
         private Camera mainCamera;
-        private GridManager gridManager;
-        private BlockProperties blockProperties;
-        private int rowCount, columnCount;
 
-        public void Initialize(int row, int col, GridManager gridManager, BlockProperties blockProperties)
+        private void Awake()
         {
-            rowCount = row;
-            columnCount = col;
-            this.gridManager = gridManager;
-            this.blockProperties = blockProperties;
-
-            if (mainCamera == null)
-            {
-                mainCamera = Camera.main;
-            }
-
-            UpdateCameraPosition();
-
-            UpdateCameraOrthographicSize();
+            mainCamera = Camera.main;
         }
 
-        private Vector3 GetCenterPosition()
+        public void Initialize(Vector2 gridCenterWorldPosition, Vector2 gridWorldSize)
         {
-            var leftBottomBlockPosition = gridManager.GetCellWorldPosition(0, 0);
-            var leftTopBlockPosition = gridManager.GetCellWorldPosition(0, columnCount - 1);
-
-            var centerPositionOfVertical = (leftBottomBlockPosition + leftTopBlockPosition) / 2;
-
-            var rightBottomBlockPosition = gridManager.GetCellWorldPosition(rowCount - 1, 0);
-
-            var centerPositionOfHorizontal = (leftBottomBlockPosition + rightBottomBlockPosition) / 2;
-
-            return new Vector3(centerPositionOfHorizontal.x, centerPositionOfVertical.y, transform.position.z);
+            UpdateCameraPosition(gridCenterWorldPosition);
+            UpdateCameraOrthographicSize(gridWorldSize);
         }
 
-        private void UpdateCameraPosition()
+        private void UpdateCameraPosition(Vector2 gridCenterWorldPosition)
         {
-            transform.position = GetCenterPosition();
+            transform.position =
+                new Vector3(gridCenterWorldPosition.x, gridCenterWorldPosition.y, transform.position.z);
         }
 
-        private void UpdateCameraOrthographicSize()
+        private void UpdateCameraOrthographicSize(Vector2 gridWorldSize)
         {
-            var gridWidth = rowCount * blockProperties.BlockSpriteBoundSize.x;
-            var gridHeight = columnCount * blockProperties.BlockSpriteBoundSize.y;
+            var minWidthSize = (gridWorldSize.x + (padding * 2f)) / 2f / mainCamera.aspect;
+            var minHeightSize = (gridWorldSize.y + (padding * 2f)) / 2f;
 
-            var minWidthSize = (gridWidth + (padding * 2f)) / 2f / mainCamera.aspect;
-            var minHeightSize = (gridHeight + (padding * 2f)) / 2f;
-
-            mainCamera.orthographicSize = Mathf.Max(minWidthSize, minHeightSize);
-
-            if (mainCamera.orthographicSize <= 11)
-            {
-                mainCamera.orthographicSize = 10;
-            }
+            var targetSize = Mathf.Max(minWidthSize, minHeightSize);
+            mainCamera.orthographicSize = Mathf.Max(targetSize, minOrthographicSize);
         }
     }
 }
