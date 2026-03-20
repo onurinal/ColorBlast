@@ -12,9 +12,8 @@ namespace ColorBlast.Manager
     public class GridManager : MonoBehaviour, IGridInteraction
     {
         [Header("Configurations")]
-        [SerializeField] private MatchRulesConfig matchRulesConfig;
-        [SerializeField] private BlockProperties blockProperties;
-        [SerializeField] private BlockColorDatabase blockColorDatabase;
+        [SerializeField] private GameplayConfig gameplayConfig;
+        [SerializeField] private CubeColorDatabase cubeColorDatabase;
 
         [Header("References")]
         [SerializeField] private CameraController cameraController;
@@ -28,14 +27,12 @@ namespace ColorBlast.Manager
         private UIManager uiManager;
 
         private Block[,] blockGrid;
-        private Vector2 blockSize;
         private bool isBusy = false;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
             this.levelProperties = levelProperties;
             this.uiManager = uiManager;
-            blockSize = blockProperties.BlockSpriteBoundSize;
             blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
 
             InitializeSystems();
@@ -45,8 +42,8 @@ namespace ColorBlast.Manager
         public Vector2 GetCellWorldPosition(int row, int col)
         {
             return new Vector2(
-                row * (blockSize.x + blockProperties.SpacingX),
-                col * (blockSize.y + blockProperties.SpacingY));
+                row * GameplayConfig.CellUnitSize,
+                col * GameplayConfig.CellUnitSize);
         }
 
         public async UniTaskVoid OnGameStart()
@@ -74,7 +71,7 @@ namespace ColorBlast.Manager
 
             List<Block> group = gridChecker.GetGroupAt(block.GridX, block.GridY);
 
-            if (group.Count < matchRulesConfig.MatchThreshold)
+            if (group.Count < gameplayConfig.MatchThreshold)
             {
                 return;
             }
@@ -86,23 +83,21 @@ namespace ColorBlast.Manager
         private void InitializeSystems()
         {
             gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockGrid, this, levelProperties, blockColorDatabase);
+            gridSpawner.Initialize(blockGrid, this, levelProperties, cubeColorDatabase);
 
             gridChecker = new GridChecker();
-            gridChecker.Initialize(blockGrid, levelProperties, matchRulesConfig);
+            gridChecker.Initialize(blockGrid, levelProperties, gameplayConfig);
 
             gridRefill = new GridRefill();
             gridRefill.Initialize(blockGrid, this, levelProperties);
 
             gridShuffler = new GridShuffler();
-            gridShuffler.Initialize(blockGrid, levelProperties, this, blockColorDatabase, matchRulesConfig);
+            gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);
         }
 
         private void InitializeCamera()
         {
-            var gridWidth = levelProperties.RowCount * blockProperties.BlockSpriteBoundSize.x;
-            var gridHeight = levelProperties.ColumnCount * blockProperties.BlockSpriteBoundSize.y;
-            Vector2 gridWorldSize = new Vector2(gridWidth, gridHeight);
+            Vector2 gridWorldSize = new Vector2(levelProperties.RowCount, levelProperties.ColumnCount);
 
             Vector2 bottomLeft = GetCellWorldPosition(0, 0);
             Vector2 topRight = GetCellWorldPosition(levelProperties.RowCount - 1, levelProperties.ColumnCount - 1);
@@ -118,9 +113,9 @@ namespace ColorBlast.Manager
 
             try
             {
-                await ExecuteDestroyPhase(blocks, ct);
+                await ExecuteClearPhase(blocks, ct);
                 await ExecuteGravityPhase(ct);
-                await ExecuteSpawnPhase(ct);
+                await ExecuteRefillPhase(ct);
 
                 gridChecker.CheckAllGrid();
                 await CheckAndHandleDeadlock(ct);
@@ -131,35 +126,35 @@ namespace ColorBlast.Manager
             }
         }
 
-        private async UniTask ExecuteDestroyPhase(List<Block> blocks, CancellationToken ct)
+        private async UniTask ExecuteClearPhase(List<Block> blocks, CancellationToken ct)
         {
-            DestroyBlocks(blocks);
-            await UniTask.Delay(blockProperties.DestroyDurationMs, cancellationToken: ct);
+            ClearBlocks(blocks);
+            await UniTask.Delay(gameplayConfig.DestroyDurationMs, cancellationToken: ct);
         }
 
         private async UniTask ExecuteGravityPhase(CancellationToken ct)
         {
             gridRefill.ApplyGravity();
-            await UniTask.Delay(blockProperties.FallDurationMs, cancellationToken: ct);
+            await UniTask.Delay(gameplayConfig.FallDurationMs, cancellationToken: ct);
         }
 
-        private async UniTask ExecuteSpawnPhase(CancellationToken ct)
+        private async UniTask ExecuteRefillPhase(CancellationToken ct)
         {
             gridSpawner.SpawnNewBlocks();
-            await UniTask.Delay(blockProperties.SpawnDurationMs, cancellationToken: ct);
+            await UniTask.Delay(gameplayConfig.SpawnDurationMs, cancellationToken: ct);
         }
 
         private async UniTask CheckAndHandleDeadlock(CancellationToken ct)
         {
             if (gridChecker.IsDeadlocked())
             {
-                uiManager.ShowShuffleUI(blockProperties.ShuffleDurationSec);
-                await UniTask.Delay(blockProperties.ShuffleDurationMs, cancellationToken: ct);
+                uiManager.ShowShuffleUI(gameplayConfig.ShuffleDurationSec);
+                await UniTask.Delay(gameplayConfig.ShuffleDurationMs, cancellationToken: ct);
                 gridShuffler.Shuffle();
             }
         }
 
-        private void DestroyBlocks(List<Block> blocks)
+        private void ClearBlocks(List<Block> blocks)
         {
             for (int i = 0; i < blocks.Count; i++)
             {
@@ -169,7 +164,7 @@ namespace ColorBlast.Manager
                 }
 
                 blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
-                blocks[i].HandleDestroy();
+                blocks[i].ClearBlock();
             }
         }
     }

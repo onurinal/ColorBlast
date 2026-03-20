@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ColorBlast.Core;
+using UnityEngine;
 using ColorBlast.Gameplay;
 
 namespace ColorBlast.Player
@@ -45,19 +46,15 @@ namespace ColorBlast.Player
                 return;
             }
 
-            var selectedBlock = hit.GetComponentInParent<Block>();
-
-            if (selectedBlock == null)
+            if (hit.GetComponentInParent<IInteractable>() != null)
             {
-                return;
-            }
+                var block = hit.GetComponentInParent<Block>();
 
-            if (!selectedBlock.CanInteract())
-            {
-                return;
+                if (block != null)
+                {
+                    gridInteraction.OnBlockClicked(block);
+                }
             }
-
-            gridInteraction.OnBlockClicked(selectedBlock);
         }
     }
 }

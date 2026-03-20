@@ -12,15 +12,15 @@ namespace ColorBlast.Gameplay
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
-        private BlockColorDatabase blockColorDatabase;
+        private CubeColorDatabase cubeColorDatabase;
 
         public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties,
-            BlockColorDatabase blockColorDatabase)
+            CubeColorDatabase cubeColorDatabase)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
-            this.blockColorDatabase = blockColorDatabase;
+            this.cubeColorDatabase = cubeColorDatabase;
         }
 
         public void SpawnNewBlocks()
@@ -50,7 +50,7 @@ namespace ColorBlast.Gameplay
         private Block CreateBlockAt(int row, int col, Vector2 spawnPosition)
         {
             var newBlock = ObjectPoolManager.Instance.GetBlock();
-            var randomColorData = blockColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
+            var randomColorData = cubeColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
             newBlock.Initialize(row, col, randomColorData);
             newBlock.transform.position = spawnPosition;
 

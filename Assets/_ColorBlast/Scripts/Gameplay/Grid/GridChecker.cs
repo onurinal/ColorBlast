@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
+using ColorBlast.Core;
 
 namespace ColorBlast.Gameplay
 {
@@ -18,7 +19,7 @@ namespace ColorBlast.Gameplay
             new Vector2Int(0, -1)
         };
 
-        private MatchRulesConfig matchRulesConfig;
+        private GameplayConfig gameplayConfig;
         private LevelProperties levelProperties;
         private Block[,] blockGrid;
 
@@ -26,11 +27,11 @@ namespace ColorBlast.Gameplay
         private Queue<Vector2Int> queue;
         private List<Block> currentGroup;
 
-        public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, MatchRulesConfig matchRulesConfig)
+        public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GameplayConfig gameplayConfig)
         {
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
-            this.matchRulesConfig = matchRulesConfig;
+            this.gameplayConfig = gameplayConfig;
 
             var capacity = levelProperties.RowCount * levelProperties.ColumnCount;
             visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
@@ -55,7 +56,7 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
-                    FindConnectedMatch(row, col, blockGrid[row, col].ColorData, currentGroup);
+                    FindConnectedMatch(row, col, currentGroup);
                     UpdateGroupIcons(currentGroup);
                 }
             }
@@ -71,7 +72,7 @@ namespace ColorBlast.Gameplay
 
             ClearVisitedBlocks();
 
-            FindConnectedMatch(row, col, block.ColorData, currentGroup);
+            FindConnectedMatch(row, col, currentGroup);
             return currentGroup;
         }
 
@@ -83,21 +84,33 @@ namespace ColorBlast.Gameplay
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
+                    var block = blockGrid[row, col];
+                    
+                    if (block == null)
+                    {
+                        continue;
+                    }
+                    
                     if (visitedBlocks[row, col])
                     {
                         continue;
                     }
 
-                    if (blockGrid[row, col] == null)
-                    {
-                        continue;
-                    }
-
-                    FindConnectedMatch(row, col, blockGrid[row, col].ColorData, currentGroup);
-
-                    if (currentGroup.Count >= matchRulesConfig.MatchThreshold)
+                    // if it's special type then it's not a deadlock
+                    if (block is IActivatable)
                     {
                         return false;
+                    }
+
+                    // it is checking basic block type who can match with other cubes
+                    if (block is IMatchable)
+                    {
+                        FindConnectedMatch(row, col, currentGroup);
+
+                        if (currentGroup.Count >= gameplayConfig.MatchThreshold)
+                        {
+                            return false;
+                        }
                     }
                 }
             }
@@ -105,9 +118,18 @@ namespace ColorBlast.Gameplay
             return true;
         }
 
-        private void FindConnectedMatch(int startRow, int startCol, BlockColorData colorData, List<Block> group)
+        private void FindConnectedMatch(int startRow, int startCol, List<Block> group)
         {
             group.Clear();
+            
+            var startBlock = blockGrid[startRow, startCol];
+            
+            if (startBlock is not IMatchable startMatchableBlock)
+            {
+                // change this when special blocks added
+                return;
+            }
+            
             queue.Clear();
             queue.Enqueue(new Vector2Int(startRow, startCol));
 
@@ -133,7 +155,12 @@ namespace ColorBlast.Gameplay
                     continue;
                 }
 
-                if (block.ColorData != colorData)
+                if (block is not IMatchable matchableBlock)
+                {
+                    continue;
+                }
+
+                if (!startMatchableBlock.CanMatchWith(matchableBlock))
                 {
                     continue;
                 }
@@ -153,10 +180,7 @@ namespace ColorBlast.Gameplay
             var count = group.Count;
             foreach (var block in group)
             {
-                if (block.CurrentGroupSize != count)
-                {
-                    block.UpdateGroupSize(count);
-                }
+               block.UpdateIcon(count);
             }
         }
 

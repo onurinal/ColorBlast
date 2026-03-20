@@ -18,7 +18,7 @@ namespace ColorBlast.Gameplay
         public void Initialize(Vector2 gridCenterWorldPosition, Vector2 gridWorldSize)
         {
             UpdateCameraPosition(gridCenterWorldPosition);
-            UpdateCameraOrthographicSize(gridWorldSize);
+            // UpdateCameraOrthographicSize(gridWorldSize);
         }
 
         private void UpdateCameraPosition(Vector2 gridCenterWorldPosition)
@@ -27,13 +27,13 @@ namespace ColorBlast.Gameplay
                 new Vector3(gridCenterWorldPosition.x, gridCenterWorldPosition.y, transform.position.z);
         }
 
-        private void UpdateCameraOrthographicSize(Vector2 gridWorldSize)
-        {
-            var minWidthSize = (gridWorldSize.x + (padding * 2f)) / 2f / mainCamera.aspect;
-            var minHeightSize = (gridWorldSize.y + (padding * 2f)) / 2f;
-
-            var targetSize = Mathf.Max(minWidthSize, minHeightSize);
-            mainCamera.orthographicSize = Mathf.Max(targetSize, minOrthographicSize);
-        }
+        // private void UpdateCameraOrthographicSize(Vector2 gridWorldSize)
+        // {
+        //     var minWidthSize = (gridWorldSize.x + (padding * 2f)) / 2f / mainCamera.aspect;
+        //     var minHeightSize = (gridWorldSize.y + (padding * 2f)) / 2f;
+        //
+        //     var targetSize = Mathf.Max(minWidthSize, minHeightSize);
+        //     mainCamera.orthographicSize = Mathf.Max(targetSize, minOrthographicSize);
+        // }
     }
 }
