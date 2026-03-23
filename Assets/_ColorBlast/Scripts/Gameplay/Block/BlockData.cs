@@ -7,12 +7,16 @@ namespace ColorBlast.Gameplay
         [Header("Block Settings")]
         [SerializeField] private Block prefab;
         [SerializeField] private Sprite defaultSprite;
+
+        [Header("Visual Scale")]
         [SerializeField] private float sizeX = 0.45f;
         [SerializeField] private float sizeY = 0.45f;
-        
+
         public Block Prefab => prefab;
         public float SizeX => sizeX;
         public float SizeY => sizeY;
         protected Sprite DefaultSprite => defaultSprite;
+
+        public abstract BlockType BlockType { get; }
     }
 }

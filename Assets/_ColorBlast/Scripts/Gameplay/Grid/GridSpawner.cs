@@ -49,8 +49,8 @@ namespace ColorBlast.Gameplay
 
         private Block CreateBlockAt(int row, int col, Vector2 spawnPosition)
         {
-            var newBlock = ObjectPoolManager.Instance.GetBlock();
             var randomColorData = cubeColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
+            var newBlock = ObjectPoolManager.Instance.GetBlock(randomColorData);
             newBlock.Initialize(row, col, randomColorData);
             newBlock.transform.position = spawnPosition;
 

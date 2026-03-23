@@ -13,6 +13,8 @@ namespace ColorBlast.Gameplay
         [Header("Reward Settings")]
         [SerializeField] private List<CubeRewardState> rewardStates;
 
+        public override BlockType BlockType => BlockType.Cube;
+
         public Sprite GetVisual(int groupSize)
         {
             var rewardHint = GetRewardState(groupSize);

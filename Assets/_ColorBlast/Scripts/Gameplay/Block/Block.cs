@@ -16,7 +16,7 @@ namespace ColorBlast.Gameplay
         [SerializeField] protected BlockView blockView;
 
         public abstract BlockData BlockData { get; protected set; }
-        public abstract BlockType BlockType { get; protected set; }
+        public BlockType BlockType => BlockData.BlockType;
         public int GridX { get; private set; }
         public int GridY { get; private set; }
 

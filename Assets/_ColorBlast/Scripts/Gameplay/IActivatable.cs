@@ -1,4 +1,4 @@
-namespace ColorBlast.Core
+namespace ColorBlast.Gameplay
 {
     public interface IActivatable
     {
