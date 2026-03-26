@@ -57,6 +57,14 @@ namespace ColorBlast.Gameplay
             return newBlock;
         }
 
+        public void SpawnBlockAt(BlockData blockData, int row, int col)
+        {
+            var block = ObjectPoolManager.Instance.GetBlock(blockData);
+            block.Initialize(row, col, blockData);
+            block.transform.position = gridManager.GetCellWorldPosition(row, col);
+            blockGrid[row, col] = block;
+        }
+
         private int CountEmptySlotsForColumn(int row)
         {
             var count = 0;

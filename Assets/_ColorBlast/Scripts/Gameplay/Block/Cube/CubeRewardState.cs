@@ -13,10 +13,10 @@ namespace ColorBlast.Gameplay
         [SerializeField] private Sprite rewardHintSprite;
 
         [Tooltip("Prefab spawns when the group of this block is destroyed")]
-        [SerializeField] private Block rewardPrefab;
+        [SerializeField] private BlockData rewardBlockData;
 
         public int MinGroupSize => minGroupSize;
         public Sprite RewardHintSprite => rewardHintSprite;
-        public Block RewardPrefab => rewardPrefab;
+        public BlockData RewardBlockData => rewardBlockData;
     }
 }

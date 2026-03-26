@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay
@@ -26,7 +25,7 @@ namespace ColorBlast.Gameplay
             this.gridChecker = gridChecker;
         }
 
-        public List<Block> Resolve(Block block)
+        public ResolveResult Resolve(Block block)
         {
             return block.BlockType switch
             {
@@ -38,37 +37,37 @@ namespace ColorBlast.Gameplay
             };
         }
 
-        private List<Block> ResolveCubeMatch(Block block)
+        private ResolveResult ResolveCubeMatch(Block block)
         {
-            var matchGroup = gridChecker.GetGroupAt(block.GridX, block.GridY);
+            var group = gridChecker.GetGroupAt(block.GridX, block.GridY);
 
-            if (matchGroup.Count < gameplayConfig.MatchThreshold)
+            if (group == null || group.Count < gameplayConfig.MatchThreshold)
             {
                 return null;
             }
 
             var cubeBlockData = (CubeBlockData)block.BlockData;
-            var rewardState = cubeBlockData.GetRewardState(matchGroup.Count);
+            var rewardState = cubeBlockData.GetRewardState(group.Count);
 
-            if (rewardState != null && rewardState.RewardPrefab != null)
-            {
-                // spawn special block
-            }
-
-            return matchGroup;
+            return new ResolveResult(
+                blocksToClear: group,
+                rewardData: rewardState?.RewardBlockData != null ? rewardState.RewardBlockData : null,
+                spawnRow: block.GridX,
+                spawnColumn: block.GridY
+            );
         }
 
-        private List<Block> ResolveTntMatch(Block block)
+        private ResolveResult ResolveTntMatch(Block block)
         {
             return null;
         }
 
-        private List<Block> ResolveRocketMatch(Block block)
+        private ResolveResult ResolveRocketMatch(Block block)
         {
             return null;
         }
 
-        private List<Block> ResolveRainbowMatch(Block block)
+        private ResolveResult ResolveRainbowMatch(Block block)
         {
             return null;
         }

@@ -17,10 +17,10 @@ MonoBehaviour:
   rewardStates:
   - minGroupSize: 4
     rewardHintSprite: {fileID: -6416537123964203564, guid: cc1ebe04d0dd31e4093b0ed4a998ae54, type: 3}
-    rewardPrefab: {fileID: 0}
+    rewardBlockData: {fileID: 0}
   - minGroupSize: 5
     rewardHintSprite: {fileID: -2693315669398477313, guid: a5d0b13e63e32b442984bcc233581938, type: 3}
-    rewardPrefab: {fileID: 3632885025806396469, guid: 21665cb6bd61efe4f8f7708d74ca589a, type: 3}
+    rewardBlockData: {fileID: 11400000, guid: e030ebde843be8c48997979d35580f35, type: 2}
   - minGroupSize: 6
     rewardHintSprite: {fileID: 1386842339749069192, guid: 9cf46b5064fedf94e8e9e8b3e97cc1b0, type: 3}
-    rewardPrefab: {fileID: 0}
+    rewardBlockData: {fileID: 0}

@@ -79,14 +79,14 @@ namespace ColorBlast.Manager
                 return;
             }
 
-            var group = blockEffectResolve.Resolve(block);
+            var result = blockEffectResolve.Resolve(block);
 
-            if (group == null)
+            if (result == null)
             {
                 return;
             }
 
-            ResolveGrid(group).Forget();
+            ResolveGrid(result).Forget();
             EventManager.TriggerMoveChanged();
         }
 
@@ -120,14 +120,20 @@ namespace ColorBlast.Manager
             cameraController.Initialize(gridCenterWorldPosition, gridWorldSize);
         }
 
-        private async UniTask ResolveGrid(List<Block> blocks)
+        private async UniTask ResolveGrid(ResolveResult result)
         {
             isBusy = true;
             var ct = this.GetCancellationTokenOnDestroy();
 
             try
             {
-                await ExecuteClearPhase(blocks, ct);
+                await ExecuteClearPhase(result.BlocksToClear, ct);
+
+                if (result.HasReward)
+                {
+                    gridSpawner.SpawnBlockAt(result.RewardData, result.SpawnRow, result.SpawnColumn);
+                }
+
                 await ExecuteGravityPhase(ct);
                 await ExecuteRefillPhase(ct);
 
