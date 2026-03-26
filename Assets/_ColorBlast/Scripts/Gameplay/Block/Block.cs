@@ -36,6 +36,11 @@ namespace ColorBlast.Gameplay
 
         public virtual void UpdateIcon(int groupSize) { }
 
+        public virtual void SetupVisual()
+        {
+            blockView.SetModelScale(gameplayConfig.BlockSizeX, gameplayConfig.BlockSizeY);
+        }
+
         public void SetGridPosition(int gridX, int gridY)
         {
             GridX = gridX;

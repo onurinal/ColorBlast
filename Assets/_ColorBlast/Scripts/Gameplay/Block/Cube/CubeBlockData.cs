@@ -7,7 +7,7 @@ namespace ColorBlast.Gameplay
     /// Stores sprite data for a specific block color type
     /// Contains default icon and tier-based icons based on group size threshold
     /// </summary>
-    [CreateAssetMenu(fileName = "CubeBlockData", menuName = "ColorBlast/Block Data/Cube")]
+    [CreateAssetMenu(fileName = "CubeBlockData", menuName = "ColorBlast/Gameplay/Block/Cube/Cube Data")]
     public class CubeBlockData : BlockData
     {
         [Header("Reward Settings")]

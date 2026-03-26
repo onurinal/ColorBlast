@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
-using ColorBlast.Gameplay;
 using Cysharp.Threading.Tasks;
+using ColorBlast.Gameplay;
 
 namespace ColorBlast.Manager
 {
@@ -41,9 +41,7 @@ namespace ColorBlast.Manager
 
         public Vector2 GetCellWorldPosition(int row, int col)
         {
-            return new Vector2(
-                row * GameplayConfig.CellUnitSize,
-                col * GameplayConfig.CellUnitSize);
+            return new Vector2(row, col) * gameplayConfig.CellUnitSize;
         }
 
         public async UniTaskVoid OnGameStart()
@@ -97,7 +95,8 @@ namespace ColorBlast.Manager
 
         private void InitializeCamera()
         {
-            Vector2 gridWorldSize = new Vector2(levelProperties.RowCount, levelProperties.ColumnCount);
+            Vector2 gridWorldSize =
+                new Vector2(levelProperties.RowCount, levelProperties.ColumnCount) * gameplayConfig.CellUnitSize;
 
             Vector2 bottomLeft = GetCellWorldPosition(0, 0);
             Vector2 topRight = GetCellWorldPosition(levelProperties.RowCount - 1, levelProperties.ColumnCount - 1);

@@ -45,7 +45,9 @@ namespace ColorBlast.Manager
             {
                 var blockType = entry.data.BlockType;
                 var size = blockType == BlockType.Cube ? baseSize * poolMultiplier : entry.initialSize;
-                blockPool[blockType] = new PoolableObject<Block>(entry.data.Prefab, size, entry.parent);
+                blockPool[blockType] =
+                    new PoolableObject<Block>(entry.data.Prefab, size, entry.parent,
+                        block => block.SetupVisual());
             }
 
             isInitialized = true;

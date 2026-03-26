@@ -1,5 +1,3 @@
-using ColorBlast.Core;
-
 namespace ColorBlast.Gameplay
 {
     public class CubeBlock : Block, IInteractable, IMatchable, IRecolorable

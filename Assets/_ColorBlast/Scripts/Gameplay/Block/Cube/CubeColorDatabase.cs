@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
-    [CreateAssetMenu(fileName = "CubeColorDatabase", menuName = "ColorBlast/Gameplay/Cube/Cube Color Database")]
+    [CreateAssetMenu(fileName = "CubeColorDatabase", menuName = "ColorBlast/Gameplay/Block/Cube/Cube Color Database")]
     public class CubeColorDatabase : ScriptableObject
     {
         [SerializeField] private List<CubeBlockData> cubeColorDataList;

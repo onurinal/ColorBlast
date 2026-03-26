@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24d8e0c06f3b446f9fecb93d40f8b91a, type: 3}
-  m_Name: Level 1
-  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Level.LevelProperties
-  colorCount: 6
-  rowCount: 9
-  columnCount: 9
+  m_Script: {fileID: 11500000, guid: 6a83dbf14572462787899d97454861c3, type: 3}
+  m_Name: CameraSettings
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.CameraSetup
+  paddingX: 0.04
+  minOrthographicSize: 10

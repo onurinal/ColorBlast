@@ -12,7 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c195323cb167400ab22a64dab7791841, type: 3}
   m_Name: GameplayConfig
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.MatchRulesConfig
+  cellUnitSize: 1
+  blockSizeX: 0.45
+  blockSizeY: 0.45
   matchThreshold: 2
   rocketThreshold: 5
   tntThreshold: 6
   rainbowThreshold: 7
+  destroyDurationMs: 150
+  fallDurationMs: 250
+  spawnDurationMs: 150
+  shuffleDurationMs: 2000

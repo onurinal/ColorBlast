@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace ColorBlast.Core
 {
@@ -8,16 +9,19 @@ namespace ColorBlast.Core
         private readonly T prefab;
         private readonly Transform parent;
         private readonly Queue<T> pool;
+        private readonly Action<T> setupAction;
 
-        public PoolableObject(T prefab, int initialPoolSize, Transform parent)
+        public PoolableObject(T prefab, int initialPoolSize, Transform parent, Action<T> setupAction = null)
         {
             this.prefab = prefab;
             this.parent = parent;
+            this.setupAction = setupAction;
             pool = new Queue<T>(initialPoolSize);
 
             for (int i = 0; i < initialPoolSize; i++)
             {
-                var obj = Object.Instantiate(prefab, parent);
+                var obj = UnityEngine.Object.Instantiate(prefab, parent);
+                setupAction?.Invoke(obj);
                 obj.gameObject.SetActive(false);
                 pool.Enqueue(obj);
             }
@@ -54,7 +58,8 @@ namespace ColorBlast.Core
 
         private void CreateNewObject()
         {
-            var obj = Object.Instantiate(prefab, parent);
+            var obj = UnityEngine.Object.Instantiate(prefab, parent);
+            setupAction?.Invoke(obj);
             obj.gameObject.SetActive(false);
             pool.Enqueue(obj);
         }
