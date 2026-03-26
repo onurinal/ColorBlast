@@ -1,4 +1,4 @@
-using ColorBlast.Core;
+using ColorBlast.Manager;
 
 namespace ColorBlast.Gameplay.TNT
 {
@@ -12,6 +12,9 @@ namespace ColorBlast.Gameplay.TNT
             BlockData = blockData;
         }
 
-        public void Interact() { }
+        public void Interact()
+        {
+            EventManager.TriggerBlockInteracted(this);
+        }
     }
 }

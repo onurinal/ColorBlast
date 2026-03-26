@@ -1,5 +1,4 @@
-﻿using ColorBlast.Core;
-using UnityEngine;
+﻿using UnityEngine;
 using ColorBlast.Gameplay;
 
 namespace ColorBlast.Player
@@ -10,14 +9,11 @@ namespace ColorBlast.Player
 
         private PlayerInputHandler playerInputHandler;
         private Camera mainCamera;
-        private IGridInteraction gridInteraction;
 
-        public void Initialize(IGridInteraction gridInteraction)
+        public void Initialize()
         {
             playerInputHandler = new PlayerInputHandler();
             playerInputHandler.OnTap += HandleTap;
-
-            this.gridInteraction = gridInteraction;
         }
 
         private void Awake()
@@ -46,14 +42,11 @@ namespace ColorBlast.Player
                 return;
             }
 
-            if (hit.GetComponentInParent<IInteractable>() != null)
-            {
-                var block = hit.GetComponentInParent<Block>();
+            var interactable = hit.GetComponentInParent<IInteractable>();
 
-                if (block != null)
-                {
-                    gridInteraction.OnBlockClicked(block);
-                }
+            if (interactable != null)
+            {
+                interactable.Interact();
             }
         }
     }

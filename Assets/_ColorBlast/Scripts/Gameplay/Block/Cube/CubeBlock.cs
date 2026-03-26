@@ -1,3 +1,5 @@
+using ColorBlast.Manager;
+
 namespace ColorBlast.Gameplay
 {
     public class CubeBlock : Block, IInteractable, IMatchable, IRecolorable
@@ -15,6 +17,7 @@ namespace ColorBlast.Gameplay
         public void Interact()
         {
             // play particle and animations if block clicked
+            EventManager.TriggerBlockInteracted(this);
         }
 
         public override void ClearBlock()

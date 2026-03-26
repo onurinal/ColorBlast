@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace ColorBlast.Manager
     /// <summary>
     /// Handles grid-related systems such as spawning, gravity, matching and shuffling
     /// </summary>
-    public class GridManager : MonoBehaviour, IGridInteraction
+    public class GridManager : MonoBehaviour
     {
         [Header("Configurations")]
         [SerializeField] private GameplayConfig gameplayConfig;
@@ -37,6 +38,16 @@ namespace ColorBlast.Manager
 
             InitializeSystems();
             InitializeCamera();
+        }
+
+        private void OnEnable()
+        {
+            EventManager.OnBlockInteract += OnBlockClicked;
+        }
+
+        private void OnDisable()
+        {
+            EventManager.OnBlockInteract -= OnBlockClicked;
         }
 
         public Vector2 GetCellWorldPosition(int row, int col)
@@ -75,7 +86,7 @@ namespace ColorBlast.Manager
             }
 
             ResolveGrid(group).Forget();
-            EventManager.TriggerOnMoveChanged();
+            EventManager.TriggerMoveChanged();
         }
 
         private void InitializeSystems()

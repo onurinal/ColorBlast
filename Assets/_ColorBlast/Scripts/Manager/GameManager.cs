@@ -35,7 +35,7 @@ namespace ColorBlast.Manager
             uiManager.Initialize();
             objectPoolManager.InitializePool(levelManager.CurrentLevel);
             gridManager.Initialize(levelManager.CurrentLevel, uiManager);
-            playerController.Initialize(gridManager);
+            playerController.Initialize();
 
             gridManager.OnGameStart().Forget();
         }
