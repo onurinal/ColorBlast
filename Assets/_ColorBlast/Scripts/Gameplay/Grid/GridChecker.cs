@@ -85,12 +85,12 @@ namespace ColorBlast.Gameplay
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
                 {
                     var block = blockGrid[row, col];
-                    
+
                     if (block == null)
                     {
                         continue;
                     }
-                    
+
                     if (visitedBlocks[row, col])
                     {
                         continue;
@@ -121,15 +121,14 @@ namespace ColorBlast.Gameplay
         private void FindConnectedMatch(int startRow, int startCol, List<Block> group)
         {
             group.Clear();
-            
+
             var startBlock = blockGrid[startRow, startCol];
-            
-            if (startBlock is not IMatchable startMatchableBlock)
+
+            if (startBlock is null || startBlock is not IMatchable startMatchableBlock)
             {
-                // change this when special blocks added
                 return;
             }
-            
+
             queue.Clear();
             queue.Enqueue(new Vector2Int(startRow, startCol));
 
@@ -180,7 +179,7 @@ namespace ColorBlast.Gameplay
             var count = group.Count;
             foreach (var block in group)
             {
-               block.UpdateIcon(count);
+                block.UpdateIcon(count);
             }
         }
 

@@ -23,6 +23,7 @@ namespace ColorBlast.Manager
         private GridChecker gridChecker;
         private GridRefill gridRefill;
         private GridShuffler gridShuffler;
+        private BlockEffectResolve blockEffectResolve;
 
         private LevelProperties levelProperties;
         private UIManager uiManager;
@@ -42,12 +43,12 @@ namespace ColorBlast.Manager
 
         private void OnEnable()
         {
-            EventManager.OnBlockInteract += OnBlockClicked;
+            EventManager.OnBlockInteract += HandleBlockInteract;
         }
 
         private void OnDisable()
         {
-            EventManager.OnBlockInteract -= OnBlockClicked;
+            EventManager.OnBlockInteract -= HandleBlockInteract;
         }
 
         public Vector2 GetCellWorldPosition(int row, int col)
@@ -71,16 +72,16 @@ namespace ColorBlast.Manager
             }
         }
 
-        public void OnBlockClicked(Block block)
+        private void HandleBlockInteract(Block block)
         {
             if (isBusy)
             {
                 return;
             }
 
-            List<Block> group = gridChecker.GetGroupAt(block.GridX, block.GridY);
+            var group = blockEffectResolve.Resolve(block);
 
-            if (group.Count < gameplayConfig.MatchThreshold)
+            if (group == null)
             {
                 return;
             }
@@ -102,6 +103,9 @@ namespace ColorBlast.Manager
 
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);
+
+            blockEffectResolve = new BlockEffectResolve();
+            blockEffectResolve.Initialize(blockGrid, levelProperties, gridChecker, gameplayConfig);
         }
 
         private void InitializeCamera()

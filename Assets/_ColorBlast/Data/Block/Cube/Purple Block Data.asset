@@ -14,22 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   prefab: {fileID: 8612162807601725161, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
   defaultSprite: {fileID: 8161472552560778960, guid: 7d2ea983f2b987a489e9d92eece418de, type: 3}
-  blockType: 0
-  sizeX: 0.45
-  sizeY: 0.45
-  spacingX: -0.01
-  spacingY: -0.15
-  isInteractable: 1
-  canBeMatched: 1
-  clearsAreaOnTap: 0
-  isStatic: 0
   rewardStates:
   - minGroupSize: 4
     rewardHintSprite: {fileID: -6416537123964203564, guid: cc1ebe04d0dd31e4093b0ed4a998ae54, type: 3}
     rewardPrefab: {fileID: 0}
   - minGroupSize: 5
     rewardHintSprite: {fileID: -2693315669398477313, guid: a5d0b13e63e32b442984bcc233581938, type: 3}
-    rewardPrefab: {fileID: 0}
+    rewardPrefab: {fileID: 3632885025806396469, guid: 21665cb6bd61efe4f8f7708d74ca589a, type: 3}
   - minGroupSize: 6
     rewardHintSprite: {fileID: 1386842339749069192, guid: 9cf46b5064fedf94e8e9e8b3e97cc1b0, type: 3}
     rewardPrefab: {fileID: 0}
