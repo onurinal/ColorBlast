@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ColorBlast.Gameplay.TNT
+namespace ColorBlast.Gameplay
 {
     [CreateAssetMenu(fileName = "TntData", menuName = "ColorBlast/Gameplay/Block/TNT")]
     public class TntBlockData : BlockData

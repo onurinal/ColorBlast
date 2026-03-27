@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 00dde8b5d5bba3249b0c16a2d3af273f
+guid: c3d0bd8742cf01748ab4d1bf53360e5c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8136218936520485124
-    second: TNT_0
+      213: 3242533916176513912
+    second: New Project (2)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TNT_0
+      name: New Project (2)_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 0
-        width: 240
-        height: 245
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 79
+        y: 34
+        width: 152
+        height: 190
+      alignment: 9
+      pivot: {x: 0.5, y: 0.55}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf6d3e91cf7561f80800000000000000
-      internalID: -8136218936520485124
+      spriteID: 87b7bd5ca6bcffc20800000000000000
+      internalID: 3242533916176513912
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: bf14b8a9e24d3d14886d14a842f1ba41
+    spriteID: d60f2211f888706499d12c186654e3d4
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TNT_0: -8136218936520485124
+      New Project (2)_0: 3242533916176513912
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

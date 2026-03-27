@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 00dde8b5d5bba3249b0c16a2d3af273f
+guid: 8d5602d9a3458ce43b6376b7f420da28
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8136218936520485124
-    second: TNT_0
+      213: -3890935758511578124
+    second: RedDiscoBall_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TNT_0
+      name: RedDiscoBall_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 0
-        width: 240
-        height: 245
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 24
+        y: 18
+        width: 206
+        height: 215
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5813953}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf6d3e91cf7561f80800000000000000
-      internalID: -8136218936520485124
+      spriteID: 4f36d0eea8e900ac0800000000000000
+      internalID: -3890935758511578124
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: bf14b8a9e24d3d14886d14a842f1ba41
+    spriteID: 689ded0ebd396ae46a93baba50f3718e
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TNT_0: -8136218936520485124
+      RedDiscoBall_0: -3890935758511578124
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 00dde8b5d5bba3249b0c16a2d3af273f
+guid: dc95e654a8e93d44590cb71ca616bc19
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8136218936520485124
-    second: TNT_0
+      213: 4679887694197373205
+    second: YellowDiscoBall_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TNT_0
+      name: YellowDiscoBall_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 0
-        width: 240
-        height: 245
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 27
+        y: 21
+        width: 202
+        height: 211
+      alignment: 9
+      pivot: {x: 0.5, y: 0.59241706}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf6d3e91cf7561f80800000000000000
-      internalID: -8136218936520485124
+      spriteID: 5193b51101d42f040800000000000000
+      internalID: 4679887694197373205
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: bf14b8a9e24d3d14886d14a842f1ba41
+    spriteID: 7bed61a7fa3d467489a447520f611019
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TNT_0: -8136218936520485124
+      YellowDiscoBall_0: 4679887694197373205
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -32,7 +32,7 @@ namespace ColorBlast.Gameplay
                 BlockType.Cube => ResolveCubeMatch(block),
                 BlockType.Tnt => ResolveTntMatch(block),
                 BlockType.Rocket => ResolveRocketMatch(block),
-                BlockType.Rainbow => ResolveRainbowMatch(block),
+                BlockType.DiscoBall => ResolveDiscoBallMatch(block),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -67,7 +67,7 @@ namespace ColorBlast.Gameplay
             return null;
         }
 
-        private ResolveResult ResolveRainbowMatch(Block block)
+        private ResolveResult ResolveDiscoBallMatch(Block block)
         {
             return null;
         }

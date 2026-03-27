@@ -5,7 +5,7 @@ namespace ColorBlast.Gameplay
         Cube,
         Tnt,
         Rocket,
-        Rainbow,
+        DiscoBall,
         Stone,
         Box
     }

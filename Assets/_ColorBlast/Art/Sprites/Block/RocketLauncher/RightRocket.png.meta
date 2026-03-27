@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 00dde8b5d5bba3249b0c16a2d3af273f
+guid: 3471d64467d90c64b9103b0f4eb2d7a5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8136218936520485124
-    second: TNT_0
+      213: -8474138740986594204
+    second: RightRocket_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TNT_0
+      name: RightRocket_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 0
         y: 0
-        width: 240
-        height: 245
+        width: 72
+        height: 72
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cf6d3e91cf7561f80800000000000000
-      internalID: -8136218936520485124
+      spriteID: 46c3e1686bfc56a80800000000000000
+      internalID: -8474138740986594204
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: bf14b8a9e24d3d14886d14a842f1ba41
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      TNT_0: -8136218936520485124
+      RightRocket_0: -8474138740986594204
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

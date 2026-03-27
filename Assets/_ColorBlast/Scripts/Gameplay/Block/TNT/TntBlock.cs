@@ -1,6 +1,6 @@
 using ColorBlast.Manager;
 
-namespace ColorBlast.Gameplay.TNT
+namespace ColorBlast.Gameplay
 {
     public class TntBlock : Block, IInteractable, IActivatable
     {
