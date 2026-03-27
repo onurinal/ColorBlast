@@ -146,7 +146,7 @@ namespace ColorBlast.Manager
             }
         }
 
-        private async UniTask ExecuteClearPhase(List<Block> blocks, CancellationToken ct)
+        private async UniTask ExecuteClearPhase(HashSet<Block> blocks, CancellationToken ct)
         {
             ClearBlocks(blocks);
             await UniTask.Delay(gameplayConfig.DestroyDurationMs, cancellationToken: ct);
@@ -174,17 +174,17 @@ namespace ColorBlast.Manager
             }
         }
 
-        private void ClearBlocks(List<Block> blocks)
+        private void ClearBlocks(HashSet<Block> blocks)
         {
-            for (int i = 0; i < blocks.Count; i++)
+            foreach (var block in blocks)
             {
-                if (blocks[i] == null)
+                if (block == null)
                 {
                     continue;
                 }
 
-                blockGrid[blocks[i].GridX, blocks[i].GridY] = null;
-                blocks[i].ClearBlock();
+                blockGrid[block.GridX, block.GridY] = null;
+                block.ClearBlock();
             }
         }
     }

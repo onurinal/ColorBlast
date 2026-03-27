@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay
@@ -15,6 +16,8 @@ namespace ColorBlast.Gameplay
         private Block[,] blockGrid;
         private LevelProperties levelProperties;
         private GridChecker gridChecker;
+
+        private readonly HashSet<Block> affectedBlocks = new();
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridChecker gridChecker,
             GameplayConfig gameplayConfig)
@@ -59,7 +62,32 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveBombMatch(Block block)
         {
-            return null;
+            affectedBlocks.Clear();
+
+            var bombData = (BombBlockData)block.BlockData;
+            var centerRow = block.GridX;
+            var centerCol = block.GridY;
+            var bombRadius = bombData.Radius;
+
+            for (int row = centerRow - bombRadius; row <= centerRow + bombRadius; row++)
+            {
+                for (int col = centerCol - bombRadius; col <= centerCol + bombRadius; col++)
+                {
+                    if (!IsInBounds(row, col))
+                    {
+                        continue;
+                    }
+
+                    if (blockGrid[row, col] == null)
+                    {
+                        continue;
+                    }
+
+                    affectedBlocks.Add(blockGrid[row, col]);
+                }
+            }
+
+            return new ResolveResult(affectedBlocks);
         }
 
         private ResolveResult ResolveRocketMatch(Block block)
@@ -70,6 +98,16 @@ namespace ColorBlast.Gameplay
         private ResolveResult ResolveDiscoBallMatch(Block block)
         {
             return null;
+        }
+
+        private bool IsInBounds(int row, int col)
+        {
+            if (row < 0 || col < 0 || row >= levelProperties.RowCount || col >= levelProperties.ColumnCount)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.TNT.TntBlockData
   prefab: {fileID: 3632885025806396469, guid: 21665cb6bd61efe4f8f7708d74ca589a, type: 3}
   defaultSprite: {fileID: -1483665779731714255, guid: c5fbe5f3a92969b468c3c46dcc7ae42f, type: 3}
-  radius: 3
+  radius: 1

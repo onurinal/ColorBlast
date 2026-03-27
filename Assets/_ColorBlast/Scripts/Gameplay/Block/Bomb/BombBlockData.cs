@@ -7,5 +7,7 @@ namespace ColorBlast.Gameplay
     {
         [SerializeField] private int radius = 3;
         public override BlockType BlockType => BlockType.Bomb;
+
+        public int Radius => radius;
     }
 }

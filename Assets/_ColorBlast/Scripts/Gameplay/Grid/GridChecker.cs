@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
-using ColorBlast.Core;
 
 namespace ColorBlast.Gameplay
 {
@@ -25,7 +24,7 @@ namespace ColorBlast.Gameplay
 
         private bool[,] visitedBlocks;
         private Queue<Vector2Int> queue;
-        private List<Block> currentGroup;
+        private HashSet<Block> currentGroup;
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GameplayConfig gameplayConfig)
         {
@@ -36,7 +35,7 @@ namespace ColorBlast.Gameplay
             var capacity = levelProperties.RowCount * levelProperties.ColumnCount;
             visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
             queue = new Queue<Vector2Int>(capacity / 2);
-            currentGroup = new List<Block>(capacity / 2);
+            currentGroup = new HashSet<Block>(capacity / 2);
         }
 
         public void CheckAllGrid()
@@ -62,7 +61,7 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        public List<Block> GetGroupAt(int row, int col)
+        public HashSet<Block> GetGroupAt(int row, int col)
         {
             var block = blockGrid[row, col];
             if (block == null)
@@ -118,7 +117,7 @@ namespace ColorBlast.Gameplay
             return true;
         }
 
-        private void FindConnectedMatch(int startRow, int startCol, List<Block> group)
+        private void FindConnectedMatch(int startRow, int startCol, HashSet<Block> group)
         {
             group.Clear();
 
@@ -138,7 +137,7 @@ namespace ColorBlast.Gameplay
                 var row = currentBlock.x;
                 var col = currentBlock.y;
 
-                if (!IsInsideGrid(row, col))
+                if (!IsInBounds(row, col))
                 {
                     continue;
                 }
@@ -174,7 +173,7 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        private void UpdateGroupIcons(List<Block> group)
+        private void UpdateGroupIcons(HashSet<Block> group)
         {
             var count = group.Count;
             foreach (var block in group)
@@ -183,7 +182,7 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        private bool IsInsideGrid(int row, int col)
+        private bool IsInBounds(int row, int col)
         {
             if (row < 0 || col < 0 || row >= levelProperties.RowCount || col >= levelProperties.ColumnCount)
             {
