@@ -3,7 +3,7 @@ namespace ColorBlast.Gameplay
     public enum BlockType
     {
         Cube,
-        Tnt,
+        Bomb,
         Rocket,
         DiscoBall,
         Stone,

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3317b58b1dfe4f7387ae7cc5fae42925, type: 3}
-  m_Name: TntData
+  m_Name: BombData
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.TNT.TntBlockData
   prefab: {fileID: 3632885025806396469, guid: 21665cb6bd61efe4f8f7708d74ca589a, type: 3}
-  defaultSprite: {fileID: -8136218936520485124, guid: 00dde8b5d5bba3249b0c16a2d3af273f, type: 3}
+  defaultSprite: {fileID: -1483665779731714255, guid: c5fbe5f3a92969b468c3c46dcc7ae42f, type: 3}
   radius: 3

@@ -14,8 +14,8 @@ namespace ColorBlast.Gameplay
         [Header("Match Settings")]
         [SerializeField] private int matchThreshold = 2;
         [SerializeField] private int rocketThreshold = 5;
-        [SerializeField] private int tntThreshold = 6;
-        [SerializeField] private int rainbowThreshold = 7;
+        [SerializeField] private int bombThreshold = 6;
+        [SerializeField] private int discoBallThreshold = 7;
 
         [Header("Animation Settings")]
         [SerializeField] private int destroyDurationMs = 150;
@@ -28,8 +28,8 @@ namespace ColorBlast.Gameplay
         public float BlockSizeY => blockSizeY;
         public int MatchThreshold => matchThreshold;
         public int RocketThreshold => rocketThreshold;
-        public int TntThreshold => tntThreshold;
-        public int RainbowThreshold => rainbowThreshold;
+        public int BombThreshold => bombThreshold;
+        public int DiscoBallThreshold => discoBallThreshold;
         public int DestroyDurationMs => destroyDurationMs;
         public int FallDurationMs => fallDurationMs;
         public int SpawnDurationMs => spawnDurationMs;
@@ -45,14 +45,14 @@ namespace ColorBlast.Gameplay
                 rocketThreshold = matchThreshold + 1;
             }
 
-            if (tntThreshold < rocketThreshold)
+            if (bombThreshold < rocketThreshold)
             {
-                tntThreshold = rocketThreshold + 1;
+                bombThreshold = rocketThreshold + 1;
             }
 
-            if (rainbowThreshold < tntThreshold)
+            if (discoBallThreshold < bombThreshold)
             {
-                rainbowThreshold = tntThreshold + 1;
+                discoBallThreshold = bombThreshold + 1;
             }
         }
     }

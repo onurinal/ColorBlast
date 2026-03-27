@@ -82,12 +82,12 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -8136218936520485124, guid: 00dde8b5d5bba3249b0c16a2d3af273f, type: 3}
+  m_Sprite: {fileID: -1483665779731714255, guid: c5fbe5f3a92969b468c3c46dcc7ae42f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.4, y: 2.45}
+  m_Size: {x: 2.23, y: 2.11}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -126,17 +126,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.013153911, y: -0.029568613}
+  m_Offset: {x: -0.013153911, y: -0.18697876}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.4, y: 2.45}
-    newSize: {x: 2.4, y: 2.45}
+    pivot: {x: 0.49999997, y: 0.6}
+    oldSize: {x: 2.23, y: 2.11}
+    newSize: {x: 2.23, y: 2.11}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.4, y: 2.2238812}
+  m_Size: {x: 2.4, y: 2.167375}
   m_EdgeRadius: 0
 --- !u!1 &3710034036124227254
 GameObject:
@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 3632885025806396469}
   - component: {fileID: 3938420840022789303}
   m_Layer: 3
-  m_Name: TNT
+  m_Name: Bomb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
