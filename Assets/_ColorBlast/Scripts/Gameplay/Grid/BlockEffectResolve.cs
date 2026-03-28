@@ -6,7 +6,7 @@ namespace ColorBlast.Gameplay
 {
     public class BlockEffectResolve
     {
-        private static readonly Vector2Int[] Neighbors =
+        private static readonly Vector2Int[] NeighborOffsets =
         {
             new Vector2Int(1, 0), new Vector2Int(-1, 0),
             new Vector2Int(0, 1), new Vector2Int(0, -1)
@@ -18,6 +18,7 @@ namespace ColorBlast.Gameplay
         private GridChecker gridChecker;
 
         private readonly HashSet<Block> affectedBlocks = new();
+        private readonly HashSet<Block> neighbors = new();
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridChecker gridChecker,
             GameplayConfig gameplayConfig)
@@ -54,6 +55,7 @@ namespace ColorBlast.Gameplay
 
             return new ResolveResult(
                 blocksToClear: group,
+                cubeData: block.BlockData,
                 rewardData: rewardState?.RewardBlockData != null ? rewardState.RewardBlockData : null,
                 spawnRow: block.GridX,
                 spawnColumn: block.GridY
@@ -109,5 +111,44 @@ namespace ColorBlast.Gameplay
 
             return true;
         }
+
+        // private void TryComboChain(Block block)
+        // {
+        //     neighbors.Clear();
+        //
+        //     var row = block.GridX;
+        //     var col = block.GridY;
+        //
+        //     foreach (var neighbor in NeighborOffsets)
+        //     {
+        //         var neighborRow = row + neighbor.x;
+        //         var neighborCol = col + neighbor.y;
+        //
+        //         if (!IsInBounds(neighborRow, neighborCol))
+        //         {
+        //             continue;
+        //         }
+        //
+        //         if (blockGrid[neighborRow, neighborCol] == null)
+        //         {
+        //             continue;
+        //         }
+        //
+        //         if (block is IActivatable activatableBlock)
+        //         {
+        //             neighbors.Add(blockGrid[neighborRow, neighborCol]);
+        //         }
+        //     }
+        //
+        //     if (neighbors.Count > 0)
+        //     {
+        //         // apply combo chain
+        //     }
+        // }
+        //
+        // private void ResolveComboChain(Block block, HashSet<Block> otherSpecials)
+        // {
+        //     // priority disco ball > bomb > rocket
+        // }
     }
 }

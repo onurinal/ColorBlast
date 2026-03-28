@@ -1,13 +1,14 @@
 using ColorBlast.Manager;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
     public class CubeBlock : Block, IInteractable, IMatchable, IRecolorable
     {
         public override BlockData BlockData { get; protected set; }
-        private CubeBlockData CubeData => (CubeBlockData)BlockData;
+        private CubeBlockData CubeBlockData => (CubeBlockData)BlockData;
 
-        public override void Initialize(int gridX, int gridY, BlockData data)
+        public override void Initialize(int gridX, int gridY, BlockData data, Sprite sprite = null)
         {
             SetGridPosition(gridX, gridY);
             BlockData = data;
@@ -55,7 +56,7 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
-            var sprite = CubeData.GetVisual(groupSize);
+            var sprite = CubeBlockData.GetVisual(groupSize);
             blockView.UpdateVisual(sprite);
         }
     }

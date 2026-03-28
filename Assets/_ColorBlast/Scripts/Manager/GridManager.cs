@@ -131,7 +131,8 @@ namespace ColorBlast.Manager
 
                 if (result.HasReward)
                 {
-                    gridSpawner.SpawnBlockAt(result.RewardData, result.SpawnRow, result.SpawnColumn);
+                    gridSpawner.SpawnBlockAt(result.RewardData, result.RewardSprite, result.SpawnRow,
+                        result.SpawnColumn);
                 }
 
                 await ExecuteGravityPhase(ct);

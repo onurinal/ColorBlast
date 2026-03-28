@@ -23,4 +23,4 @@ MonoBehaviour:
     rewardBlockData: {fileID: 11400000, guid: e030ebde843be8c48997979d35580f35, type: 2}
   - minGroupSize: 6
     rewardHintSprite: {fileID: -257787592545182917, guid: e403d34c87849ad419edc5705cfd47aa, type: 3}
-    rewardBlockData: {fileID: 0}
+    rewardBlockData: {fileID: 11400000, guid: 2a87a4fe7a29f89488fd614fe96ca482, type: 2}

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -6,18 +8,44 @@ namespace ColorBlast.Gameplay
     {
         public HashSet<Block> BlocksToClear { get; }
         public BlockData RewardData { get; }
+        public Sprite RewardSprite { get; }
         public int SpawnRow { get; }
         public int SpawnColumn { get; }
 
         public bool HasReward => RewardData != null;
 
-        public ResolveResult(HashSet<Block> blocksToClear, BlockData rewardData = null, int spawnRow = 0,
+        public ResolveResult(HashSet<Block> blocksToClear, BlockData cubeData = null, BlockData rewardData = null,
+            int spawnRow = 0,
             int spawnColumn = 0)
         {
             BlocksToClear = blocksToClear;
             RewardData = rewardData;
+            RewardSprite = rewardData ? GetRewardSprite(cubeData, rewardData) : null;
             SpawnRow = spawnRow;
             SpawnColumn = spawnColumn;
+        }
+
+        private Sprite GetRewardSprite(BlockData cubeData, BlockData rewardData)
+        {
+            var blockType = rewardData.BlockType;
+
+            switch (blockType)
+            {
+                case BlockType.Bomb:
+                    break;
+                case BlockType.DiscoBall:
+                    return ResolveDiscoBallSprite(cubeData, (DiscoBlockData)rewardData);
+                case BlockType.Rocket:
+                    break;
+            }
+
+            return null;
+        }
+
+        private Sprite ResolveDiscoBallSprite(BlockData cubeData, DiscoBlockData discoBlockData)
+        {
+            var rewardState = discoBlockData.GetRewardState(cubeData);
+            return rewardState.GetSprite();
         }
     }
 }

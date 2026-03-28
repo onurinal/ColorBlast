@@ -9,7 +9,7 @@ namespace ColorBlast.Gameplay
         [SerializeField] private Sprite defaultSprite;
 
         public Block Prefab => prefab;
-        protected Sprite DefaultSprite => defaultSprite;
+        public Sprite DefaultSprite => defaultSprite;
 
         public abstract BlockType BlockType { get; }
     }

@@ -38,7 +38,7 @@ namespace ColorBlast.Gameplay
                 {
                     var targetCol = levelProperties.ColumnCount - emptyCount + i;
                     var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i);
-                    var newBlock = CreateBlockAt(row, targetCol, spawnPosition);
+                    var newBlock = CreateRandomCubeBlockAt(row, targetCol, spawnPosition);
 
                     var targetPosition = gridManager.GetCellWorldPosition(newBlock.GridX, newBlock.GridY);
                     newBlock.MoveToPosition(targetPosition);
@@ -47,7 +47,7 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        private Block CreateBlockAt(int row, int col, Vector2 spawnPosition)
+        private Block CreateRandomCubeBlockAt(int row, int col, Vector2 spawnPosition)
         {
             var randomColorData = cubeColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
             var newBlock = ObjectPoolManager.Instance.GetBlock(randomColorData);
@@ -57,10 +57,10 @@ namespace ColorBlast.Gameplay
             return newBlock;
         }
 
-        public void SpawnBlockAt(BlockData blockData, int row, int col)
+        public void SpawnBlockAt(BlockData blockData, Sprite sprite, int row, int col)
         {
             var block = ObjectPoolManager.Instance.GetBlock(blockData);
-            block.Initialize(row, col, blockData);
+            block.Initialize(row, col, blockData, sprite);
             block.transform.position = gridManager.GetCellWorldPosition(row, col);
             blockGrid[row, col] = block;
         }
