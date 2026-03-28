@@ -10,12 +10,15 @@ namespace ColorBlast.Gameplay
         public override BlockData BlockData { get; protected set; }
         public RocketBlockData RocketBlockData => (RocketBlockData)BlockData;
 
-        public override void Initialize(int gridX, int gridY, BlockData blockData, Sprite sprite = null)
+        public RocketDirection Direction { get; private set; }
+
+        public override void Initialize(int gridX, int gridY, BlockData blockData, Sprite sprite = null,
+            BlockData targetCubeData = null)
         {
             SetGridPosition(gridX, gridY);
             BlockData = blockData;
-            RocketBlockData.Direction = SetRandomRocketDirection();
-            blockView.UpdateVisual(RocketBlockData.GetSprite());
+            Direction = SetRandomRocketDirection();
+            blockView.UpdateVisual(RocketBlockData.GetSprite(Direction));
         }
 
         public void Interact()

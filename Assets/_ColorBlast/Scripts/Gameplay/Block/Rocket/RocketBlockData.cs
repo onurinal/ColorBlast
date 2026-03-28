@@ -7,12 +7,11 @@ namespace ColorBlast.Gameplay
     {
         [SerializeField] private Sprite horizontalRocketSprite;
         [SerializeField] private Sprite verticalRocketSprite;
-        public RocketDirection Direction { get; set; }
         public override BlockType BlockType => BlockType.Rocket;
 
-        public Sprite GetSprite()
+        public Sprite GetSprite(RocketDirection direction)
         {
-            return Direction switch
+            return direction switch
             {
                 RocketDirection.Horizontal => horizontalRocketSprite,
                 RocketDirection.Vertical => verticalRocketSprite,

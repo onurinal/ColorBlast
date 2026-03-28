@@ -8,19 +8,21 @@ namespace ColorBlast.Gameplay
     {
         public HashSet<Block> BlocksToClear { get; }
         public BlockData RewardData { get; }
+        public BlockData TargetCubeData { get; }
         public Sprite RewardSprite { get; }
         public int SpawnRow { get; }
         public int SpawnColumn { get; }
 
         public bool HasReward => RewardData != null;
 
-        public ResolveResult(HashSet<Block> blocksToClear, BlockData cubeData = null, BlockData rewardData = null,
+        public ResolveResult(HashSet<Block> blocksToClear, BlockData targetCubeData = null, BlockData rewardData = null,
             int spawnRow = 0,
             int spawnColumn = 0)
         {
             BlocksToClear = blocksToClear;
             RewardData = rewardData;
-            RewardSprite = rewardData ? GetRewardSprite(cubeData, rewardData) : null;
+            RewardSprite = rewardData ? GetRewardSprite(targetCubeData, rewardData) : null;
+            TargetCubeData = targetCubeData ? targetCubeData : null;
             SpawnRow = spawnRow;
             SpawnColumn = spawnColumn;
         }

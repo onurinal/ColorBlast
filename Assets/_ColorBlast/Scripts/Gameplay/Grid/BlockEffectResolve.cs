@@ -18,7 +18,7 @@ namespace ColorBlast.Gameplay
         private GridChecker gridChecker;
 
         private readonly HashSet<Block> affectedBlocks = new();
-        private readonly HashSet<Block> neighbors = new();
+        // private readonly HashSet<Block> neighbors = new();
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridChecker gridChecker,
             GameplayConfig gameplayConfig)
@@ -55,7 +55,7 @@ namespace ColorBlast.Gameplay
 
             return new ResolveResult(
                 blocksToClear: group,
-                cubeData: block.BlockData,
+                targetCubeData: block.BlockData,
                 rewardData: rewardState?.RewardBlockData != null ? rewardState.RewardBlockData : null,
                 spawnRow: block.GridX,
                 spawnColumn: block.GridY
@@ -94,12 +94,76 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveRocketMatch(Block block)
         {
-            return null;
+            affectedBlocks.Clear();
+
+            if (block is not RocketBlock rocketBlock)
+            {
+                return null;
+            }
+
+            return rocketBlock.Direction switch
+            {
+                RocketDirection.Horizontal => ResolveRowBlocks(block),
+                RocketDirection.Vertical => ResolveColumnBlocks(block),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
+        private ResolveResult ResolveRowBlocks(Block block)
+        {
+            for (int row = 0; row < levelProperties.RowCount; row++)
+            {
+                if (blockGrid[row, block.GridY] != null)
+                {
+                    affectedBlocks.Add(blockGrid[row, block.GridY]);
+                }
+            }
+
+            return new ResolveResult(affectedBlocks);
+        }
+
+        private ResolveResult ResolveColumnBlocks(Block block)
+        {
+            for (int col = 0; col < levelProperties.ColumnCount; col++)
+            {
+                if (blockGrid[block.GridX, col] != null)
+                {
+                    affectedBlocks.Add(blockGrid[block.GridX, col]);
+                }
+            }
+
+            return new ResolveResult(affectedBlocks);
         }
 
         private ResolveResult ResolveDiscoBallMatch(Block block)
         {
-            return null;
+            affectedBlocks.Clear();
+
+            if (block is not DiscoBlock discoBlock)
+            {
+                return null;
+            }
+
+            affectedBlocks.Add(discoBlock);
+            var targetCube = discoBlock.TargetCubeData;
+
+            for (int row = 0; row < levelProperties.RowCount; row++)
+            {
+                for (int col = 0; col < levelProperties.ColumnCount; col++)
+                {
+                    if (blockGrid[row, col] == null)
+                    {
+                        continue;
+                    }
+
+                    if (blockGrid[row, col].BlockData == targetCube)
+                    {
+                        affectedBlocks.Add(blockGrid[row, col]);
+                    }
+                }
+            }
+
+            return new ResolveResult(affectedBlocks);
         }
 
         private bool IsInBounds(int row, int col)
