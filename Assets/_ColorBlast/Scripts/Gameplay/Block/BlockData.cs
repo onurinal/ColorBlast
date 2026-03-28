@@ -6,11 +6,7 @@ namespace ColorBlast.Gameplay
     {
         [Header("Block Settings")]
         [SerializeField] private Block prefab;
-        [SerializeField] private Sprite defaultSprite;
-
         public Block Prefab => prefab;
-        public Sprite DefaultSprite => defaultSprite;
-
         public abstract BlockType BlockType { get; }
     }
 }

@@ -10,6 +10,9 @@ namespace ColorBlast.Gameplay
     [CreateAssetMenu(fileName = "CubeBlockData", menuName = "ColorBlast/Gameplay/Block/Cube/CubeData")]
     public class CubeBlockData : BlockData
     {
+        [Header("Visual Settings")]
+        [SerializeField] private Sprite defaultSprite;
+
         [Header("Reward Settings")]
         [SerializeField] private List<CubeRewardState> rewardStates;
 
@@ -21,7 +24,7 @@ namespace ColorBlast.Gameplay
 
             if (rewardHint == null)
             {
-                return DefaultSprite;
+                return defaultSprite;
             }
 
             return rewardHint.RewardHintSprite;

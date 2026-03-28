@@ -29,17 +29,13 @@ namespace ColorBlast.Gameplay
         {
             var blockType = rewardData.BlockType;
 
-            switch (blockType)
+            return blockType switch
             {
-                case BlockType.Bomb:
-                    break;
-                case BlockType.DiscoBall:
-                    return ResolveDiscoBallSprite(cubeData, (DiscoBlockData)rewardData);
-                case BlockType.Rocket:
-                    break;
-            }
-
-            return null;
+                BlockType.Bomb => null,
+                BlockType.DiscoBall => ResolveDiscoBallSprite(cubeData, (DiscoBlockData)rewardData),
+                BlockType.Rocket => null,
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         private Sprite ResolveDiscoBallSprite(BlockData cubeData, DiscoBlockData discoBlockData)
