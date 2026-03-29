@@ -12,13 +12,10 @@ namespace ColorBlast.Gameplay
 
         public RocketDirection Direction { get; private set; }
 
-        public override void Initialize(int gridX, int gridY, BlockData blockData, Sprite sprite = null,
-            BlockData targetCubeData = null)
+        public override void Initialize(int gridX, int gridY, BlockData blockData)
         {
             SetGridPosition(gridX, gridY);
             BlockData = blockData;
-            Direction = SetRandomRocketDirection();
-            blockView.UpdateVisual(RocketBlockData.GetSprite(Direction));
         }
 
         public void Interact()
@@ -26,12 +23,12 @@ namespace ColorBlast.Gameplay
             EventManager.TriggerBlockInteracted(this);
         }
 
-        private RocketDirection SetRandomRocketDirection()
+        public void SetupDirection()
         {
             Array values = Enum.GetValues(typeof(RocketDirection));
             var randomIndex = Random.Range(0, values.Length);
-            var randomDirection = (RocketDirection)values.GetValue(randomIndex);
-            return randomDirection;
+            Direction = (RocketDirection)values.GetValue(randomIndex);
+            blockView.UpdateVisual(RocketBlockData.GetSprite(Direction));
         }
     }
 }

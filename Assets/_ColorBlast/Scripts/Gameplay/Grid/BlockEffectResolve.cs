@@ -6,19 +6,12 @@ namespace ColorBlast.Gameplay
 {
     public class BlockEffectResolve
     {
-        private static readonly Vector2Int[] NeighborOffsets =
-        {
-            new Vector2Int(1, 0), new Vector2Int(-1, 0),
-            new Vector2Int(0, 1), new Vector2Int(0, -1)
-        };
-
         private GameplayConfig gameplayConfig;
         private Block[,] blockGrid;
         private LevelProperties levelProperties;
         private GridChecker gridChecker;
 
-        private readonly HashSet<Block> affectedBlocks = new();
-        // private readonly HashSet<Block> neighbors = new();
+        private HashSet<Block> affectedBlocks;
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridChecker gridChecker,
             GameplayConfig gameplayConfig)
@@ -53,10 +46,18 @@ namespace ColorBlast.Gameplay
             var cubeBlockData = (CubeBlockData)block.BlockData;
             var rewardState = cubeBlockData.GetRewardState(group.Count);
 
+            if (rewardState == null)
+            {
+                return new ResolveResult(group);
+            }
+
+            var rewardSprite = ResolveRewardSprite(cubeBlockData, rewardState.RewardBlockData);
+
             return new ResolveResult(
                 blocksToClear: group,
+                rewardData: rewardState.RewardBlockData,
+                rewardSprite: rewardSprite,
                 targetCubeData: block.BlockData,
-                rewardData: rewardState?.RewardBlockData != null ? rewardState.RewardBlockData : null,
                 spawnRow: block.GridX,
                 spawnColumn: block.GridY
             );
@@ -64,7 +65,7 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveBombMatch(Block block)
         {
-            affectedBlocks.Clear();
+            affectedBlocks = new HashSet<Block>();
 
             var bombData = (BombBlockData)block.BlockData;
             var centerRow = block.GridX;
@@ -94,7 +95,7 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveRocketMatch(Block block)
         {
-            affectedBlocks.Clear();
+            affectedBlocks = new HashSet<Block>();
 
             if (block is not RocketBlock rocketBlock)
             {
@@ -137,7 +138,7 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveDiscoBallMatch(Block block)
         {
-            affectedBlocks.Clear();
+            affectedBlocks = new HashSet<Block>();
 
             if (block is not DiscoBlock discoBlock)
             {
@@ -166,6 +167,17 @@ namespace ColorBlast.Gameplay
             return new ResolveResult(affectedBlocks);
         }
 
+        private Sprite ResolveRewardSprite(BlockData cubeData, BlockData rewardData)
+        {
+            if (rewardData is DiscoBlockData discoBlockData)
+            {
+                var rewardState = discoBlockData.GetRewardState(cubeData);
+                return rewardState?.GetSprite();
+            }
+
+            return null;
+        }
+
         private bool IsInBounds(int row, int col)
         {
             if (row < 0 || col < 0 || row >= levelProperties.RowCount || col >= levelProperties.ColumnCount)
@@ -175,44 +187,5 @@ namespace ColorBlast.Gameplay
 
             return true;
         }
-
-        // private void TryComboChain(Block block)
-        // {
-        //     neighbors.Clear();
-        //
-        //     var row = block.GridX;
-        //     var col = block.GridY;
-        //
-        //     foreach (var neighbor in NeighborOffsets)
-        //     {
-        //         var neighborRow = row + neighbor.x;
-        //         var neighborCol = col + neighbor.y;
-        //
-        //         if (!IsInBounds(neighborRow, neighborCol))
-        //         {
-        //             continue;
-        //         }
-        //
-        //         if (blockGrid[neighborRow, neighborCol] == null)
-        //         {
-        //             continue;
-        //         }
-        //
-        //         if (block is IActivatable activatableBlock)
-        //         {
-        //             neighbors.Add(blockGrid[neighborRow, neighborCol]);
-        //         }
-        //     }
-        //
-        //     if (neighbors.Count > 0)
-        //     {
-        //         // apply combo chain
-        //     }
-        // }
-        //
-        // private void ResolveComboChain(Block block, HashSet<Block> otherSpecials)
-        // {
-        //     // priority disco ball > bomb > rocket
-        // }
     }
 }

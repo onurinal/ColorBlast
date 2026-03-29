@@ -20,8 +20,7 @@ namespace ColorBlast.Gameplay
         public int GridX { get; private set; }
         public int GridY { get; private set; }
 
-        public abstract void Initialize(int gridX, int gridY, BlockData blockData, Sprite sprite = null,
-            BlockData targetCubeData = null);
+        public abstract void Initialize(int gridX, int gridY, BlockData blockData);
 
         public virtual void OnSpawn() { }
 

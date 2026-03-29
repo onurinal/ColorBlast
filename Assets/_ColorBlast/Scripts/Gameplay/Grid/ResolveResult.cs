@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,42 +7,24 @@ namespace ColorBlast.Gameplay
     {
         public HashSet<Block> BlocksToClear { get; }
         public BlockData RewardData { get; }
-        public BlockData TargetCubeData { get; }
         public Sprite RewardSprite { get; }
+        public BlockData TargetCubeData { get; }
         public int SpawnRow { get; }
         public int SpawnColumn { get; }
 
         public bool HasReward => RewardData != null;
 
-        public ResolveResult(HashSet<Block> blocksToClear, BlockData targetCubeData = null, BlockData rewardData = null,
+        public ResolveResult(HashSet<Block> blocksToClear, BlockData rewardData = null, Sprite rewardSprite = null,
+            BlockData targetCubeData = null,
             int spawnRow = 0,
             int spawnColumn = 0)
         {
             BlocksToClear = blocksToClear;
             RewardData = rewardData;
-            RewardSprite = rewardData ? GetRewardSprite(targetCubeData, rewardData) : null;
-            TargetCubeData = targetCubeData ? targetCubeData : null;
+            RewardSprite = rewardSprite;
+            TargetCubeData = targetCubeData;
             SpawnRow = spawnRow;
             SpawnColumn = spawnColumn;
-        }
-
-        private Sprite GetRewardSprite(BlockData cubeData, BlockData rewardData)
-        {
-            var blockType = rewardData.BlockType;
-
-            return blockType switch
-            {
-                BlockType.Bomb => null,
-                BlockType.DiscoBall => ResolveDiscoBallSprite(cubeData, (DiscoBlockData)rewardData),
-                BlockType.Rocket => null,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
-
-        private Sprite ResolveDiscoBallSprite(BlockData cubeData, DiscoBlockData discoBlockData)
-        {
-            var rewardState = discoBlockData.GetRewardState(cubeData);
-            return rewardState.GetSprite();
         }
     }
 }

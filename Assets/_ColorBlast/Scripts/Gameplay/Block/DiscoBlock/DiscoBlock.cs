@@ -9,18 +9,21 @@ namespace ColorBlast.Gameplay
 
         public BlockData TargetCubeData { get; private set; }
 
-        public override void Initialize(int gridX, int gridY, BlockData blockData, Sprite sprite = null,
-            BlockData targetCubeData = null)
+        public override void Initialize(int gridX, int gridY, BlockData blockData)
         {
             SetGridPosition(gridX, gridY);
             BlockData = blockData;
+        }
 
-            if (sprite != null)
+        public void SetTargetCubeData(BlockData targetCubeData, Sprite sprite)
+        {
+            if (targetCubeData == null || sprite == null)
             {
-                blockView.UpdateVisual(sprite);
+                Debug.LogWarning($"DiscoBlock cannot set targetCubeData or sprite");
             }
 
             TargetCubeData = targetCubeData;
+            blockView.UpdateVisual(sprite);
         }
 
         public void Interact()

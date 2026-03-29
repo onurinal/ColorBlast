@@ -57,11 +57,22 @@ namespace ColorBlast.Gameplay
             return newBlock;
         }
 
-        public void SpawnBlockAt(BlockData blockData, int row, int col, Sprite sprite, BlockData targetCubeData)
+        public void SpawnBlockAt(BlockData blockData, int row, int col,
+            Sprite sprite = null, BlockData targetCubeData = null)
         {
             var block = ObjectPoolManager.Instance.GetBlock(blockData);
-            block.Initialize(row, col, blockData, sprite, targetCubeData);
+            block.Initialize(row, col, blockData);
             block.transform.position = gridManager.GetCellWorldPosition(row, col);
+
+            if (block is DiscoBlock discoBlock)
+            {
+                discoBlock.SetTargetCubeData(targetCubeData, sprite);
+            }
+            else if (block is RocketBlock rocketBlock)
+            {
+                rocketBlock.SetupDirection();
+            }
+
             blockGrid[row, col] = block;
         }
 

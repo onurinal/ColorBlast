@@ -7,8 +7,7 @@ namespace ColorBlast.Gameplay
     {
         public override BlockData BlockData { get; protected set; }
 
-        public override void Initialize(int gridX, int gridY, BlockData blockData, Sprite sprite = null,
-            BlockData targetCubeData = null)
+        public override void Initialize(int gridX, int gridY, BlockData blockData)
         {
             SetGridPosition(gridX, gridY);
             BlockData = blockData;
