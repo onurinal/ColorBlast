@@ -18,6 +18,10 @@
 .DS_Store
 Thumbs.db
 
+/[Uu]tmp/
+.utmp/
+utmp/
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
