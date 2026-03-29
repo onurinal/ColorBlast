@@ -12,10 +12,8 @@ namespace ColorBlast.Gameplay
     {
         private static readonly Vector2Int[] Neighbors =
         {
-            new Vector2Int(1, 0),
-            new Vector2Int(-1, 0),
-            new Vector2Int(0, 1),
-            new Vector2Int(0, -1)
+            new Vector2Int(1, 0), new Vector2Int(-1, 0),
+            new Vector2Int(0, 1), new Vector2Int(0, -1)
         };
 
         private GameplayConfig gameplayConfig;
@@ -23,8 +21,8 @@ namespace ColorBlast.Gameplay
         private Block[,] blockGrid;
 
         private bool[,] visitedBlocks;
-        private Queue<Vector2Int> queue;
         private HashSet<Block> currentGroup;
+        private Queue<Vector2Int> bfsQueue;
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GameplayConfig gameplayConfig)
         {
@@ -32,15 +30,14 @@ namespace ColorBlast.Gameplay
             this.levelProperties = levelProperties;
             this.gameplayConfig = gameplayConfig;
 
-            var capacity = levelProperties.RowCount * levelProperties.ColumnCount;
+            var gridCapacity = levelProperties.RowCount * levelProperties.ColumnCount;
             visitedBlocks = new bool[levelProperties.RowCount, levelProperties.ColumnCount];
-            queue = new Queue<Vector2Int>(capacity / 2);
-            currentGroup = new HashSet<Block>(capacity / 2);
+            currentGroup = new HashSet<Block>(gridCapacity / 2);
+            bfsQueue = new Queue<Vector2Int>(gridCapacity / 2);
         }
 
         public void CheckAllGrid()
         {
-            ClearVisitedBlocks();
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
@@ -55,7 +52,7 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
-                    FindConnectedMatch(row, col, currentGroup);
+                    FindConnectedMatch(row, col);
                     UpdateGroupIcons(currentGroup);
                 }
             }
@@ -69,9 +66,7 @@ namespace ColorBlast.Gameplay
                 return null;
             }
 
-            ClearVisitedBlocks();
-
-            FindConnectedMatch(row, col, currentGroup);
+            FindConnectedMatch(row, col);
             return currentGroup;
         }
 
@@ -104,7 +99,7 @@ namespace ColorBlast.Gameplay
                     // it is checking basic block type who can match with other cubes
                     if (block is IMatchable)
                     {
-                        FindConnectedMatch(row, col, currentGroup);
+                        FindConnectedMatch(row, col);
 
                         if (currentGroup.Count >= gameplayConfig.MatchThreshold)
                         {
@@ -117,9 +112,10 @@ namespace ColorBlast.Gameplay
             return true;
         }
 
-        private void FindConnectedMatch(int startRow, int startCol, HashSet<Block> group)
+        private void FindConnectedMatch(int startRow, int startCol)
         {
-            group.Clear();
+            currentGroup.Clear();
+            ClearVisitedBlocks();
 
             var startBlock = blockGrid[startRow, startCol];
 
@@ -128,12 +124,12 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
-            queue.Clear();
-            queue.Enqueue(new Vector2Int(startRow, startCol));
+            bfsQueue.Clear();
+            bfsQueue.Enqueue(new Vector2Int(startRow, startCol));
 
-            while (queue.Count > 0)
+            while (bfsQueue.Count > 0)
             {
-                var currentBlock = queue.Dequeue();
+                var currentBlock = bfsQueue.Dequeue();
                 var row = currentBlock.x;
                 var col = currentBlock.y;
 
@@ -164,11 +160,11 @@ namespace ColorBlast.Gameplay
                 }
 
                 visitedBlocks[row, col] = true;
-                group.Add(block);
+                currentGroup.Add(block);
 
-                for (int i = 0; i < Neighbors.Length; i++)
+                foreach (var neighbor in Neighbors)
                 {
-                    queue.Enqueue(currentBlock + Neighbors[i]);
+                    bfsQueue.Enqueue(currentBlock + neighbor);
                 }
             }
         }

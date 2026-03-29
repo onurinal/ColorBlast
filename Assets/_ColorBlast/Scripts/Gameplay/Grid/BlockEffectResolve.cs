@@ -6,12 +6,19 @@ namespace ColorBlast.Gameplay
 {
     public class BlockEffectResolve
     {
+        private static readonly Vector2Int[] Neighbors =
+        {
+            new Vector2Int(1, 0), new Vector2Int(-1, 0),
+            new Vector2Int(0, 1), new Vector2Int(0, -1)
+        };
+
         private GameplayConfig gameplayConfig;
         private Block[,] blockGrid;
         private LevelProperties levelProperties;
         private GridChecker gridChecker;
 
-        private HashSet<Block> affectedBlocks;
+        private ComboDetector comboDetector;
+        private ComboEffectResolver comboEffectResolver;
 
         public void Initialize(Block[,] blockGrid, LevelProperties levelProperties, GridChecker gridChecker,
             GameplayConfig gameplayConfig)
@@ -20,17 +27,33 @@ namespace ColorBlast.Gameplay
             this.blockGrid = blockGrid;
             this.levelProperties = levelProperties;
             this.gridChecker = gridChecker;
+
+            comboDetector = new ComboDetector();
+            comboDetector.Initialize(blockGrid, levelProperties);
+            comboEffectResolver = new ComboEffectResolver();
+            comboEffectResolver.Initialize(blockGrid, levelProperties);
         }
 
         public ResolveResult Resolve(Block block)
         {
+            if (block is IActivatable)
+            {
+                var combo = comboDetector.TryDetect(block);
+                if (combo is not null)
+                {
+                    var (partner, comboType) = combo.Value;
+                    var affected = comboEffectResolver.Resolve(block, partner, comboType);
+                    return new ResolveResult(affected);
+                }
+            }
+
             return block.BlockType switch
             {
                 BlockType.Cube => ResolveCubeMatch(block),
                 BlockType.Bomb => ResolveBombMatch(block),
                 BlockType.Rocket => ResolveRocketMatch(block),
                 BlockType.DiscoBall => ResolveDiscoBallMatch(block),
-                _ => throw new ArgumentOutOfRangeException()
+                _ => null
             };
         }
 
@@ -65,7 +88,7 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveBombMatch(Block block)
         {
-            affectedBlocks = new HashSet<Block>();
+            var affectedBlocks = new HashSet<Block>();
 
             var bombData = (BombBlockData)block.BlockData;
             var centerRow = block.GridX;
@@ -95,7 +118,7 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveRocketMatch(Block block)
         {
-            affectedBlocks = new HashSet<Block>();
+            var affectedBlocks = new HashSet<Block>();
 
             if (block is not RocketBlock rocketBlock)
             {
@@ -104,13 +127,13 @@ namespace ColorBlast.Gameplay
 
             return rocketBlock.Direction switch
             {
-                RocketDirection.Horizontal => ResolveRowBlocks(block),
-                RocketDirection.Vertical => ResolveColumnBlocks(block),
+                RocketDirection.Horizontal => ResolveRowBlocks(block, affectedBlocks),
+                RocketDirection.Vertical => ResolveColumnBlocks(block, affectedBlocks),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
 
-        private ResolveResult ResolveRowBlocks(Block block)
+        private ResolveResult ResolveRowBlocks(Block block, HashSet<Block> affectedBlocks)
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -123,7 +146,7 @@ namespace ColorBlast.Gameplay
             return new ResolveResult(affectedBlocks);
         }
 
-        private ResolveResult ResolveColumnBlocks(Block block)
+        private ResolveResult ResolveColumnBlocks(Block block, HashSet<Block> affectedBlocks)
         {
             for (int col = 0; col < levelProperties.ColumnCount; col++)
             {
@@ -138,7 +161,7 @@ namespace ColorBlast.Gameplay
 
         private ResolveResult ResolveDiscoBallMatch(Block block)
         {
-            affectedBlocks = new HashSet<Block>();
+            var affectedBlocks = new HashSet<Block>();
 
             if (block is not DiscoBlock discoBlock)
             {
