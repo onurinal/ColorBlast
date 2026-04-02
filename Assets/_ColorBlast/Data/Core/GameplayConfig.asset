@@ -16,10 +16,7 @@ MonoBehaviour:
   blockSizeX: 0.45
   blockSizeY: 0.45
   matchThreshold: 2
-  rocketThreshold: 5
-  tntThreshold: 6
-  rainbowThreshold: 7
-  destroyDurationMs: 150
-  fallDurationMs: 250
-  spawnDurationMs: 150
-  shuffleDurationMs: 2000
+  destroyDuration: 0.15
+  fallDuration: 0.25
+  spawnDuration: 0.15
+  shuffleDuration: 2

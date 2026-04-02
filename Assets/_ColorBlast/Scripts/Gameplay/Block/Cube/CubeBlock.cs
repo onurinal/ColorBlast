@@ -20,11 +20,11 @@ namespace ColorBlast.Gameplay
             EventManager.TriggerBlockInteracted(this);
         }
 
-        public override void ClearBlock()
+        public override void DestroyBlock()
         {
             // play particle and animations if needed like death effect
 
-            base.ClearBlock();
+            base.DestroyBlock();
         }
 
         public bool CanMatchWith(IMatchable other)

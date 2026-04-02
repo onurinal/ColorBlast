@@ -15,21 +15,18 @@ namespace ColorBlast.Gameplay
         [SerializeField] private int matchThreshold = 2;
 
         [Header("Animation Settings")]
-        [SerializeField] private int destroyDurationMs = 150;
-        [SerializeField] private int fallDurationMs = 250;
-        [SerializeField] private int spawnDurationMs = 150;
-        [SerializeField] private int shuffleDurationMs = 2000;
+        [SerializeField] private float destroyDuration = 0.15f;
+        [SerializeField] private float fallDuration = 0.25f;
+        [SerializeField] private float spawnDuration = 0.15f;
+        [SerializeField] private float shuffleDuration = 2f;
 
         public float CellUnitSize => cellUnitSize;
         public float BlockSizeX => blockSizeX;
         public float BlockSizeY => blockSizeY;
         public int MatchThreshold => matchThreshold;
-        public int DestroyDurationMs => destroyDurationMs;
-        public int FallDurationMs => fallDurationMs;
-        public int SpawnDurationMs => spawnDurationMs;
-        public int ShuffleDurationMs => shuffleDurationMs;
-        public float ShuffleDurationSec => shuffleDurationMs / 1000f;
-        public float FallDurationSec => fallDurationMs / 1000f;
-        public float DestroyDurationSec => destroyDurationMs / 1000f;
+        public float DestroyDuration => destroyDuration;
+        public float FallDuration => fallDuration;
+        public float SpawnDuration => spawnDuration;
+        public float ShuffleDuration => shuffleDuration;
     }
 }

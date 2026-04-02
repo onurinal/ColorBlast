@@ -28,7 +28,7 @@ namespace ColorBlast.Gameplay
             this.levelProperties = levelProperties;
         }
 
-        public (Block partner, ComboType comboType)? TryDetect(Block tapped)
+        public (Block partner, List<Block> adjacentSpecials, ComboType comboType)? TryDetect(Block tapped)
         {
             if (tapped is not IActivatable)
             {
@@ -45,7 +45,7 @@ namespace ColorBlast.Gameplay
             Block partner = SelectBestPartner(adjacentSpecials);
             var comboType = DetermineComboType(tapped.BlockType, partner.BlockType);
 
-            return (partner, comboType);
+            return (partner, adjacentSpecials, comboType);
         }
 
         private List<Block> GetAdjacentSpecials(Block startBlock)

@@ -23,13 +23,13 @@ namespace ColorBlast.Manager
         private GridChecker gridChecker;
         private GridRefill gridRefill;
         private GridShuffler gridShuffler;
-        private BlockEffectResolve blockEffectResolve;
+        private EffectPipeline effectPipeline;
+        private BlockEffectFactory effectFactory;
 
         private LevelProperties levelProperties;
         private UIManager uiManager;
 
         private Block[,] blockGrid;
-        private bool isBusy = false;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager)
         {
@@ -58,35 +58,23 @@ namespace ColorBlast.Manager
 
         public async UniTaskVoid OnGameStart()
         {
-            isBusy = true;
-            var ct = this.GetCancellationTokenOnDestroy();
-            try
-            {
-                gridSpawner.SpawnNewBlocks();
-                gridChecker.CheckAllGrid();
-                await CheckAndHandleDeadlock(ct);
-            }
-            finally
-            {
-                isBusy = false;
-            }
+            var cancellationToken = this.GetCancellationTokenOnDestroy();
+
+            gridSpawner.SpawnNewBlocks();
+            gridChecker.CheckAllGrid();
+            await CheckAndHandleDeadlock(cancellationToken);
         }
 
         private void HandleBlockInteract(Block block)
         {
-            if (isBusy)
+            if (effectPipeline.IsProcessing)
             {
                 return;
             }
 
-            var result = blockEffectResolve.Resolve(block);
+            var effect = effectFactory.CreateFromPlayerTap(block);
+            effectPipeline.EnqueueFromPlayer(effect);
 
-            if (result == null)
-            {
-                return;
-            }
-
-            ResolveGrid(result).Forget();
             EventManager.TriggerMoveChanged();
         }
 
@@ -104,8 +92,15 @@ namespace ColorBlast.Manager
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);
 
-            blockEffectResolve = new BlockEffectResolve();
-            blockEffectResolve.Initialize(blockGrid, levelProperties, gridChecker, gameplayConfig);
+            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner);
+
+            effectPipeline = new EffectPipeline();
+            effectPipeline.Initialize(gridRefill, gridSpawner, gridChecker, context);
+
+            var comboDetector = new ComboDetector();
+            comboDetector.Initialize(blockGrid, levelProperties);
+
+            effectFactory = new BlockEffectFactory(gridChecker, gameplayConfig, comboDetector);
         }
 
         private void InitializeCamera()
@@ -120,72 +115,14 @@ namespace ColorBlast.Manager
             cameraController.Initialize(gridCenterWorldPosition, gridWorldSize);
         }
 
-        private async UniTask ResolveGrid(ResolveResult result)
-        {
-            isBusy = true;
-            var ct = this.GetCancellationTokenOnDestroy();
-
-            try
-            {
-                await ExecuteClearPhase(result.BlocksToClear, ct);
-
-                if (result.HasReward)
-                {
-                    gridSpawner.SpawnBlockAt(result.RewardData, result.SpawnRow,
-                        result.SpawnColumn, result.RewardSprite, result.TargetCubeData);
-                }
-
-                await ExecuteGravityPhase(ct);
-                await ExecuteRefillPhase(ct);
-
-                gridChecker.CheckAllGrid();
-                await CheckAndHandleDeadlock(ct);
-            }
-            finally
-            {
-                isBusy = false;
-            }
-        }
-
-        private async UniTask ExecuteClearPhase(HashSet<Block> blocks, CancellationToken ct)
-        {
-            ClearBlocks(blocks);
-            await UniTask.Delay(gameplayConfig.DestroyDurationMs, cancellationToken: ct);
-        }
-
-        private async UniTask ExecuteGravityPhase(CancellationToken ct)
-        {
-            gridRefill.ApplyGravity();
-            await UniTask.Delay(gameplayConfig.FallDurationMs, cancellationToken: ct);
-        }
-
-        private async UniTask ExecuteRefillPhase(CancellationToken ct)
-        {
-            gridSpawner.SpawnNewBlocks();
-            await UniTask.Delay(gameplayConfig.SpawnDurationMs, cancellationToken: ct);
-        }
-
+        // after adding some levels, you can make an event and when deadlock occurs then it should call this
         private async UniTask CheckAndHandleDeadlock(CancellationToken ct)
         {
             if (gridChecker.IsDeadlocked())
             {
-                uiManager.ShowShuffleUI(gameplayConfig.ShuffleDurationSec);
-                await UniTask.Delay(gameplayConfig.ShuffleDurationMs, cancellationToken: ct);
+                uiManager.ShowShuffleUI(gameplayConfig.ShuffleDuration);
+                await UniTask.Delay(TimeSpan.FromSeconds(gameplayConfig.ShuffleDuration), cancellationToken: ct);
                 gridShuffler.Shuffle();
-            }
-        }
-
-        private void ClearBlocks(HashSet<Block> blocks)
-        {
-            foreach (var block in blocks)
-            {
-                if (block == null)
-                {
-                    continue;
-                }
-
-                blockGrid[block.GridX, block.GridY] = null;
-                block.ClearBlock();
             }
         }
     }

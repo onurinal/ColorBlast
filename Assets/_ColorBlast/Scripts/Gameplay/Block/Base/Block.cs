@@ -29,9 +29,9 @@ namespace ColorBlast.Gameplay
             blockView.ResetView();
         }
 
-        public virtual void ClearBlock()
+        public virtual void DestroyBlock()
         {
-            blockView.HandleDestroy(gameplayConfig.DestroyDurationSec, ReturnToPool);
+            blockView.HandleDestroy(gameplayConfig.DestroyDuration, ReturnToPool);
         }
 
         public virtual void UpdateIcon(int groupSize) { }
@@ -51,7 +51,7 @@ namespace ColorBlast.Gameplay
 
         public void MoveToPosition(Vector2 targetPosition)
         {
-            blockView.MoveToPosition(targetPosition, gameplayConfig.FallDurationSec);
+            blockView.MoveToPosition(targetPosition, gameplayConfig.FallDuration);
         }
 
         private void ReturnToPool()
