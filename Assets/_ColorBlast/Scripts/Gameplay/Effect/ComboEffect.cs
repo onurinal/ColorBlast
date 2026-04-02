@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -40,13 +39,13 @@ namespace ColorBlast.Gameplay
                 chainSchedular.MarkTriggered(adjacent);
             }
 
-            var affected = Resolve(context);
+            var affected = await Resolve(context);
             ProcessAffected(context, chainSchedular, affected);
 
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }
 
-        private HashSet<Block> Resolve(EffectExecutionContext context)
+        private async UniTask<HashSet<Block>> Resolve(EffectExecutionContext context)
         {
             var affected = new HashSet<Block> { Source };
 
@@ -57,19 +56,19 @@ namespace ColorBlast.Gameplay
 
             switch (comboType)
             {
-                case ComboType.DiscoBallDiscoBall: DiscoBallDiscoBall(context, affected); break;
-                case ComboType.DiscoBallBomb: DiscoBallBomb(context, affected); break;
-                case ComboType.DiscoBallRocket: DiscoBallRocket(context, affected); break;
-                case ComboType.BombBomb: BombBomb(context, affected); break;
-                case ComboType.BombRocket: BombRocket(context, affected); break;
-                case ComboType.RocketRocket: RocketRocket(context, affected); break;
+                case ComboType.DiscoBallDiscoBall: await DiscoBallDiscoBall(context, affected); break;
+                case ComboType.DiscoBallBomb: await DiscoBallBomb(context, affected); break;
+                case ComboType.DiscoBallRocket: await DiscoBallRocket(context, affected); break;
+                case ComboType.BombBomb: await BombBomb(context, affected); break;
+                case ComboType.BombRocket: await BombRocket(context, affected); break;
+                case ComboType.RocketRocket: await RocketRocket(context, affected); break;
             }
 
             return affected;
         }
 
         //------------------- COMBO IMPLEMENTATIONS -----------------
-        private void DiscoBallDiscoBall(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask DiscoBallDiscoBall(EffectExecutionContext context, HashSet<Block> affected)
         {
             for (int row = 0; row < context.LevelProperties.RowCount; row++)
             {
@@ -81,28 +80,88 @@ namespace ColorBlast.Gameplay
                     }
                 }
             }
+
+            await UniTask.CompletedTask;
         }
 
-        private void DiscoBallBomb(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask DiscoBallBomb(EffectExecutionContext context, HashSet<Block> affected)
         {
-            throw new NotImplementedException();
+            var discoBall = Source.BlockType == BlockType.DiscoBall ? Source : partner;
+            var bombBlock = Source.BlockType == BlockType.Bomb ? Source : partner;
+
+            if (discoBall is not DiscoBlock discoBlock)
+            {
+                return;
+            }
+
+            var targetCube = discoBlock.TargetCubeData;
+            if (targetCube == null)
+            {
+                return;
+            }
+
+            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+            {
+                for (int row = 0; row < context.LevelProperties.RowCount; row++)
+                {
+                    var block = context.BlockGrid[row, col];
+
+                    if (block != null && block.BlockData == targetCube)
+                    {
+                        context.DestroyBlock(block);
+                        context.SpawnBlockAt(bombBlock.BlockData, row, col);
+                        affected.Add(context.BlockGrid[row, col]);
+                        await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
+                    }
+                }
+            }
         }
 
-        private void DiscoBallRocket(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask DiscoBallRocket(EffectExecutionContext context, HashSet<Block> affected)
         {
-            throw new NotImplementedException();
+            var discoBall = Source.BlockType == BlockType.DiscoBall ? Source : partner;
+            var rocketBlock = Source.BlockType == BlockType.Rocket ? Source : partner;
+
+            if (discoBall is not DiscoBlock discoBlock)
+            {
+                return;
+            }
+
+            var targetCube = discoBlock.TargetCubeData;
+            if (targetCube == null)
+            {
+                return;
+            }
+
+            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+            {
+                for (int row = 0; row < context.LevelProperties.RowCount; row++)
+                {
+                    var block = context.BlockGrid[row, col];
+
+                    if (block != null && block.BlockData == targetCube)
+                    {
+                        context.DestroyBlock(block);
+                        context.SpawnBlockAt(rocketBlock.BlockData, row, col);
+                        affected.Add(context.BlockGrid[row, col]);
+                        await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
+                    }
+                }
+            }
         }
 
-        private void BombBomb(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask BombBomb(EffectExecutionContext context, HashSet<Block> affected)
         {
             var radius1 = ((BombBlockData)Source.BlockData).Radius;
             var radius2 = ((BombBlockData)partner.BlockData).Radius;
             var combined = radius1 + radius2;
             AddBlocksInRadius(context, affected, Source.GridX, Source.GridY, combined);
             AddBlocksInRadius(context, affected, partner.GridX, partner.GridY, combined);
+
+            await UniTask.CompletedTask;
         }
 
-        private void BombRocket(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask BombRocket(EffectExecutionContext context, HashSet<Block> affected)
         {
             var bombBlock = Source.BlockType == BlockType.Bomb ? Source : partner;
             var bombRadius = ((BombBlockData)bombBlock.BlockData).Radius;
@@ -124,12 +183,16 @@ namespace ColorBlast.Gameplay
                     AddHorizontalLine(context, affected, col);
                 }
             }
+
+            await UniTask.CompletedTask;
         }
 
-        private void RocketRocket(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask RocketRocket(EffectExecutionContext context, HashSet<Block> affected)
         {
             AddHorizontalLine(context, affected, Source.GridY);
             AddVerticalLine(context, affected, Source.GridX);
+
+            await UniTask.CompletedTask;
         }
 
         //------------------ HELPERS --------------------
