@@ -16,7 +16,8 @@ MonoBehaviour:
   blockSizeX: 0.45
   blockSizeY: 0.45
   matchThreshold: 2
-  destroyDuration: 0.15
+  destroyDuration: 0.2
   fallDuration: 0.25
-  spawnDuration: 0.15
+  spawnDuration: 0.2
   shuffleDuration: 2
+  spawnDurationBetweenSpecials: 0.04

@@ -94,27 +94,7 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
-            var targetCube = discoBlock.TargetCubeData;
-            if (targetCube == null)
-            {
-                return;
-            }
-
-            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
-            {
-                for (int row = 0; row < context.LevelProperties.RowCount; row++)
-                {
-                    var block = context.BlockGrid[row, col];
-
-                    if (block != null && block.BlockData == targetCube)
-                    {
-                        context.DestroyBlock(block);
-                        context.SpawnBlockAt(bombBlock.BlockData, row, col);
-                        affected.Add(context.BlockGrid[row, col]);
-                        await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
-                    }
-                }
-            }
+            await TransformByDisco(context, affected, bombBlock.BlockData, discoBlock);
         }
 
         private async UniTask DiscoBallRocket(EffectExecutionContext context, HashSet<Block> affected)
@@ -127,6 +107,12 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
+            await TransformByDisco(context, affected, rocketBlock.BlockData, discoBlock);
+        }
+
+        private async UniTask TransformByDisco(EffectExecutionContext context, HashSet<Block> affected,
+            BlockData specialBlockData, DiscoBlock discoBlock)
+        {
             var targetCube = discoBlock.TargetCubeData;
             if (targetCube == null)
             {
@@ -141,13 +127,19 @@ namespace ColorBlast.Gameplay
 
                     if (block != null && block.BlockData == targetCube)
                     {
-                        context.DestroyBlock(block);
-                        context.SpawnBlockAt(rocketBlock.BlockData, row, col);
-                        affected.Add(context.BlockGrid[row, col]);
-                        await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
+                        context.RemoveBLock(block);
+                        context.SpawnBlockAt(specialBlockData, row, col);
+                        var newRocket = context.BlockGrid[row, col];
+                        affected.Add(newRocket);
+
+                        await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
                     }
                 }
             }
+
+            context.RemoveBLock(discoBlock);
+            context.SpawnBlockAt(specialBlockData, discoBlock.GridX, discoBlock.GridY);
+            affected.Add(context.BlockGrid[discoBlock.GridX, discoBlock.GridY]);
         }
 
         private async UniTask BombBomb(EffectExecutionContext context, HashSet<Block> affected)
@@ -218,7 +210,7 @@ namespace ColorBlast.Gameplay
             {
                 if (context.BlockGrid[row, col] != null)
                 {
-                    affected.Add(context.BlockGrid[row, col]);
+                    TryAddBlock(context, affected, row, col);
                 }
             }
         }
@@ -229,8 +221,16 @@ namespace ColorBlast.Gameplay
             {
                 if (context.BlockGrid[row, col] != null)
                 {
-                    affected.Add(context.BlockGrid[row, col]);
+                    TryAddBlock(context, affected, row, col);
                 }
+            }
+        }
+
+        private void TryAddBlock(EffectExecutionContext context, HashSet<Block> affected, int row, int col)
+        {
+            if (context.IsInBounds(row, col) && context.BlockGrid[row, col] != null)
+            {
+                affected.Add(context.BlockGrid[row, col]);
             }
         }
 
@@ -241,7 +241,6 @@ namespace ColorBlast.Gameplay
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
-                    context.DestroyBlock(block);
                     var chainedEffect = factory.CreateEffect(block);
                     chainSchedular.EnqueueChained(chainedEffect);
                 }

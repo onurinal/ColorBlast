@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -91,7 +92,7 @@ namespace ColorBlast.Gameplay
         private void RunGravityAndRefill()
         {
             gridRefill.ApplyGravity();
-            gridSpawner.SpawnNewBlocks();
+            gridSpawner.SpawnNewCubeBlocks();
         }
     }
 }

@@ -29,6 +29,16 @@ namespace ColorBlast.Gameplay
             block.DestroyBlock();
         }
 
+        public void RemoveBLock(Block block)
+        {
+            if (BlockGrid[block.GridX, block.GridY] == block)
+            {
+                BlockGrid[block.GridX, block.GridY] = null;
+            }
+
+            block.RemoveBlock();
+        }
+
         public void SpawnBlockAt(BlockData blockData, int row, int col, Sprite sprite = null,
             BlockData targetData = null)
         {

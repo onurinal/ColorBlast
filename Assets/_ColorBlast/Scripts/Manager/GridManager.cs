@@ -60,7 +60,7 @@ namespace ColorBlast.Manager
         {
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            gridSpawner.SpawnNewBlocks();
+            gridSpawner.SpawnNewCubeBlocks();
             gridChecker.CheckAllGrid();
             await CheckAndHandleDeadlock(cancellationToken);
         }
@@ -74,8 +74,6 @@ namespace ColorBlast.Manager
 
             var effect = effectFactory.CreateFromPlayerTap(block);
             effectPipeline.EnqueueFromPlayer(effect);
-
-            EventManager.TriggerMoveChanged();
         }
 
         private void InitializeSystems()

@@ -23,7 +23,7 @@ namespace ColorBlast.Gameplay
             this.cubeColorDatabase = cubeColorDatabase;
         }
 
-        public void SpawnNewBlocks()
+        public void SpawnNewCubeBlocks()
         {
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
@@ -47,6 +47,26 @@ namespace ColorBlast.Gameplay
             }
         }
 
+        public void SpawnBlockAt(BlockData blockData, int row, int col,
+            Sprite sprite = null, BlockData targetCubeData = null)
+        {
+            var block = ObjectPoolManager.Instance.GetBlock(blockData);
+            block.Initialize(row, col, blockData);
+            block.transform.position = gridManager.GetCellWorldPosition(row, col);
+
+            switch (block)
+            {
+                case DiscoBlock discoBlock:
+                    discoBlock.SetTargetCubeData(targetCubeData, sprite);
+                    break;
+                case RocketBlock rocketBlock:
+                    rocketBlock.SetupDirection();
+                    break;
+            }
+
+            blockGrid[row, col] = block;
+        }
+
         private Block CreateRandomCubeBlockAt(int row, int col, Vector2 spawnPosition)
         {
             var randomColorData = cubeColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
@@ -55,25 +75,6 @@ namespace ColorBlast.Gameplay
             newBlock.transform.position = spawnPosition;
 
             return newBlock;
-        }
-
-        public void SpawnBlockAt(BlockData blockData, int row, int col,
-            Sprite sprite = null, BlockData targetCubeData = null)
-        {
-            var block = ObjectPoolManager.Instance.GetBlock(blockData);
-            block.Initialize(row, col, blockData);
-            block.transform.position = gridManager.GetCellWorldPosition(row, col);
-
-            if (block is DiscoBlock discoBlock)
-            {
-                discoBlock.SetTargetCubeData(targetCubeData, sprite);
-            }
-            else if (block is RocketBlock rocketBlock)
-            {
-                rocketBlock.SetupDirection();
-            }
-
-            blockGrid[row, col] = block;
         }
 
         private int CountEmptySlotsForColumn(int row)

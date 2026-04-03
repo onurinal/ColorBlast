@@ -34,6 +34,11 @@ namespace ColorBlast.Gameplay
             blockView.HandleDestroy(gameplayConfig.DestroyDuration, ReturnToPool);
         }
 
+        public virtual void RemoveBlock()
+        {
+            ObjectPoolManager.Instance.ReturnBlock(this);
+        }
+
         public virtual void UpdateIcon(int groupSize) { }
 
         public virtual void SetupVisual()
