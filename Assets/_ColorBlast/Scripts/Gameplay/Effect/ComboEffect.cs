@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -18,65 +19,73 @@ namespace ColorBlast.Gameplay
         public Block Source { get; }
 
         private readonly Block partner;
-        private readonly List<Block> adjacentSpecials;
+        private readonly List<Block> affectedSpecials;
         private readonly ComboType comboType;
         private readonly BlockEffectFactory factory;
 
-        public ComboEffect(Block source, Block partner, List<Block> adjacentSpecials, ComboType type,
+        public ComboEffect(Block source, Block partner, List<Block> affectedSpecials, ComboType type,
             BlockEffectFactory factory)
         {
             Source = source;
             this.partner = partner;
-            this.adjacentSpecials = adjacentSpecials;
+            this.affectedSpecials = affectedSpecials;
             comboType = type;
             this.factory = factory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            foreach (var adjacent in adjacentSpecials)
+            foreach (var affectedSpecial in affectedSpecials)
             {
-                chainSchedular.MarkTriggered(adjacent);
+                chainSchedular.MarkTriggered(affectedSpecial);
             }
 
-            var affected = await Resolve(context);
+            var affected = await Resolve(context, chainSchedular);
             ProcessAffected(context, chainSchedular, affected);
 
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }
 
-        private async UniTask<HashSet<Block>> Resolve(EffectExecutionContext context)
+        private async UniTask<HashSet<Block>> Resolve(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var affected = new HashSet<Block> { Source };
+            var affected = new HashSet<Block>();
 
-            foreach (var adjacent in adjacentSpecials)
+            foreach (var affectedSpecial in affectedSpecials)
             {
-                affected.Add(adjacent);
+                affected.Add(affectedSpecial);
             }
 
             switch (comboType)
             {
-                case ComboType.DiscoBallDiscoBall: await DiscoBallDiscoBall(context, affected); break;
+                case ComboType.DiscoBallDiscoBall: await DiscoBallDiscoBall(context, chainSchedular, affected); break;
                 case ComboType.DiscoBallBomb: await DiscoBallBomb(context, affected); break;
                 case ComboType.DiscoBallRocket: await DiscoBallRocket(context, affected); break;
                 case ComboType.BombBomb: await BombBomb(context, affected); break;
                 case ComboType.BombRocket: await BombRocket(context, affected); break;
                 case ComboType.RocketRocket: await RocketRocket(context, affected); break;
+                default: throw new ArgumentOutOfRangeException();
             }
 
             return affected;
         }
 
         //------------------- COMBO IMPLEMENTATIONS -----------------
-        private async UniTask DiscoBallDiscoBall(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask DiscoBallDiscoBall(EffectExecutionContext context, IChainSchedular chainSchedular,
+            HashSet<Block> affected)
         {
             for (int row = 0; row < context.LevelProperties.RowCount; row++)
             {
                 for (int col = 0; col < context.LevelProperties.ColumnCount; col++)
                 {
-                    if (context.BlockGrid[row, col] != null)
+                    var block = context.BlockGrid[row, col];
+                    if (block != null)
                     {
-                        affected.Add(context.BlockGrid[row, col]);
+                        affected.Add(block);
+
+                        if (block is IActivatable)
+                        {
+                            chainSchedular.MarkTriggered(block);
+                        }
                     }
                 }
             }
@@ -114,6 +123,7 @@ namespace ColorBlast.Gameplay
             BlockData specialBlockData, DiscoBlock discoBlock)
         {
             var targetCube = discoBlock.TargetCubeData;
+
             if (targetCube == null)
             {
                 return;
@@ -127,19 +137,35 @@ namespace ColorBlast.Gameplay
 
                     if (block != null && block.BlockData == targetCube)
                     {
-                        context.RemoveBLock(block);
+                        context.RemoveBlock(block);
                         context.SpawnBlockAt(specialBlockData, row, col);
-                        var newRocket = context.BlockGrid[row, col];
-                        affected.Add(newRocket);
-
                         await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
                     }
                 }
             }
 
-            context.RemoveBLock(discoBlock);
-            context.SpawnBlockAt(specialBlockData, discoBlock.GridX, discoBlock.GridY);
-            affected.Add(context.BlockGrid[discoBlock.GridX, discoBlock.GridY]);
+            foreach (var block in affectedSpecials)
+            {
+                affected.Remove(block);
+                var row = block.GridX;
+                var col = block.GridY;
+
+                context.RemoveBlock(block);
+                context.SpawnBlockAt(specialBlockData, row, col);
+                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
+            }
+
+            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+            {
+                for (int row = 0; row < context.LevelProperties.RowCount; row++)
+                {
+                    var block = context.BlockGrid[row, col];
+                    if (block.BlockData == specialBlockData)
+                    {
+                        affected.Add(block);
+                    }
+                }
+            }
         }
 
         private async UniTask BombBomb(EffectExecutionContext context, HashSet<Block> affected)

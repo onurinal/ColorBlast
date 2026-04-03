@@ -28,34 +28,33 @@ namespace ColorBlast.Gameplay
             this.levelProperties = levelProperties;
         }
 
-        public (Block partner, List<Block> adjacentSpecials, ComboType comboType)? TryDetect(Block tapped)
+        public (Block best, Block partner, List<Block> affectedSpecials, ComboType comboType)? TryDetect(Block tapped)
         {
             if (tapped is not IActivatable)
             {
                 return null;
             }
 
-            var adjacentSpecials = GetAdjacentSpecials(tapped);
+            var affectedSpecials = GetAffectedSpecials(tapped);
 
-            if (adjacentSpecials.Count == 0)
+            if (affectedSpecials.Count < 2)
             {
                 return null;
             }
 
-            Block partner = SelectBestPartner(adjacentSpecials);
-            var comboType = DetermineComboType(tapped.BlockType, partner.BlockType);
+            var (best, partner) = SelectBestCombo(affectedSpecials, tapped);
+            var comboType = DetermineComboType(best.BlockType, partner.BlockType);
 
-            return (partner, adjacentSpecials, comboType);
+            return (best, partner, affectedSpecials, comboType);
         }
 
-        private List<Block> GetAdjacentSpecials(Block startBlock)
+        private List<Block> GetAffectedSpecials(Block startBlock)
         {
             var specialBlocks = new List<Block>();
             visited.Clear();
             bfsQueue.Clear();
 
             bfsQueue.Enqueue(new Vector2Int(startBlock.GridX, startBlock.GridY));
-            visited.Add(new Vector2Int(startBlock.GridX, startBlock.GridY));
 
             while (bfsQueue.Count > 0)
             {
@@ -91,22 +90,57 @@ namespace ColorBlast.Gameplay
             return specialBlocks;
         }
 
-        private Block SelectBestPartner(List<Block> specialBlocks)
+        private (Block, Block) SelectBestCombo(List<Block> specialBlocks, Block tapped)
         {
-            var best = specialBlocks[0];
-            var bestPriority = GetPriority(best.BlockType);
+            bool allSameType = true;
+            var firstType = specialBlocks[0].BlockType;
 
-            foreach (var special in specialBlocks)
+            foreach (var block in specialBlocks)
             {
-                var priority = GetPriority(special.BlockType);
-                if (priority < bestPriority)
+                if (block.BlockType != firstType)
                 {
-                    best = special;
-                    bestPriority = priority;
+                    allSameType = false;
+                    break;
                 }
             }
 
-            return best;
+            // If all specials same type → force tapped as best
+            if (allSameType)
+            {
+                foreach (var block in specialBlocks)
+                {
+                    if (block != tapped)
+                    {
+                        return (tapped, block);
+                    }
+                }
+            }
+
+            Block first = null;
+            Block second = null;
+            var firstPriority = int.MaxValue;
+            var secondPriority = int.MaxValue;
+
+            foreach (var block in specialBlocks)
+            {
+                var priority = GetPriority(block.BlockType);
+
+                if (priority < firstPriority)
+                {
+                    second = first;
+                    secondPriority = firstPriority;
+
+                    first = block;
+                    firstPriority = priority;
+                }
+                else if (priority < secondPriority)
+                {
+                    second = block;
+                    secondPriority = priority;
+                }
+            }
+
+            return (first, second);
         }
 
         private ComboType DetermineComboType(BlockType a, BlockType b)

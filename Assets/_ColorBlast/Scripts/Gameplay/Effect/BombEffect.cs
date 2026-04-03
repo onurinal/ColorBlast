@@ -26,6 +26,7 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
+            chainSchedular.MarkTriggered(Source);
             ProcessAffected(context, chainSchedular, affected);
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }

@@ -38,6 +38,8 @@ namespace ColorBlast.Gameplay
 
         public void CheckAllGrid()
         {
+            ClearVisitedBlocks();
+
             for (int row = 0; row < levelProperties.RowCount; row++)
             {
                 for (int col = 0; col < levelProperties.ColumnCount; col++)
@@ -52,6 +54,7 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
+                    ClearVisitedBlocks();
                     FindConnectedMatch(row, col);
                     UpdateGroupIcons(currentGroup);
                 }
@@ -115,7 +118,6 @@ namespace ColorBlast.Gameplay
         private void FindConnectedMatch(int startRow, int startCol)
         {
             currentGroup.Clear();
-            ClearVisitedBlocks();
 
             var startBlock = blockGrid[startRow, startCol];
 

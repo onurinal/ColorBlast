@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24d8e0c06f3b446f9fecb93d40f8b91a, type: 3}
   m_Name: Level 1
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Level.LevelProperties
-  colorCount: 6
+  colorCount: 4
   rowCount: 9
   columnCount: 9

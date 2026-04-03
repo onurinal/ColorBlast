@@ -30,8 +30,8 @@ namespace ColorBlast.Gameplay
                 var combo = comboDetector.TryDetect(block);
                 if (combo.HasValue)
                 {
-                    var (partner, adjacentSpecials, comboType) = combo.Value;
-                    return new ComboEffect(block, partner, adjacentSpecials, comboType, this);
+                    var (best, partner, affectedSpecials, comboType) = combo.Value;
+                    return new ComboEffect(best, partner, affectedSpecials, comboType, this);
                 }
             }
 

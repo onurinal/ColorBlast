@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -33,7 +32,7 @@ namespace ColorBlast.Gameplay
             effectQueue.Clear();
             triggered.Clear();
 
-            MarkTriggered(effect.Source);
+            // MarkTriggered(effect.Source);
             effectQueue.Enqueue(effect);
 
             if (!IsProcessing)

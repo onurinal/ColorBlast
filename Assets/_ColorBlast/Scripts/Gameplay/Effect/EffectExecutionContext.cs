@@ -29,7 +29,7 @@ namespace ColorBlast.Gameplay
             block.DestroyBlock();
         }
 
-        public void RemoveBLock(Block block)
+        public void RemoveBlock(Block block)
         {
             if (BlockGrid[block.GridX, block.GridY] == block)
             {
