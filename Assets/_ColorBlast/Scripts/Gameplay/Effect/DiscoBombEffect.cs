@@ -1,0 +1,134 @@
+using System;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+
+namespace ColorBlast.Gameplay
+{
+    public class DiscoBombEffect : IBlockEffect
+    {
+        public Block Tapped { get; }
+
+        private readonly Block best;
+        private readonly Block partner;
+        private readonly HashSet<Block> affectedSpecials;
+        private readonly BlockEffectFactory effectFactory;
+
+        public DiscoBombEffect(ComboResult comboResult, BlockEffectFactory effectFactory)
+        {
+            Tapped = comboResult.Tapped;
+            best = comboResult.Best;
+            partner = comboResult.Partner;
+            affectedSpecials = comboResult.AffectedSpecials;
+            this.effectFactory = effectFactory;
+        }
+
+        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        {
+            var affected = new HashSet<Block>();
+
+            // foreach (var block in affectedSpecials)
+            // {
+            //     chainSchedular.MarkTriggered(block);
+            //     affected.Add(block);
+            // }
+
+            await UpdateDiscoBombAffectedBlocks(context, affected);
+            ProcessAffected(context, chainSchedular, affected);
+
+            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+        }
+
+        private async UniTask UpdateDiscoBombAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)
+        {
+            var discoBall = best.BlockType == BlockType.DiscoBall ? best : partner;
+            var bombBlock = best.BlockType == BlockType.Bomb ? best : partner;
+
+            if (discoBall is not DiscoBlock discoBlock)
+            {
+                return;
+            }
+
+            await TransformByDisco(context, affected, bombBlock.BlockData, discoBlock);
+        }
+
+        private async UniTask TransformByDisco(EffectExecutionContext context, HashSet<Block> affected,
+            BlockData specialBlockData, DiscoBlock discoBlock)
+        {
+            var targetCube = discoBlock.TargetCubeData;
+
+            if (targetCube == null)
+            {
+                return;
+            }
+
+            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+            {
+                for (int row = 0; row < context.LevelProperties.RowCount; row++)
+                {
+                    var block = context.BlockGrid[row, col];
+
+                    if (block != null && block.BlockData == targetCube)
+                    {
+                        context.RemoveBlock(block);
+                        context.SpawnBlockAt(specialBlockData, row, col);
+                        await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
+                    }
+                }
+            }
+
+            foreach (var block in affectedSpecials)
+            {
+                affected.Remove(block);
+                var row = block.GridX;
+                var col = block.GridY;
+
+                context.RemoveBlock(block);
+                context.SpawnBlockAt(specialBlockData, row, col);
+                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
+            }
+
+            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+            {
+                for (int row = 0; row < context.LevelProperties.RowCount; row++)
+                {
+                    var block = context.BlockGrid[row, col];
+                    if (block.BlockData == specialBlockData)
+                    {
+                        affected.Add(block);
+                    }
+                }
+            }
+        }
+
+        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular,
+            HashSet<Block> affectedBlocks)
+        {
+            foreach (var block in affectedBlocks)
+            {
+                if (block is IActivatable && !chainSchedular.IsTriggered(block))
+                {
+                    var chainedEffect = effectFactory.CreateEffect(block);
+                    chainSchedular.EnqueueChained(chainedEffect);
+                }
+                else
+                {
+                    if (Tapped == block)
+                    {
+                        Debug.Log("tapped");
+                    }
+                    else if (best == block)
+                    {
+                        Debug.Log("best");
+                    }
+                    else if (partner == block)
+                    {
+                        Debug.Log("partner");
+                    }
+
+                    context.DestroyBlock(block);
+                }
+            }
+        }
+    }
+}

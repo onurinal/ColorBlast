@@ -6,27 +6,27 @@ namespace ColorBlast.Gameplay
 {
     public class BombEffect : IBlockEffect
     {
-        public Block Source { get; }
+        public Block Tapped { get; }
 
         private readonly BlockEffectFactory effectFactory;
 
         public BombEffect(Block source, BlockEffectFactory effectFactory)
         {
-            Source = source;
+            Tapped = source;
             this.effectFactory = effectFactory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var bombData = (BombBlockData)Source.BlockData;
-            var affected = CollectRadius(context, Source.GridX, Source.GridY, bombData.Radius);
+            var bombData = (BombBlockData)Tapped.BlockData;
+            var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
 
             if (affected.Count <= 0)
             {
                 return;
             }
 
-            chainSchedular.MarkTriggered(Source);
+            chainSchedular.MarkTriggered(Tapped);
             ProcessAffected(context, chainSchedular, affected);
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }

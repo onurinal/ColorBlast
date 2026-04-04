@@ -54,7 +54,6 @@ namespace ColorBlast.Gameplay
                         continue;
                     }
 
-                    ClearVisitedBlocks();
                     FindConnectedMatch(row, col);
                     UpdateGroupIcons(currentGroup);
                 }
@@ -69,6 +68,7 @@ namespace ColorBlast.Gameplay
                 return null;
             }
 
+            ClearVisitedBlocks();
             FindConnectedMatch(row, col);
             return currentGroup;
         }

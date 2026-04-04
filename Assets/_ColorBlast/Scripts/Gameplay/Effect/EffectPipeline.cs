@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -43,12 +44,12 @@ namespace ColorBlast.Gameplay
 
         public void EnqueueChained(IBlockEffect effect)
         {
-            if (effect.Source != null && IsTriggered(effect.Source))
+            if (effect.Tapped != null && IsTriggered(effect.Tapped))
             {
                 return;
             }
 
-            MarkTriggered(effect.Source);
+            MarkTriggered(effect.Tapped);
             effectQueue.Enqueue(effect);
         }
 

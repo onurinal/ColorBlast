@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -25,14 +26,9 @@ namespace ColorBlast.Gameplay
         /// </summary>
         public IBlockEffect CreateFromPlayerTap(Block block)
         {
-            if (block is IActivatable)
+            if (block is IActivatable && comboDetector.TryDetect(block, out var combo))
             {
-                var combo = comboDetector.TryDetect(block);
-                if (combo.HasValue)
-                {
-                    var (best, partner, affectedSpecials, comboType) = combo.Value;
-                    return new ComboEffect(best, partner, affectedSpecials, comboType, this);
-                }
+                return CreateComboEffect(combo);
             }
 
             return CreateEffect(block);
@@ -49,6 +45,22 @@ namespace ColorBlast.Gameplay
                 BlockType.Bomb => new BombEffect(block, this),
                 BlockType.Rocket => new RocketEffect(block, this),
                 BlockType.DiscoBall => new DiscoBallEffect(block, this),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
+        private IBlockEffect CreateComboEffect(ComboResult comboResult)
+        {
+            var comboType = comboResult.ComboType;
+
+            return comboType switch
+            {
+                ComboType.DiscoBallDiscoBall => new DiscoDiscoEffect(comboResult),
+                ComboType.DiscoBallBomb => new DiscoBombEffect(comboResult, this),
+                ComboType.DiscoBallRocket => new DiscoRocketEffect(comboResult, this),
+                ComboType.BombBomb => new BombBombEffect(comboResult, this),
+                ComboType.BombRocket => new BombRocketEffect(comboResult, this),
+                ComboType.RocketRocket => new RocketRocketEffect(comboResult, this),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

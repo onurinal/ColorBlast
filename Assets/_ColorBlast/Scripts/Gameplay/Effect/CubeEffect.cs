@@ -6,32 +6,32 @@ namespace ColorBlast.Gameplay
 {
     public class CubeEffect : IBlockEffect
     {
-        public Block Source { get; }
+        public Block Tapped { get; }
 
         private readonly GridChecker gridChecker;
         private readonly GameplayConfig config;
 
         public CubeEffect(Block source, GridChecker checker, GameplayConfig config)
         {
-            Source = source;
+            Tapped = source;
             gridChecker = checker;
             this.config = config;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var group = gridChecker.GetGroupAt(Source.GridX, Source.GridY);
+            var group = gridChecker.GetGroupAt(Tapped.GridX, Tapped.GridY);
 
             if (group == null || group.Count < config.MatchThreshold)
             {
                 return;
             }
 
-            var cubeData = (CubeBlockData)Source.BlockData;
+            var cubeData = (CubeBlockData)Tapped.BlockData;
             var rewardState = cubeData.GetRewardState(group.Count);
 
-            int rewardRow = Source.GridX;
-            int rewardCol = Source.GridY;
+            int rewardRow = Tapped.GridX;
+            int rewardCol = Tapped.GridY;
 
             foreach (var block in group)
             {
@@ -44,7 +44,7 @@ namespace ColorBlast.Gameplay
             {
                 var sprite = ResolveRewardSprite(cubeData, rewardState.RewardBlockData);
                 context.SpawnBlockAt(rewardState.RewardBlockData, rewardRow, rewardCol,
-                    sprite, Source.BlockData);
+                    sprite, Tapped.BlockData);
             }
         }
 

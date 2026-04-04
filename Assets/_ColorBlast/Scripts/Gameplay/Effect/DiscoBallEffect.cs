@@ -6,18 +6,18 @@ namespace ColorBlast.Gameplay
 {
     public class DiscoBallEffect : IBlockEffect
     {
-        public Block Source { get; }
+        public Block Tapped { get; }
         private readonly BlockEffectFactory effectFactory;
 
         public DiscoBallEffect(Block source, BlockEffectFactory effectFactory)
         {
-            Source = source;
+            Tapped = source;
             this.effectFactory = effectFactory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var discoBall = (DiscoBlock)Source;
+            var discoBall = (DiscoBlock)Tapped;
 
             if (discoBall.TargetCubeData == null)
             {
@@ -31,7 +31,7 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
-            context.DestroyBlock(Source);
+            context.DestroyBlock(Tapped);
 
             foreach (var block in affected)
             {
