@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -12,6 +11,7 @@ namespace ColorBlast.Gameplay
         private readonly Block best;
         private readonly Block partner;
         private readonly HashSet<Block> affectedSpecials;
+        private readonly List<Block> affectedList = new(); // for execution order
         private readonly BlockEffectFactory effectFactory;
 
         public DiscoBombEffect(ComboResult comboResult, BlockEffectFactory effectFactory)
@@ -25,21 +25,13 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var affected = new HashSet<Block>();
-
-            // foreach (var block in affectedSpecials)
-            // {
-            //     chainSchedular.MarkTriggered(block);
-            //     affected.Add(block);
-            // }
-
-            await UpdateDiscoBombAffectedBlocks(context, affected);
-            ProcessAffected(context, chainSchedular, affected);
+            await UpdateDiscoBombAffectedBlocks(context);
+            ProcessAffected(context, chainSchedular);
 
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }
 
-        private async UniTask UpdateDiscoBombAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)
+        private async UniTask UpdateDiscoBombAffectedBlocks(EffectExecutionContext context)
         {
             var discoBall = best.BlockType == BlockType.DiscoBall ? best : partner;
             var bombBlock = best.BlockType == BlockType.Bomb ? best : partner;
@@ -49,11 +41,11 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
-            await TransformByDisco(context, affected, bombBlock.BlockData, discoBlock);
+            await TransformByDisco(context, bombBlock.BlockData, discoBlock);
         }
 
-        private async UniTask TransformByDisco(EffectExecutionContext context, HashSet<Block> affected,
-            BlockData specialBlockData, DiscoBlock discoBlock)
+        private async UniTask TransformByDisco(EffectExecutionContext context, BlockData bombBlock,
+            DiscoBlock discoBlock)
         {
             var targetCube = discoBlock.TargetCubeData;
 
@@ -71,7 +63,7 @@ namespace ColorBlast.Gameplay
                     if (block != null && block.BlockData == targetCube)
                     {
                         context.RemoveBlock(block);
-                        context.SpawnBlockAt(specialBlockData, row, col);
+                        var newBlock = context.SpawnBlockAt(bombBlock, row, col);
                         await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
                     }
                 }
@@ -79,12 +71,11 @@ namespace ColorBlast.Gameplay
 
             foreach (var block in affectedSpecials)
             {
-                affected.Remove(block);
                 var row = block.GridX;
                 var col = block.GridY;
 
                 context.RemoveBlock(block);
-                context.SpawnBlockAt(specialBlockData, row, col);
+                var newBlock = context.SpawnBlockAt(bombBlock, row, col);
                 await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
             }
 
@@ -93,18 +84,17 @@ namespace ColorBlast.Gameplay
                 for (int row = 0; row < context.LevelProperties.RowCount; row++)
                 {
                     var block = context.BlockGrid[row, col];
-                    if (block.BlockData == specialBlockData)
+                    if (block.BlockData == bombBlock)
                     {
-                        affected.Add(block);
+                        affectedList.Add(block);
                     }
                 }
             }
         }
 
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular,
-            HashSet<Block> affectedBlocks)
+        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            foreach (var block in affectedBlocks)
+            foreach (var block in affectedList)
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
@@ -113,19 +103,6 @@ namespace ColorBlast.Gameplay
                 }
                 else
                 {
-                    if (Tapped == block)
-                    {
-                        Debug.Log("tapped");
-                    }
-                    else if (best == block)
-                    {
-                        Debug.Log("best");
-                    }
-                    else if (partner == block)
-                    {
-                        Debug.Log("partner");
-                    }
-
                     context.DestroyBlock(block);
                 }
             }

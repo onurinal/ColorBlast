@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -33,7 +32,6 @@ namespace ColorBlast.Gameplay
             effectQueue.Clear();
             triggered.Clear();
 
-            // MarkTriggered(effect.Source);
             effectQueue.Enqueue(effect);
 
             if (!IsProcessing)
@@ -77,9 +75,9 @@ namespace ColorBlast.Gameplay
                 {
                     var effect = effectQueue.Dequeue();
                     await effect.Execute(effectExecutionContext, this);
+                    RunGravityAndRefill();
                 }
 
-                RunGravityAndRefill();
                 gridChecker.CheckAllGrid();
             }
             finally

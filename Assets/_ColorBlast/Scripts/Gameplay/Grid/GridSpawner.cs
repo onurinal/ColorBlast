@@ -47,7 +47,7 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        public void SpawnBlockAt(BlockData blockData, int row, int col,
+        public Block SpawnBlockAt(BlockData blockData, int row, int col,
             Sprite sprite = null, BlockData targetCubeData = null)
         {
             var block = ObjectPoolManager.Instance.GetBlock(blockData);
@@ -65,6 +65,7 @@ namespace ColorBlast.Gameplay
             }
 
             blockGrid[row, col] = block;
+            return block;
         }
 
         private Block CreateRandomCubeBlockAt(int row, int col, Vector2 spawnPosition)

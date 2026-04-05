@@ -39,10 +39,10 @@ namespace ColorBlast.Gameplay
             block.RemoveBlock();
         }
 
-        public void SpawnBlockAt(BlockData blockData, int row, int col, Sprite sprite = null,
+        public Block SpawnBlockAt(BlockData blockData, int row, int col, Sprite sprite = null,
             BlockData targetData = null)
         {
-            gridSpawner.SpawnBlockAt(blockData, row, col, sprite, targetData);
+            return gridSpawner.SpawnBlockAt(blockData, row, col, sprite, targetData);
         }
 
         public bool IsInBounds(int row, int col)

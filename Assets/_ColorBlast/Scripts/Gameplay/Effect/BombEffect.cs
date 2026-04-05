@@ -28,6 +28,8 @@ namespace ColorBlast.Gameplay
 
             chainSchedular.MarkTriggered(Tapped);
             ProcessAffected(context, chainSchedular, affected);
+
+            // await UniTask.CompletedTask;
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }
 
@@ -59,7 +61,6 @@ namespace ColorBlast.Gameplay
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
-                    context.DestroyBlock(block);
                     var chainedEffect = effectFactory.CreateEffect(block);
                     chainSchedular.EnqueueChained(chainedEffect);
                 }

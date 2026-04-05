@@ -19,8 +19,8 @@ namespace ColorBlast.Gameplay
         {
             var rocket = (RocketBlock)Tapped;
             var affected = rocket.Direction == RocketDirection.Horizontal
-                ? CollectRow(context, rocket.GridY)
-                : CollectColumn(context, rocket.GridX);
+                ? CollectRow(context, chainSchedular, rocket.GridY)
+                : CollectColumn(context, chainSchedular, rocket.GridX);
 
             if (affected.Count <= 0)
             {
@@ -29,33 +29,54 @@ namespace ColorBlast.Gameplay
 
             chainSchedular.MarkTriggered(Tapped);
             ProcessAffected(context, chainSchedular, affected);
+
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }
 
-        private List<Block> CollectRow(EffectExecutionContext context, int col)
+        private List<Block> CollectRow(EffectExecutionContext context, IChainSchedular chainSchedular, int col)
         {
             var result = new List<Block>();
 
             for (int row = 0; row < context.LevelProperties.RowCount; row++)
             {
-                if (context.BlockGrid[row, col] != null)
+                var block = context.BlockGrid[row, col];
+
+                if (block != null)
                 {
-                    result.Add(context.BlockGrid[row, col]);
+                    if (block is RocketBlock rocketBlock && !chainSchedular.IsTriggered(rocketBlock))
+                    {
+                        if (rocketBlock.Direction == RocketDirection.Horizontal)
+                        {
+                            chainSchedular.MarkTriggered(rocketBlock);
+                        }
+                    }
+
+                    result.Add(block);
                 }
             }
 
             return result;
         }
 
-        private List<Block> CollectColumn(EffectExecutionContext context, int row)
+        private List<Block> CollectColumn(EffectExecutionContext context, IChainSchedular chainSchedular, int row)
         {
             var result = new List<Block>();
 
             for (int col = 0; col < context.LevelProperties.ColumnCount; col++)
             {
-                if (context.BlockGrid[row, col] != null)
+                var block = context.BlockGrid[row, col];
+
+                if (block != null)
                 {
-                    result.Add(context.BlockGrid[row, col]);
+                    if (block is RocketBlock rocketBlock && !chainSchedular.IsTriggered(rocketBlock))
+                    {
+                        if (rocketBlock.Direction == RocketDirection.Vertical)
+                        {
+                            chainSchedular.MarkTriggered(rocketBlock);
+                        }
+                    }
+
+                    result.Add(block);
                 }
             }
 
@@ -68,7 +89,6 @@ namespace ColorBlast.Gameplay
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
-                    context.DestroyBlock(block);
                     var chainedEffect = effectFactory.CreateEffect(block);
                     chainSchedular.EnqueueChained(chainedEffect);
                 }
