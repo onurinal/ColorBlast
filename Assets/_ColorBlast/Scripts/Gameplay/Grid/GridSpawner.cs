@@ -37,7 +37,9 @@ namespace ColorBlast.Gameplay
                 for (int i = 0; i < emptyCount; i++)
                 {
                     var targetCol = levelProperties.ColumnCount - emptyCount + i;
-                    var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i);
+                    // var spawnPosition = gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i);
+                    var spawnPosition =
+                        gridManager.GetCellWorldPosition(row, levelProperties.ColumnCount + i + 5); // testing
                     var newBlock = CreateRandomCubeBlockAt(row, targetCol, spawnPosition);
 
                     var targetPosition = gridManager.GetCellWorldPosition(newBlock.GridX, newBlock.GridY);

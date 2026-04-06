@@ -1,7 +1,10 @@
 * ColorBlast
 
 *  ⚠️ This project is still under active development.  
-*  A gameplay GIF demonstrating core mechanics will be added soon.
+* A gameplay preview GIF showcasing core mechanics has been added.
+* Visual polish (particles, animations, juice) has not been implemented yet and is planned for future updates.
+* More gameplay previews and updates will be added soon.
 
-* \# 🎮 Gameplay
-<img src="Media/Gameplay.png" alt="Gameplay Screenshot" width="300"/>
+| 🎮Gameplay Preview |
+| --------------- |
+| <img src="Media/GameplayPreview.gif" width="400"/> 

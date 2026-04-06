@@ -84,7 +84,7 @@ namespace ColorBlast.Gameplay
                 await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
             }
 
-            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+            for (int col = 0; col < context.LevelProperties.ColumnCount; col++)
             {
                 for (int row = 0; row < context.LevelProperties.RowCount; row++)
                 {

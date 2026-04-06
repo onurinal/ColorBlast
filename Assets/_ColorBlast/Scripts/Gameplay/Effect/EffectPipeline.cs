@@ -8,7 +8,7 @@ namespace ColorBlast.Gameplay
     /// </summary>
     public class EffectPipeline : IChainSchedular
     {
-        private readonly Queue<IBlockEffect> effectQueue = new();
+        private readonly Stack<IBlockEffect> effectQueue = new();
         private readonly HashSet<Block> triggered = new();
 
         private GridRefill gridRefill;
@@ -32,7 +32,7 @@ namespace ColorBlast.Gameplay
             effectQueue.Clear();
             triggered.Clear();
 
-            effectQueue.Enqueue(effect);
+            effectQueue.Push(effect);
 
             if (!IsProcessing)
             {
@@ -48,7 +48,7 @@ namespace ColorBlast.Gameplay
             }
 
             MarkTriggered(effect.Tapped);
-            effectQueue.Enqueue(effect);
+            effectQueue.Push(effect);
         }
 
         public bool IsTriggered(Block block)
@@ -73,7 +73,7 @@ namespace ColorBlast.Gameplay
             {
                 while (effectQueue.Count > 0)
                 {
-                    var effect = effectQueue.Dequeue();
+                    var effect = effectQueue.Pop();
                     await effect.Execute(effectExecutionContext, this);
                     RunGravityAndRefill();
                 }
