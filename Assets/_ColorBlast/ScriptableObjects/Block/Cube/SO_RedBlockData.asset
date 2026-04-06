@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 148fa390a2cf43a9b6506adeacd13633, type: 3}
-  m_Name: Blue Block Data
+  m_Name: SO_RedBlockData
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   prefab: {fileID: 8612162807601725161, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
-  defaultSprite: {fileID: -4624011131410558117, guid: e0023bd2bcc3d1c42b27fa1cd872e949, type: 3}
+  defaultSprite: {fileID: 887387325851772620, guid: 037d8ff1f933d2d4c88d580f914f09bf, type: 3}
   rewardStates:
   - minGroupSize: 4
-    rewardHintSprite: {fileID: -8923791490832965560, guid: 1060064d88955e840bd7e1d7e77e93cd, type: 3}
+    rewardHintSprite: {fileID: 5413993767572339121, guid: 9f24b717ed1f50148876c9665f44edc3, type: 3}
     rewardBlockData: {fileID: 11400000, guid: fac3af2329e1b97488dd09b3acc7e259, type: 2}
   - minGroupSize: 5
-    rewardHintSprite: {fileID: -812536794617419617, guid: 1a1a735ad465e83419a7e4d9e71ddcb7, type: 3}
+    rewardHintSprite: {fileID: -8329150480449018202, guid: 15f380fb27a0dc64db87ce7f4f087bd0, type: 3}
     rewardBlockData: {fileID: 11400000, guid: e030ebde843be8c48997979d35580f35, type: 2}
   - minGroupSize: 6
-    rewardHintSprite: {fileID: -2915790821876642617, guid: e495efe12ed60414aadc7b5a975dcd17, type: 3}
+    rewardHintSprite: {fileID: -257787592545182917, guid: e403d34c87849ad419edc5705cfd47aa, type: 3}
     rewardBlockData: {fileID: 11400000, guid: 2a87a4fe7a29f89488fd614fe96ca482, type: 2}

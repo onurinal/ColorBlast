@@ -65,7 +65,7 @@ namespace ColorBlast.Gameplay
 
                     if (block != null && block.BlockData == targetCube)
                     {
-                        context.RemoveBlock(block);
+                        context.TryRemoveBlock(block);
                         var newBlock = context.SpawnBlockAt(rocketBlockData, row, col);
 
                         await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
@@ -78,7 +78,7 @@ namespace ColorBlast.Gameplay
                 var row = block.GridX;
                 var col = block.GridY;
 
-                context.RemoveBlock(block);
+                context.TryRemoveBlock(block);
                 var newBlock = context.SpawnBlockAt(rocketBlockData, row, col);
 
                 await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
@@ -137,7 +137,7 @@ namespace ColorBlast.Gameplay
                     }
                     else
                     {
-                        context.DestroyBlock(block);
+                        context.TryDestroyBlock(block);
                     }
                 }
             }

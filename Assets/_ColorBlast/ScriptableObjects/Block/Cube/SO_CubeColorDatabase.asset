@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8fcc9d6e14834e6da980aeb31c9989dc, type: 3}
-  m_Name: CubeColorDatabase
+  m_Name: SO_CubeColorDatabase
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.CubeColorDatabase
   cubeColorDataList:
   - {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}

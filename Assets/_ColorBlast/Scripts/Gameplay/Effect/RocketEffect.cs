@@ -94,7 +94,7 @@ namespace ColorBlast.Gameplay
                 }
                 else
                 {
-                    context.DestroyBlock(block);
+                    context.TryDestroyBlock(block);
                 }
             }
         }

@@ -35,7 +35,7 @@ namespace ColorBlast.Gameplay
 
             foreach (var block in group)
             {
-                context.DestroyBlock(block);
+                context.TryDestroyBlock(block);
             }
 
             await UniTask.Delay(TimeSpan.FromSeconds(config.DestroyDuration));

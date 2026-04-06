@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
 {
-    public class DiscoBallEffect : IBlockEffect
+    public class DiscoBallEffect : IBlockEffect, IParallelEffect
     {
         public Block Tapped { get; }
         private readonly BlockEffectFactory effectFactory;
@@ -17,28 +17,34 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var discoBall = (DiscoBlock)Tapped;
-
-            if (discoBall.TargetCubeData == null)
+            try
             {
-                return;
+                var discoBall = (DiscoBlock)Tapped;
+
+                if (discoBall.TargetCubeData == null)
+                {
+                    return;
+                }
+
+                var affected = CollectTargetColor(context, discoBall.TargetCubeData);
+
+                if (affected.Count <= 0)
+                {
+                    // no animation run
+                    return;
+                }
+
+                affected.Add(discoBall);
+
+                foreach (var block in affected)
+                {
+                    context.TryDestroyBlock(block);
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DiscoBallAnimationDuration));
             }
 
-            var affected = CollectTargetColor(context, discoBall.TargetCubeData);
-
-            if (affected.Count <= 0)
-            {
-                return;
-            }
-
-            context.DestroyBlock(Tapped);
-
-            foreach (var block in affected)
-            {
-                context.DestroyBlock(block);
-            }
-
-            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+            finally { }
         }
 
         private List<Block> CollectTargetColor(EffectExecutionContext context, BlockData targetData)

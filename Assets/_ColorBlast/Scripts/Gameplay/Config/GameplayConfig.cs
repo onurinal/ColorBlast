@@ -20,6 +20,7 @@ namespace ColorBlast.Gameplay
         [SerializeField] private float spawnDuration = 0.15f;
         [SerializeField] private float shuffleDuration = 2f;
         [SerializeField] private float spawnDurationBetweenSpecials = 0.05f;
+        [SerializeField] private float discoBallAnimationDuration = 3f;
 
         public float CellUnitSize => cellUnitSize;
         public float BlockSizeX => blockSizeX;
@@ -30,5 +31,6 @@ namespace ColorBlast.Gameplay
         public float SpawnDuration => spawnDuration;
         public float ShuffleDuration => shuffleDuration;
         public float SpawnDurationBetweenSpecials => spawnDurationBetweenSpecials;
+        public float DiscoBallAnimationDuration => discoBallAnimationDuration;
     }
 }

@@ -52,7 +52,7 @@ namespace ColorBlast.Gameplay
             foreach (var block in affectedBlocks)
             {
                 // Debug.Log($"blockType = {block.BlockType} is not IActivatable");
-                context.DestroyBlock(block);
+                context.TryDestroyBlock(block);
             }
         }
     }

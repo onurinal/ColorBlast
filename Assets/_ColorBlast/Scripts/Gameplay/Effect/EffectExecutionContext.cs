@@ -19,24 +19,28 @@ namespace ColorBlast.Gameplay
             this.gridSpawner = gridSpawner;
         }
 
-        public void DestroyBlock(Block block)
+        public bool TryDestroyBlock(Block block)
         {
-            if (BlockGrid[block.GridX, block.GridY] == block)
+            if (block == null || BlockGrid[block.GridX, block.GridY] != block)
             {
-                BlockGrid[block.GridX, block.GridY] = null;
+                return false;
             }
 
+            BlockGrid[block.GridX, block.GridY] = null;
             block.DestroyBlock();
+            return true;
         }
 
-        public void RemoveBlock(Block block)
+        public bool TryRemoveBlock(Block block)
         {
-            if (BlockGrid[block.GridX, block.GridY] == block)
+            if (block == null || BlockGrid[block.GridX, block.GridY] != block)
             {
-                BlockGrid[block.GridX, block.GridY] = null;
+                return false;
             }
 
+            BlockGrid[block.GridX, block.GridY] = null;
             block.RemoveBlock();
+            return true;
         }
 
         public Block SpawnBlockAt(BlockData blockData, int row, int col, Sprite sprite = null,

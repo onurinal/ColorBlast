@@ -97,7 +97,7 @@ namespace ColorBlast.Gameplay
                 else
                 {
                     // Debug.Log($"blockType = {block.BlockType} is not IActivatable");
-                    context.DestroyBlock(block);
+                    context.TryDestroyBlock(block);
                 }
             }
         }

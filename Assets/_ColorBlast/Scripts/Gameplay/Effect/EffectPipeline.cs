@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -15,6 +16,8 @@ namespace ColorBlast.Gameplay
         private GridSpawner gridSpawner;
         private GridChecker gridChecker;
         private EffectExecutionContext effectExecutionContext;
+
+        private int parallelEffectCount = 0;
 
         public bool IsProcessing { get; private set; }
 
@@ -74,7 +77,21 @@ namespace ColorBlast.Gameplay
                 while (effectQueue.Count > 0)
                 {
                     var effect = effectQueue.Pop();
-                    await effect.Execute(effectExecutionContext, this);
+
+                    if (effect is IParallelEffect)
+                    {
+                        FireParallel(effect);
+                    }
+                    else
+                    {
+                        await effect.Execute(effectExecutionContext, this);
+                        RunGravityAndRefill();
+                    }
+                }
+
+                if (parallelEffectCount > 0)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(effectExecutionContext.Config.DiscoBallAnimationDuration));
                     RunGravityAndRefill();
                 }
 
@@ -84,13 +101,35 @@ namespace ColorBlast.Gameplay
             {
                 IsProcessing = false;
                 triggered.Clear();
+                parallelEffectCount = 0;
+            }
+        }
+
+        private void FireParallel(IBlockEffect effect)
+        {
+            parallelEffectCount++;
+            RunParallelAsync(effect).Forget();
+        }
+
+        private async UniTask RunParallelAsync(IBlockEffect effect)
+        {
+            try
+            {
+                await effect.Execute(effectExecutionContext, this);
+            }
+            finally
+            {
+                parallelEffectCount--;
             }
         }
 
         private void RunGravityAndRefill()
         {
-            gridRefill.ApplyGravity();
-            gridSpawner.SpawnNewCubeBlocks();
+            if (parallelEffectCount == 0)
+            {
+                gridRefill.ApplyGravity();
+                gridSpawner.SpawnNewCubeBlocks();
+            }
         }
     }
 }

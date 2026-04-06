@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a83dbf14572462787899d97454861c3, type: 3}
-  m_Name: CameraSettings
+  m_Name: SO_CameraSettings
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.CameraSetup
   paddingX: 0.04
   minOrthographicSize: 10
