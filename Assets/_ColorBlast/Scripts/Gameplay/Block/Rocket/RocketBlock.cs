@@ -1,6 +1,5 @@
 using System;
 using ColorBlast.Manager;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace ColorBlast.Gameplay

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 682eeeba7a3a8c242b544bad2a52dc45
+guid: 648f7c3c4ea963d44bf2cfc4f9b8cf11
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4267951482076753587
-    second: glow1_0
+      213: -8648730800440268011
+    second: cubePiece_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: glow1_0
+      name: cubePiece_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 2
-        width: 512
-        height: 508
+        y: 5
+        width: 64
+        height: 59
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3be69c7a24fca3b30800000000000000
-      internalID: 4267951482076753587
+      spriteID: 51b27c1f82989f780800000000000000
+      internalID: -8648730800440268011
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      glow1_0: 4267951482076753587
+      cubePiece_0: -8648730800440268011
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

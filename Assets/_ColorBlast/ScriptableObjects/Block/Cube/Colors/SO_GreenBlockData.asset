@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 148fa390a2cf43a9b6506adeacd13633, type: 3}
+  m_Name: SO_GreenBlockData
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
+  prefab: {fileID: 8612162807601725161, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
+  particlePrefab: {fileID: 1422530599191536872, guid: 3887ecff049cfd642b79a5ae30470781, type: 3}
+  defaultSprite: {fileID: -7364823422338184377, guid: b21a83e1a882290479fe3ba74c7c6bd3, type: 3}
+  rewardStates:
+  - minGroupSize: 4
+    rewardHintSprite: {fileID: 3291406690555587084, guid: 60000889ed4df5743a1cdfdcca89ba0d, type: 3}
+    rewardBlockData: {fileID: 11400000, guid: fac3af2329e1b97488dd09b3acc7e259, type: 2}
+  - minGroupSize: 5
+    rewardHintSprite: {fileID: -2176861220364285743, guid: b7ba63d790ac2c148b0b7291ce9a594f, type: 3}
+    rewardBlockData: {fileID: 11400000, guid: e030ebde843be8c48997979d35580f35, type: 2}
+  - minGroupSize: 6
+    rewardHintSprite: {fileID: 6787462199040882907, guid: 64b1f9cf67e0c64489ad0abaf5c72997, type: 3}
+    rewardBlockData: {fileID: 11400000, guid: 2a87a4fe7a29f89488fd614fe96ca482, type: 2}

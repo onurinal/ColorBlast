@@ -82,4 +82,5 @@ namespace ColorBlast.Manager
         public Transform parent;
         public int initialSize;
     }
+
 }

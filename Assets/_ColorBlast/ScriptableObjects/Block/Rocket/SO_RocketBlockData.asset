@@ -13,5 +13,10 @@ MonoBehaviour:
   m_Name: SO_RocketBlockData
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.RocketBlockData
   prefab: {fileID: 6688168857666413191, guid: 73295a3f2c6b2524788e1c28f6842e87, type: 3}
+  particlePrefab: {fileID: 4640376365192369886, guid: a124cc465a2e6744baf79097a97ee77c, type: 3}
   horizontalRocketSprite: {fileID: 5656704437512375390, guid: 154f935e159f3834489ff430af984580, type: 3}
   verticalRocketSprite: {fileID: -8969780985616682883, guid: c3d0bd8742cf01748ab4d1bf53360e5c, type: 3}
+  leftRocketSprite: {fileID: -9098346466215167638, guid: 06fd26ff4be973c4dbb850a60941d193, type: 3}
+  upRocketSprite: {fileID: 3285315116579823737, guid: 7cb58411c91160e40bf3b6c302e30e4f, type: 3}
+  downRocketSprite: {fileID: -6840141022641434608, guid: 8cf5f5d345707b24f8cc029d184c65f3, type: 3}
+  rightRocketSprite: {fileID: -8474138740986594204, guid: f5a604e4158b93d42a643feeed7573b7, type: 3}

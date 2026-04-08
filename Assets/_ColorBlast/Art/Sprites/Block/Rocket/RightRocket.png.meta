@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 682eeeba7a3a8c242b544bad2a52dc45
+guid: f5a604e4158b93d42a643feeed7573b7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4267951482076753587
-    second: glow1_0
+      213: -8474138740986594204
+    second: RightRocket_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: glow1_0
+      name: RightRocket_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 2
-        width: 512
-        height: 508
+        x: 32
+        y: 1
+        width: 150
+        height: 147
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3be69c7a24fca3b30800000000000000
-      internalID: 4267951482076753587
+      spriteID: 46c3e1686bfc56a80800000000000000
+      internalID: -8474138740986594204
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      glow1_0: 4267951482076753587
+      RightRocket_0: -8474138740986594204
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
