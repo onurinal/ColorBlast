@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7851712730616857077}
   - component: {fileID: 5092912473584797383}
   - component: {fileID: 1664506131285566398}
+  - component: {fileID: -3723404592502407813}
   m_Layer: 0
   m_Name: StoneParticle
   m_TagString: Untagged
@@ -4896,3 +4897,15 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &-3723404592502407813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6204095039298606167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a246ab2a51c4b34a12832d51c60cbca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast._ColorBlast.Scripts.Gameplay.PoolableParticle

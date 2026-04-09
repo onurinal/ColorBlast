@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -11,13 +10,12 @@ namespace ColorBlast.Gameplay
     {
         private readonly Stack<IBlockEffect> effectQueue = new();
         private readonly HashSet<Block> triggered = new();
+        private readonly List<UniTask> parallelTasks = new List<UniTask>();
 
         private GridRefill gridRefill;
         private GridSpawner gridSpawner;
         private GridChecker gridChecker;
         private EffectExecutionContext effectExecutionContext;
-
-        private int parallelEffectCount = 0;
 
         public bool IsProcessing { get; private set; }
 
@@ -89,9 +87,11 @@ namespace ColorBlast.Gameplay
                     }
                 }
 
-                if (parallelEffectCount > 0)
+                // Await all parallel effects in this wave concurrently
+                if (parallelTasks.Count > 0)
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(effectExecutionContext.Config.DiscoBallAnimationDuration));
+                    await UniTask.WhenAll(parallelTasks);
+                    parallelTasks.Clear();
                     RunGravityAndRefill();
                 }
 
@@ -101,31 +101,23 @@ namespace ColorBlast.Gameplay
             {
                 IsProcessing = false;
                 triggered.Clear();
-                parallelEffectCount = 0;
             }
         }
 
         private void FireParallel(IBlockEffect effect)
         {
-            parallelEffectCount++;
-            RunParallelAsync(effect).Forget();
+            var task = RunParallelAsync(effect);
+            parallelTasks.Add(task);
         }
 
         private async UniTask RunParallelAsync(IBlockEffect effect)
         {
-            try
-            {
-                await effect.Execute(effectExecutionContext, this);
-            }
-            finally
-            {
-                parallelEffectCount--;
-            }
+            await effect.Execute(effectExecutionContext, this);
         }
 
         private void RunGravityAndRefill()
         {
-            if (parallelEffectCount == 0)
+            if (parallelTasks.Count == 0)
             {
                 gridRefill.ApplyGravity();
                 gridSpawner.SpawnNewCubeBlocks();

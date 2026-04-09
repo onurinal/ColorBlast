@@ -1,21 +1,21 @@
 ﻿using UnityEngine;
 using ColorBlast.Player;
 using ColorBlast.Core;
-using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Manager
 {
     public class GameManager : MonoBehaviour
     {
         [SerializeField] private LevelManager levelManager;
-        [SerializeField] private ObjectPoolManager objectPoolManager;
+        [SerializeField] private BlockPoolManager blockPoolManager;
+        [SerializeField] private ParticlePoolManager particlePoolManager;
         [SerializeField] private GridManager gridManager;
         [SerializeField] private PlayerController playerController;
         [SerializeField] private UIManager uiManager;
 
         private void Start()
         {
-            Application.targetFrameRate = 60;
+            // Application.targetFrameRate = 60;
 
             StartGame();
         }
@@ -35,7 +35,8 @@ namespace ColorBlast.Manager
             }
 
             uiManager.Initialize();
-            objectPoolManager.InitializePool(levelManager.CurrentLevel);
+            blockPoolManager.InitializePool(levelManager.CurrentLevel);
+            particlePoolManager.InitializePool(levelManager.CurrentLevel);
             gridManager.Initialize(levelManager.CurrentLevel, uiManager);
             playerController.Initialize();
 

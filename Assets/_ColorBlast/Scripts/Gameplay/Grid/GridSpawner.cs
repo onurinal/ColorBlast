@@ -52,7 +52,7 @@ namespace ColorBlast.Gameplay
         public Block SpawnBlockAt(BlockData blockData, int row, int col,
             Sprite sprite = null, BlockData targetCubeData = null)
         {
-            var block = ObjectPoolManager.Instance.GetBlock(blockData);
+            var block = BlockPoolManager.Instance.GetBlock(blockData);
             block.Initialize(row, col, blockData);
             block.transform.position = gridManager.GetCellWorldPosition(row, col);
 
@@ -73,7 +73,7 @@ namespace ColorBlast.Gameplay
         private Block CreateRandomCubeBlockAt(int row, int col, Vector2 spawnPosition)
         {
             var randomColorData = cubeColorDatabase.GetRandomBlockColorData(levelProperties.ColorCount);
-            var newBlock = ObjectPoolManager.Instance.GetBlock(randomColorData);
+            var newBlock = BlockPoolManager.Instance.GetBlock(randomColorData);
             newBlock.Initialize(row, col, randomColorData);
             newBlock.transform.position = spawnPosition;
 

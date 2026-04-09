@@ -36,7 +36,7 @@ namespace ColorBlast.Gameplay
 
         public virtual void RemoveBlock()
         {
-            ObjectPoolManager.Instance.ReturnBlock(this);
+            BlockPoolManager.Instance.ReturnBlock(this);
         }
 
         public virtual void UpdateIcon(int groupSize) { }
@@ -61,7 +61,7 @@ namespace ColorBlast.Gameplay
 
         private void ReturnToPool()
         {
-            ObjectPoolManager.Instance.ReturnBlock(this);
+            BlockPoolManager.Instance.ReturnBlock(this);
         }
     }
 }

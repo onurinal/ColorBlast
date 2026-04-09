@@ -15,14 +15,21 @@ namespace ColorBlast.Gameplay
 
         public override BlockType BlockType => BlockType.Rocket;
 
-        public Sprite GetSprite(RocketDirection direction)
-        {
-            return direction switch
-            {
-                RocketDirection.Horizontal => horizontalRocketSprite,
-                RocketDirection.Vertical => verticalRocketSprite,
-                _ => null
-            };
-        }
+        public Sprite HorizontalRocketSprite => horizontalRocketSprite;
+        public Sprite VerticalRocketSprite => verticalRocketSprite;
+        public Sprite LeftRocketSprite => leftRocketSprite;
+        public Sprite UpRocketSprite => upRocketSprite;
+        public Sprite DownRocketSprite => downRocketSprite;
+        public Sprite RightRocketSprite => rightRocketSprite;
+
+        // public Sprite GetSprite(RocketDirection direction)
+        // {
+        //     return direction switch
+        //     {
+        //         RocketDirection.Horizontal => horizontalRocketSprite,
+        //         RocketDirection.Vertical => verticalRocketSprite,
+        //         _ => null
+        //     };
+        // }
     }
 }

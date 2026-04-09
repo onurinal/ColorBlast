@@ -13,6 +13,9 @@ namespace ColorBlast.Gameplay
         [Header("Visual Settings")]
         [SerializeField] private Sprite defaultSprite;
 
+        [Header("Particle Settings")]
+        [SerializeField] private Color particleColor = Color.white;
+
         [Header("Reward Settings")]
         [SerializeField] private List<CubeRewardState> rewardStates;
 
@@ -47,5 +50,7 @@ namespace ColorBlast.Gameplay
 
             return null;
         }
+
+        public Color ParticleColor => particleColor;
     }
 }

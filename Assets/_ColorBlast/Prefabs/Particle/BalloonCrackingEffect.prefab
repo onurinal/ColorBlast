@@ -4905,6 +4905,7 @@ GameObject:
   - component: {fileID: 5050841632224356855}
   - component: {fileID: 5050841632224356852}
   - component: {fileID: 5050841632224356853}
+  - component: {fileID: 5046363382856031087}
   m_Layer: 0
   m_Name: BalloonCrackingEffect
   m_TagString: Untagged
@@ -9755,9 +9756,9 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: -1976607407
-  m_SortingLayer: 0
-  m_SortingOrder: 50
+  m_SortingLayerID: -1741431501
+  m_SortingLayer: 3
+  m_SortingOrder: 0
   m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -9790,6 +9791,18 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &5046363382856031087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5050841632224356850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a246ab2a51c4b34a12832d51c60cbca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast._ColorBlast.Scripts.Gameplay.PoolableParticle
 --- !u!1 &8027491645622238710
 GameObject:
   m_ObjectHideFlags: 0

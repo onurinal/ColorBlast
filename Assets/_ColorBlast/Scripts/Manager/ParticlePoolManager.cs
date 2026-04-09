@@ -1,19 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
-using ColorBlast.Gameplay;
+using ColorBlast._ColorBlast.Scripts.Gameplay;
 using ColorBlast.Core;
+using ColorBlast.Gameplay;
+using UnityEngine;
 
 namespace ColorBlast.Manager
 {
-    public class ObjectPoolManager : MonoBehaviour
+    public class ParticlePoolManager : MonoBehaviour
     {
-        public static ObjectPoolManager Instance { get; private set; }
+        public static ParticlePoolManager Instance { get; private set; }
 
-        [SerializeField] private BlockPoolEntry[] blockPoolEntry;
+        [SerializeField] private ParticlePoolEntry[] particlePoolEntry;
         [SerializeField] private int poolMultiplier = 2;
 
-        private readonly Dictionary<BlockType, PoolableObject<Block>> blockPool = new();
+        private readonly Dictionary<BlockType, PoolableObject<PoolableParticle>> particlePool = new();
         private bool isInitialized;
 
         private void Awake()
@@ -41,21 +42,20 @@ namespace ColorBlast.Manager
 
             var baseSize = levelProperties.RowCount * levelProperties.ColumnCount;
 
-            foreach (var entry in blockPoolEntry)
+            foreach (var entry in particlePoolEntry)
             {
                 var blockType = entry.data.BlockType;
                 var size = blockType == BlockType.Cube ? baseSize * poolMultiplier : entry.initialSize;
-                blockPool[blockType] =
-                    new PoolableObject<Block>(entry.data.Prefab, size, entry.parent,
-                        block => block.SetupVisual());
+                particlePool[blockType] =
+                    new PoolableObject<PoolableParticle>(entry.data.ParticlePrefab, size, entry.parent);
             }
 
             isInitialized = true;
         }
 
-        public Block GetBlock(BlockData data)
+        public PoolableParticle GetParticle(BlockData data)
         {
-            if (!isInitialized || !blockPool.TryGetValue(data.BlockType, out var pool))
+            if (!isInitialized || !particlePool.TryGetValue(data.BlockType, out var pool))
             {
                 Debug.LogError($"No pool for: {data.BlockType}");
                 return null;
@@ -64,23 +64,22 @@ namespace ColorBlast.Manager
             return pool.Get();
         }
 
-        public void ReturnBlock(Block block)
+        public void ReturnParticle(Block block, PoolableParticle particle)
         {
-            if (!isInitialized || !blockPool.TryGetValue(block.BlockType, out var pool))
+            if (!isInitialized || !particlePool.TryGetValue(block.BlockType, out var pool))
             {
                 return;
             }
 
-            pool.Return(block);
+            pool.Return(particle);
         }
     }
 
     [Serializable]
-    public struct BlockPoolEntry
+    public struct ParticlePoolEntry
     {
         public BlockData data;
         public Transform parent;
         public int initialSize;
     }
-
 }

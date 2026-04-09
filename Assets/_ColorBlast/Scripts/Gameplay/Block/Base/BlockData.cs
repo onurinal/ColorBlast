@@ -1,3 +1,4 @@
+using ColorBlast._ColorBlast.Scripts.Gameplay;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay
@@ -6,9 +7,9 @@ namespace ColorBlast.Gameplay
     {
         [Header("Block Settings")]
         [SerializeField] private Block prefab;
-        [SerializeField] private ParticleSystem particlePrefab;
+        [SerializeField] private PoolableParticle particlePrefab;
         public Block Prefab => prefab;
-        public ParticleSystem ParticlePrefab => particlePrefab;
+        public PoolableParticle ParticlePrefab => particlePrefab;
         public abstract BlockType BlockType { get; }
     }
 }

@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Threading;
+using ColorBlast._ColorBlast.Scripts.Gameplay;
 using Cysharp.Threading.Tasks;
 using ColorBlast.Gameplay;
 
@@ -90,7 +91,9 @@ namespace ColorBlast.Manager
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);
 
-            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner);
+            var particleService = new BlockParticleService();
+            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner,
+                particleService);
 
             effectPipeline = new EffectPipeline();
             effectPipeline.Initialize(gridRefill, gridSpawner, gridChecker, context);

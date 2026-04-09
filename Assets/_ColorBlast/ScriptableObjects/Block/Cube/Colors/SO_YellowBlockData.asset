@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: SO_YellowBlockData
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   prefab: {fileID: 8612162807601725161, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
-  particlePrefab: {fileID: 6822652627674326731, guid: 5c0ecbc5e7e00114d880f0d2bb00da85, type: 3}
+  particlePrefab: {fileID: -5839514592386451143, guid: 90de21ac84b127b49a61ae6e5acebb52, type: 3}
   defaultSprite: {fileID: 7985042018138347892, guid: 76e617a76456c2b43a97f0dd4a26bb7b, type: 3}
+  particleColor: {r: 1, g: 0.8908665, b: 0, a: 1}
   rewardStates:
   - minGroupSize: 4
     rewardHintSprite: {fileID: 414921610477409366, guid: b79f5ea52b0ff844798c1fa3f66ad48a, type: 3}

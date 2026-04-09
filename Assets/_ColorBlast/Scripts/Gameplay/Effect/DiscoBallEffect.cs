@@ -17,34 +17,29 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            try
+            var discoBall = (DiscoBlock)Tapped;
+
+            if (discoBall.TargetCubeData == null)
             {
-                var discoBall = (DiscoBlock)Tapped;
-
-                if (discoBall.TargetCubeData == null)
-                {
-                    return;
-                }
-
-                var affected = CollectTargetColor(context, discoBall.TargetCubeData);
-
-                if (affected.Count <= 0)
-                {
-                    // no animation run
-                    return;
-                }
-
-                affected.Add(discoBall);
-
-                foreach (var block in affected)
-                {
-                    context.TryDestroyBlock(block);
-                }
-
-                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DiscoBallAnimationDuration));
+                return;
             }
 
-            finally { }
+            var affected = CollectTargetColor(context, discoBall.TargetCubeData);
+
+            // if (affected.Count <= 0)
+            // {
+            //     // no animation run
+            //     return;
+            // }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DiscoBallAnimationDuration));
+
+            affected.Add(discoBall);
+
+            foreach (var block in affected)
+            {
+                context.TryDestroyBlock(block);
+            }
         }
 
         private List<Block> CollectTargetColor(EffectExecutionContext context, BlockData targetData)

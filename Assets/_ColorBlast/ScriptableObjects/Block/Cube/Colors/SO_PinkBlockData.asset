@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: SO_PinkBlockData
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Block.BlockColorData
   prefab: {fileID: 8612162807601725161, guid: c1b91459bee9a4e428014b783b11d506, type: 3}
-  particlePrefab: {fileID: 8443885075453843676, guid: 8dfe605d57700e44e8aa40d1ea4ec034, type: 3}
+  particlePrefab: {fileID: -5839514592386451143, guid: 90de21ac84b127b49a61ae6e5acebb52, type: 3}
   defaultSprite: {fileID: 742919511911846744, guid: ef0c6e3542ee95047a70da55523aff45, type: 3}
+  particleColor: {r: 0.9711551, g: 0.6048344, b: 0.9924528, a: 1}
   rewardStates:
   - minGroupSize: 4
     rewardHintSprite: {fileID: 3519922619171193912, guid: 8f704a92dfb1c9b42b98b0140853ba54, type: 3}

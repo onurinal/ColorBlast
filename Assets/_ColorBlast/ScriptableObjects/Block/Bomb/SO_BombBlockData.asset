@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: SO_BombBlockData
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.TNT.TntBlockData
   prefab: {fileID: 3632885025806396469, guid: 21665cb6bd61efe4f8f7708d74ca589a, type: 3}
-  particlePrefab: {fileID: 4784036719566188360, guid: 1204ab432375cfa43b38504be06b8216, type: 3}
+  particlePrefab: {fileID: -7834434176007767398, guid: 780f33868668c6547a3b53039f67247d, type: 3}
   radius: 1
   doubleBombMultiplier: 3

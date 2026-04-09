@@ -1,3 +1,4 @@
+using ColorBlast._ColorBlast.Scripts.Gameplay;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay
@@ -7,15 +8,17 @@ namespace ColorBlast.Gameplay
         public Block[,] BlockGrid { get; }
         public LevelProperties LevelProperties { get; }
         public GameplayConfig Config { get; }
+        public IBlockParticleService ParticleService { get; }
 
         private readonly GridSpawner gridSpawner;
 
         public EffectExecutionContext(Block[,] blockGrid, LevelProperties levelProperties, GameplayConfig config,
-            GridSpawner gridSpawner)
+            GridSpawner gridSpawner, IBlockParticleService particleService)
         {
             BlockGrid = blockGrid;
             LevelProperties = levelProperties;
             Config = config;
+            ParticleService = particleService;
             this.gridSpawner = gridSpawner;
         }
 
@@ -27,6 +30,7 @@ namespace ColorBlast.Gameplay
             }
 
             BlockGrid[block.GridX, block.GridY] = null;
+            ParticleService.PlayDestroyEffect(block);
             block.DestroyBlock();
             return true;
         }
