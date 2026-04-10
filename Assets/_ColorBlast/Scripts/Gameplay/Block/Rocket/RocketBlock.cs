@@ -1,15 +1,11 @@
 using System;
 using ColorBlast.Manager;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace ColorBlast.Gameplay
 {
     public class RocketBlock : Block, IActivatable, IInteractable
     {
-        [SerializeField] private Sprite firstRocketSprite;
-        [SerializeField] private Sprite secondRocketSprite;
-
         public override BlockData BlockData { get; protected set; }
         public RocketBlockData RocketBlockData => (RocketBlockData)BlockData;
 
@@ -36,19 +32,13 @@ namespace ColorBlast.Gameplay
 
         private void SetupRocketVisual()
         {
-            // blockView.UpdateVisual(RocketBlockData.GetSprite(Direction));
-
             if (Direction == RocketDirection.Horizontal)
             {
                 blockView.UpdateVisual(RocketBlockData.HorizontalRocketSprite);
-                firstRocketSprite = RocketBlockData.LeftRocketSprite;
-                secondRocketSprite = RocketBlockData.RightRocketSprite;
             }
             else
             {
                 blockView.UpdateVisual(RocketBlockData.VerticalRocketSprite);
-                firstRocketSprite = RocketBlockData.UpRocketSprite;
-                secondRocketSprite = RocketBlockData.DownRocketSprite;
             }
         }
     }

@@ -27,9 +27,9 @@ namespace ColorBlast.Gameplay
             }
 
             chainSchedular.MarkTriggered(Tapped);
+            context.ParticleService.PlayBombEffect(Tapped);
             ProcessAffected(context, chainSchedular, affected);
 
-            // await UniTask.CompletedTask;
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }
 

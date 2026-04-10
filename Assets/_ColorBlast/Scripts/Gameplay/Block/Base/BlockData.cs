@@ -1,4 +1,3 @@
-using ColorBlast._ColorBlast.Scripts.Gameplay;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay

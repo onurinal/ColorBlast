@@ -13,6 +13,8 @@ namespace ColorBlast.Gameplay
         [SerializeField] private Sprite downRocketSprite;
         [SerializeField] private Sprite rightRocketSprite;
 
+        [SerializeField] private float projectileSpeed = 8f; // cells per second
+
         public override BlockType BlockType => BlockType.Rocket;
 
         public Sprite HorizontalRocketSprite => horizontalRocketSprite;
@@ -22,14 +24,6 @@ namespace ColorBlast.Gameplay
         public Sprite DownRocketSprite => downRocketSprite;
         public Sprite RightRocketSprite => rightRocketSprite;
 
-        // public Sprite GetSprite(RocketDirection direction)
-        // {
-        //     return direction switch
-        //     {
-        //         RocketDirection.Horizontal => horizontalRocketSprite,
-        //         RocketDirection.Vertical => verticalRocketSprite,
-        //         _ => null
-        //     };
-        // }
+        public float ProjectileSpeed => projectileSpeed;
     }
 }

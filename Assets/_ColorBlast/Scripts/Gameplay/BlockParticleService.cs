@@ -1,9 +1,8 @@
 using System;
-using ColorBlast.Gameplay;
 using ColorBlast.Manager;
 using Cysharp.Threading.Tasks;
 
-namespace ColorBlast._ColorBlast.Scripts.Gameplay
+namespace ColorBlast.Gameplay
 {
     public class BlockParticleService : IBlockParticleService
     {
@@ -12,8 +11,6 @@ namespace ColorBlast._ColorBlast.Scripts.Gameplay
             switch (block)
             {
                 case CubeBlock cubeBlock: PlayCubeEffect(cubeBlock); break;
-                case RocketBlock rocketBlock: PlayRocketActivation(rocketBlock); break;
-                case BombBlock bombBlock: PlayBombEffect(bombBlock); break;
             }
         }
 

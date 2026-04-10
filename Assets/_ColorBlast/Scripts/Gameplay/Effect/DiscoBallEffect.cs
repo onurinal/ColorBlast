@@ -26,12 +26,6 @@ namespace ColorBlast.Gameplay
 
             var affected = CollectTargetColor(context, discoBall.TargetCubeData);
 
-            // if (affected.Count <= 0)
-            // {
-            //     // no animation run
-            //     return;
-            // }
-
             await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DiscoBallAnimationDuration));
 
             affected.Add(discoBall);

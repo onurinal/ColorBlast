@@ -1,25 +1,34 @@
 using ColorBlast.Core;
 using UnityEngine;
 
-namespace ColorBlast._ColorBlast.Scripts.Gameplay
+namespace ColorBlast.Gameplay
 {
     public class PoolableParticle : MonoBehaviour, IPoolable
     {
-        private ParticleSystem particle;
+        [SerializeField] private ParticleSystem particle;
 
         private void Awake()
         {
-            particle = GetComponent<ParticleSystem>();
+            if (particle == null)
+            {
+                particle = GetComponent<ParticleSystem>();
+            }
         }
 
         public void OnSpawn()
         {
-            particle.Play();
+            if (particle != null)
+            {
+                particle.Play();
+            }
         }
 
-        public void OnDespawn()
+        public virtual void OnDespawn()
         {
-            particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            if (particle != null)
+            {
+                particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
         }
 
         public void SetColor(Color color)
@@ -32,7 +41,7 @@ namespace ColorBlast._ColorBlast.Scripts.Gameplay
         {
             var main = particle.main;
 
-            float duration = main.duration;
+            // float duration = main.duration;
 
             float startLifetime = 0f;
 
@@ -45,17 +54,9 @@ namespace ColorBlast._ColorBlast.Scripts.Gameplay
                 case ParticleSystemCurveMode.TwoConstants:
                     startLifetime = main.startLifetime.constantMax;
                     break;
-
-                case ParticleSystemCurveMode.Curve:
-                    startLifetime = main.startLifetime.curve.Evaluate(1f);
-                    break;
-
-                case ParticleSystemCurveMode.TwoCurves:
-                    startLifetime = main.startLifetime.curveMax.Evaluate(1f);
-                    break;
             }
 
-            return duration + startLifetime;
+            return startLifetime;
         }
     }
 }

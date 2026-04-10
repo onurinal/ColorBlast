@@ -9601,7 +9601,7 @@ GameObject:
   - component: {fileID: 4618730000360074326}
   - component: {fileID: 5951129624769844921}
   m_Layer: 0
-  m_Name: RocketTrailEffect
+  m_Name: OldRocketParticle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14392,9 +14392,9 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: -1741431501
-  m_SortingLayer: 3
-  m_SortingOrder: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 50
   m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -24274,7 +24274,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 3
-      minScalar: 2.3
+      minScalar: 2
       maxCurve:
         serializedVersion: 2
         m_Curve:

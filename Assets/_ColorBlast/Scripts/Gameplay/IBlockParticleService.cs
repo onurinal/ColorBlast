@@ -1,6 +1,4 @@
-using ColorBlast.Gameplay;
-
-namespace ColorBlast._ColorBlast.Scripts.Gameplay
+namespace ColorBlast.Gameplay
 {
     public interface IBlockParticleService
     {
