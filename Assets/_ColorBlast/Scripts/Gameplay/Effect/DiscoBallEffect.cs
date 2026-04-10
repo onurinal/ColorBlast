@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
 {
-    public class DiscoBallEffect : IBlockEffect, IParallelEffect
+    public class DiscoBallEffect : IBlockEffect
     {
         public Block Tapped { get; }
         private readonly BlockEffectFactory effectFactory;
