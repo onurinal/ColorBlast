@@ -41,7 +41,7 @@ namespace ColorBlast.Gameplay
         {
             var main = particle.main;
 
-            // float duration = main.duration;
+            float duration = main.duration;
 
             float startLifetime = 0f;
 
@@ -56,7 +56,7 @@ namespace ColorBlast.Gameplay
                     break;
             }
 
-            return startLifetime;
+            return duration + startLifetime;
         }
     }
 }

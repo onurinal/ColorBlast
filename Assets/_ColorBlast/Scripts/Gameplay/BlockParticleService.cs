@@ -22,7 +22,7 @@ namespace ColorBlast.Gameplay
             var particleDuration = particle.GetParticleDuration();
             particle.transform.position = block.transform.position;
 
-            ReturnToPool(block, particle, particleDuration).Forget();
+            ReturnToPool(BlockType.Bomb, particle, particleDuration).Forget();
         }
 
         private void PlayCubeEffect(Block block)
@@ -34,13 +34,13 @@ namespace ColorBlast.Gameplay
             var cubeBlockData = (CubeBlockData)block.BlockData;
             particle.SetColor(cubeBlockData.ParticleColor);
 
-            ReturnToPool(block, particle, particleDuration).Forget();
+            ReturnToPool(BlockType.Cube, particle, particleDuration).Forget();
         }
 
-        private async UniTask ReturnToPool(Block block, PoolableParticle particle, float duration)
+        private async UniTask ReturnToPool(BlockType blockType, PoolableParticle particle, float duration)
         {
             await UniTask.Delay(TimeSpan.FromSeconds(duration));
-            ParticlePoolManager.Instance.ReturnParticle(block, particle);
+            ParticlePoolManager.Instance.ReturnParticle(blockType, particle);
         }
     }
 }

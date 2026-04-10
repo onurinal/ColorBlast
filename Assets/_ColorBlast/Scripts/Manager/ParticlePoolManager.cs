@@ -63,9 +63,9 @@ namespace ColorBlast.Manager
             return pool.Get();
         }
 
-        public void ReturnParticle(Block block, PoolableParticle particle)
+        public void ReturnParticle(BlockType blockType, PoolableParticle particle)
         {
-            if (!isInitialized || !particlePool.TryGetValue(block.BlockType, out var pool))
+            if (!isInitialized || !particlePool.TryGetValue(blockType, out var pool))
             {
                 return;
             }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -18,7 +17,9 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
+            var concurrentChains = new List<UniTask>();
             var bombData = (BombBlockData)Tapped.BlockData;
+
             var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
 
             if (affected.Count <= 0)
@@ -28,9 +29,12 @@ namespace ColorBlast.Gameplay
 
             chainSchedular.MarkTriggered(Tapped);
             context.ParticleService.PlayBombEffect(Tapped);
-            ProcessAffected(context, chainSchedular, affected);
+            ProcessAffected(context, chainSchedular, affected, concurrentChains);
 
-            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+            if (concurrentChains.Count > 0)
+            {
+                await UniTask.WhenAll(concurrentChains);
+            }
         }
 
         private List<Block> CollectRadius(EffectExecutionContext context, int centerRow, int centerCol, int radius)
@@ -55,14 +59,14 @@ namespace ColorBlast.Gameplay
         /// Normal blocks → destroy.
         /// Special blocks (not yet triggered) → enqueue chain their effect.
         /// </summary>
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> blocks)
+        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> blocks, List<UniTask> concurrentChains)
         {
             foreach (var block in blocks)
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
-                    var chainedEffect = effectFactory.CreateEffect(block);
-                    chainSchedular.EnqueueChained(chainedEffect);
+                    chainSchedular.MarkTriggered(block);
+                    concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
                 }
                 else
                 {

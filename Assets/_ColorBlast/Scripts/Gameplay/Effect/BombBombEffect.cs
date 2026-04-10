@@ -22,6 +22,7 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
+            var concurrentChains = new List<UniTask>();
             var affected = new HashSet<Block>();
 
             foreach (var block in affectedSpecials)
@@ -31,9 +32,12 @@ namespace ColorBlast.Gameplay
             }
 
             UpdateBombBombAffectedBlocks(context, affected);
-            ProcessAffected(context, chainSchedular, affected);
+            ProcessAffected(context, chainSchedular, affected, concurrentChains);
 
-            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+            if (concurrentChains.Count > 0)
+            {
+                await UniTask.WhenAll(concurrentChains);
+            }
         }
 
         private void UpdateBombBombAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)
@@ -59,14 +63,14 @@ namespace ColorBlast.Gameplay
         }
 
         private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular,
-            HashSet<Block> affectedBlocks)
+            HashSet<Block> affectedBlocks, List<UniTask> concurrentChains)
         {
             foreach (var block in affectedBlocks)
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
-                    var chainedEffect = effectFactory.CreateEffect(block);
-                    chainSchedular.EnqueueChained(chainedEffect);
+                    chainSchedular.MarkTriggered(block);
+                    concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
                 }
                 else
                 {
