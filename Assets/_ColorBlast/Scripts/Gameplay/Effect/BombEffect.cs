@@ -18,18 +18,30 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var concurrentChains = new List<UniTask>();
             var bombData = (BombBlockData)Tapped.BlockData;
-
             var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
 
             chainSchedular.MarkTriggered(Tapped);
             context.ParticleService.PlayBombEffect(Tapped);
-            ProcessAffected(context, chainSchedular, affected, concurrentChains);
+
+            var concurrentChains = new List<UniTask>();
+            var sequentialBombs = new List<Block>();
+
+            ProcessAffected(context, chainSchedular, affected, concurrentChains, sequentialBombs);
 
             if (concurrentChains.Count > 0)
             {
                 await UniTask.WhenAll(concurrentChains);
+            }
+
+            foreach (var bomb in sequentialBombs)
+            {
+                if (chainSchedular.IsTriggered(bomb)) continue;
+
+                chainSchedular.MarkTriggered(bomb);
+                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
+                await effectFactory.CreateEffect(bomb).Execute(context, chainSchedular);
+                chainSchedular.RunGravityAndRefill();
             }
         }
 
@@ -55,15 +67,22 @@ namespace ColorBlast.Gameplay
         /// Normal blocks → destroy.
         /// Special blocks (not yet triggered) → enqueue chain their effect.
         /// </summary>
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> blocks,
-            List<UniTask> concurrentChains)
+        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> affected,
+            List<UniTask> concurrentChains, List<Block> sequentialBombs)
         {
-            foreach (var block in blocks)
+            foreach (var block in affected)
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
-                    chainSchedular.MarkTriggered(block);
-                    concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
+                    if (block.BlockType == BlockType.Bomb)
+                    {
+                        sequentialBombs.Add(block);
+                    }
+                    else
+                    {
+                        chainSchedular.MarkTriggered(block);
+                        concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
+                    }
                 }
                 else
                 {
