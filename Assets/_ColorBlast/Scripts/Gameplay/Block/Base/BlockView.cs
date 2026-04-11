@@ -19,7 +19,7 @@ namespace ColorBlast.Gameplay
         public void MoveToPosition(Vector2 targetPosition, float duration)
         {
             activeTween?.Kill();
-            activeTween = transform.DOMove(targetPosition, duration).SetEase(Ease.InOutCubic);
+            activeTween = transform.DOMove(targetPosition, duration).SetEase(Ease.OutBack, 0.6f);
         }
 
         public void HandleDestroy(float duration, Action onComplete)

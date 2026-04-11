@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -21,11 +22,6 @@ namespace ColorBlast.Gameplay
             var bombData = (BombBlockData)Tapped.BlockData;
 
             var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
-
-            if (affected.Count <= 0)
-            {
-                return;
-            }
 
             chainSchedular.MarkTriggered(Tapped);
             context.ParticleService.PlayBombEffect(Tapped);
@@ -59,7 +55,8 @@ namespace ColorBlast.Gameplay
         /// Normal blocks → destroy.
         /// Special blocks (not yet triggered) → enqueue chain their effect.
         /// </summary>
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> blocks, List<UniTask> concurrentChains)
+        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> blocks,
+            List<UniTask> concurrentChains)
         {
             foreach (var block in blocks)
             {

@@ -14,9 +14,6 @@ namespace ColorBlast.Gameplay
         private readonly List<Block> affectedList = new(); // for execution order
         private readonly BlockEffectFactory effectFactory;
 
-        private readonly HashSet<int> triggeredRows = new();
-        private readonly HashSet<int> triggeredCols = new();
-
         public DiscoRocketEffect(ComboResult comboResult, BlockEffectFactory effectFactory)
         {
             Tapped = comboResult.Tapped;
@@ -29,9 +26,18 @@ namespace ColorBlast.Gameplay
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
             await UpdateDiscoRocketAffectedBlocks(context);
-            ProcessAffected(context, chainSchedular);
 
-            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+            for (int i = 0; i < affectedList.Count; i++)
+            {
+                if (affectedList[i] == null || chainSchedular.IsTriggered(affectedList[i]))
+                {
+                    continue;
+                }
+
+                chainSchedular.MarkTriggered(affectedList[i]);
+                await effectFactory.CreateEffect(affectedList[i]).Execute(context, chainSchedular);
+                chainSchedular.RunGravityAndRefill();
+            }
         }
 
         private async UniTask UpdateDiscoRocketAffectedBlocks(EffectExecutionContext context)
@@ -84,7 +90,7 @@ namespace ColorBlast.Gameplay
                 await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
             }
 
-            for (int col = 0; col < context.LevelProperties.ColumnCount; col++)
+            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
             {
                 for (int row = 0; row < context.LevelProperties.RowCount; row++)
                 {
@@ -92,52 +98,6 @@ namespace ColorBlast.Gameplay
                     if (block.BlockData == rocketBlockData)
                     {
                         affectedList.Add(block);
-                    }
-                }
-            }
-        }
-
-        private bool ShouldTriggerRocket(Block block)
-        {
-            if (block is not RocketBlock rocketBlock)
-            {
-                return false;
-            }
-
-            int row = rocketBlock.GridX;
-            int col = rocketBlock.GridY;
-
-            if (rocketBlock.Direction == RocketDirection.Horizontal)
-            {
-                return triggeredCols.Add(col);
-            }
-
-            if (rocketBlock.Direction == RocketDirection.Vertical)
-            {
-                return triggeredRows.Add(row);
-            }
-
-            return false;
-        }
-
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular)
-        {
-            foreach (var block in affectedList)
-            {
-                if (block is RocketBlock)
-                {
-                    if (!ShouldTriggerRocket(block))
-                    {
-                        chainSchedular.MarkTriggered(block);
-                    }
-                    else if (!chainSchedular.IsTriggered(block))
-                    {
-                        var chainedEffect = effectFactory.CreateEffect(block);
-                        chainSchedular.EnqueueChained(chainedEffect);
-                    }
-                    else
-                    {
-                        context.TryDestroyBlock(block);
                     }
                 }
             }

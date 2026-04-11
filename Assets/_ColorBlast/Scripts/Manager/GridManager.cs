@@ -78,13 +78,13 @@ namespace ColorBlast.Manager
         private void InitializeSystems()
         {
             gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockGrid, this, levelProperties, cubeColorDatabase);
+            gridSpawner.Initialize(blockGrid, this, levelProperties, cubeColorDatabase, gameplayConfig);
 
             gridChecker = new GridChecker();
             gridChecker.Initialize(blockGrid, levelProperties, gameplayConfig);
 
             gridRefill = new GridRefill();
-            gridRefill.Initialize(blockGrid, this, levelProperties);
+            gridRefill.Initialize(blockGrid, this, levelProperties, gameplayConfig);
 
             gridShuffler = new GridShuffler();
             gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);

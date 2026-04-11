@@ -26,9 +26,18 @@ namespace ColorBlast.Gameplay
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
             await UpdateDiscoBombAffectedBlocks(context);
-            ProcessAffected(context, chainSchedular);
 
-            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+            for (int i = 0; i < affectedList.Count; i++)
+            {
+                if (affectedList[i] == null || chainSchedular.IsTriggered(affectedList[i]))
+                {
+                    continue;
+                }
+
+                chainSchedular.MarkTriggered(affectedList[i]);
+                await effectFactory.CreateEffect(affectedList[i]).Execute(context, chainSchedular);
+                chainSchedular.RunGravityAndRefill();
+            }
         }
 
         private async UniTask UpdateDiscoBombAffectedBlocks(EffectExecutionContext context)
@@ -79,7 +88,7 @@ namespace ColorBlast.Gameplay
                 await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
             }
 
-            for (int col = 0; col < context.LevelProperties.ColumnCount; col++)
+            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
             {
                 for (int row = 0; row < context.LevelProperties.RowCount; row++)
                 {
@@ -88,22 +97,6 @@ namespace ColorBlast.Gameplay
                     {
                         affectedList.Add(block);
                     }
-                }
-            }
-        }
-
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular)
-        {
-            foreach (var block in affectedList)
-            {
-                if (block is IActivatable && !chainSchedular.IsTriggered(block))
-                {
-                    var chainedEffect = effectFactory.CreateEffect(block);
-                    chainSchedular.EnqueueChained(chainedEffect);
-                }
-                else
-                {
-                    context.TryDestroyBlock(block);
                 }
             }
         }

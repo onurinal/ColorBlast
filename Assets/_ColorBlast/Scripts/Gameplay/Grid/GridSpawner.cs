@@ -13,14 +13,16 @@ namespace ColorBlast.Gameplay
         private GridManager gridManager;
         private LevelProperties levelProperties;
         private CubeColorDatabase cubeColorDatabase;
+        private GameplayConfig gameplayConfig;
 
         public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties,
-            CubeColorDatabase cubeColorDatabase)
+            CubeColorDatabase cubeColorDatabase, GameplayConfig gameplayConfig)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
             this.cubeColorDatabase = cubeColorDatabase;
+            this.gameplayConfig = gameplayConfig;
         }
 
         public void SpawnNewCubeBlocks()

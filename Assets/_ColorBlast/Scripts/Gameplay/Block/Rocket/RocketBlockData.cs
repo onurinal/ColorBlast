@@ -5,6 +5,7 @@ namespace ColorBlast.Gameplay
     [CreateAssetMenu(fileName = "RocketBlockData", menuName = "ColorBlast/Gameplay/Block/Rocket")]
     public class RocketBlockData : BlockData
     {
+        [Header("Visual Settings")]
         [SerializeField] private Sprite horizontalRocketSprite;
         [SerializeField] private Sprite verticalRocketSprite;
 
@@ -13,6 +14,7 @@ namespace ColorBlast.Gameplay
         [SerializeField] private Sprite downRocketSprite;
         [SerializeField] private Sprite rightRocketSprite;
 
+        [Header("Projectile Settings")]
         [SerializeField] private float projectileSpeed = 8f; // cells per second
 
         public override BlockType BlockType => BlockType.Rocket;

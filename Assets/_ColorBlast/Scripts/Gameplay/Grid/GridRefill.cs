@@ -10,12 +10,14 @@ namespace ColorBlast.Gameplay
         private Block[,] blockGrid;
         private GridManager gridManager;
         private LevelProperties levelProperties;
+        private GameplayConfig gameplayConfig;
 
-        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties)
+        public void Initialize(Block[,] blockGrid, GridManager gridManager, LevelProperties levelProperties, GameplayConfig gameplayConfig)
         {
             this.blockGrid = blockGrid;
             this.gridManager = gridManager;
             this.levelProperties = levelProperties;
+            this.gameplayConfig = gameplayConfig;
         }
 
         public void ApplyGravity()

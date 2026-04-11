@@ -16,9 +16,12 @@ MonoBehaviour:
   blockSizeX: 0.45
   blockSizeY: 0.45
   matchThreshold: 2
-  destroyDuration: 0.16
-  fallDuration: 0.3
-  spawnDuration: 0.3
+  destroyDuration: 0.1
+  fallDuration: 1
+  fallDelayBetweenBlocks: 0.05
+  spawnDuration: 2
   shuffleDuration: 2
-  spawnDurationBetweenSpecials: 0.04
+  spawnDurationBetweenSpecials: 0.05
   discoBallAnimationDuration: 1
+  durationBetweenBombs: 0.2
+  durationBetweenRockets: 0.5

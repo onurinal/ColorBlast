@@ -14,8 +14,6 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        public void PlayRocketActivation(Block block) { }
-
         public void PlayBombEffect(Block block)
         {
             var particle = ParticlePoolManager.Instance.GetParticle(block.BlockData);

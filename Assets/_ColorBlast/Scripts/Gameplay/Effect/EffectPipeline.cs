@@ -115,7 +115,7 @@ namespace ColorBlast.Gameplay
             await effect.Execute(effectExecutionContext, this);
         }
 
-        private void RunGravityAndRefill()
+        public void RunGravityAndRefill()
         {
             if (discoBallTasks.Count == 0)
             {

@@ -5,5 +5,6 @@ namespace ColorBlast.Gameplay
         void EnqueueChained(IBlockEffect effect);
         bool IsTriggered(Block block);
         void MarkTriggered(Block block);
+        void RunGravityAndRefill();
     }
 }
