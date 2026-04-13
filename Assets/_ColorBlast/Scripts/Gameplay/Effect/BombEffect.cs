@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -18,30 +17,28 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var bombData = (BombBlockData)Tapped.BlockData;
-            var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
-
-            chainSchedular.MarkTriggered(Tapped);
-            context.ParticleService.PlayBombEffect(Tapped);
-
-            var concurrentChains = new List<UniTask>();
-            var sequentialBombs = new List<Block>();
-
-            ProcessAffected(context, chainSchedular, affected, concurrentChains, sequentialBombs);
-
-            if (concurrentChains.Count > 0)
+            try
             {
-                await UniTask.WhenAll(concurrentChains);
+                chainSchedular.BeginEffect();
+
+                var bombData = (BombBlockData)Tapped.BlockData;
+                var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
+
+                chainSchedular.MarkTriggered(Tapped);
+                context.ParticleService.PlayBombEffect(Tapped);
+
+                var concurrentChains = new List<UniTask>();
+
+                ProcessAffected(context, chainSchedular, affected, concurrentChains);
+
+                if (concurrentChains.Count > 0)
+                {
+                    await UniTask.WhenAll(concurrentChains);
+                }
             }
-
-            foreach (var bomb in sequentialBombs)
+            finally
             {
-                if (chainSchedular.IsTriggered(bomb)) continue;
-
-                chainSchedular.MarkTriggered(bomb);
-                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
-                await effectFactory.CreateEffect(bomb).Execute(context, chainSchedular);
-                chainSchedular.RunGravityAndRefill();
+                chainSchedular.EndEffect();
             }
         }
 
@@ -68,21 +65,14 @@ namespace ColorBlast.Gameplay
         /// Special blocks (not yet triggered) → enqueue chain their effect.
         /// </summary>
         private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> affected,
-            List<UniTask> concurrentChains, List<Block> sequentialBombs)
+            List<UniTask> concurrentChains)
         {
             foreach (var block in affected)
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
-                    if (block.BlockType == BlockType.Bomb)
-                    {
-                        sequentialBombs.Add(block);
-                    }
-                    else
-                    {
-                        chainSchedular.MarkTriggered(block);
-                        concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
-                    }
+                    chainSchedular.MarkTriggered(block);
+                    concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
                 }
                 else
                 {

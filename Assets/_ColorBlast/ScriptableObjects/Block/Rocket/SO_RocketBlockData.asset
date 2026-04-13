@@ -20,4 +20,4 @@ MonoBehaviour:
   upRocketSprite: {fileID: 3285315116579823737, guid: 7cb58411c91160e40bf3b6c302e30e4f, type: 3}
   downRocketSprite: {fileID: -6840141022641434608, guid: 8cf5f5d345707b24f8cc029d184c65f3, type: 3}
   rightRocketSprite: {fileID: -8474138740986594204, guid: f5a604e4158b93d42a643feeed7573b7, type: 3}
-  projectileSpeed: 21
+  projectileSpeed: 20

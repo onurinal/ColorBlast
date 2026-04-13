@@ -36,7 +36,6 @@ namespace ColorBlast.Gameplay
 
                 chainSchedular.MarkTriggered(affectedList[i]);
                 await effectFactory.CreateEffect(affectedList[i]).Execute(context, chainSchedular);
-                chainSchedular.RunGravityAndRefill();
             }
         }
 

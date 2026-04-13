@@ -27,17 +27,20 @@ namespace ColorBlast.Gameplay
         {
             await UpdateDiscoBombAffectedBlocks(context);
 
-            for (int i = 0; i < affectedList.Count; i++)
+            foreach (var block in affectedList)
             {
-                if (affectedList[i] == null || chainSchedular.IsTriggered(affectedList[i]))
+                if (block == null || chainSchedular.IsTriggered(block))
                 {
                     continue;
                 }
 
-                chainSchedular.MarkTriggered(affectedList[i]);
+                chainSchedular.MarkTriggered(block);
+            }
+
+            for (int i = 0; i < affectedList.Count; i++)
+            {
                 await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
-                await effectFactory.CreateEffect(affectedList[i]).Execute(context, chainSchedular);
-                chainSchedular.RunGravityAndRefill();
+                effectFactory.CreateEffect(affectedList[i]).Execute(context, chainSchedular).Forget();
             }
         }
 

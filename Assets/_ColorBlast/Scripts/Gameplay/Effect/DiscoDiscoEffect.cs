@@ -18,18 +18,27 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var affected = new HashSet<Block>();
-
-            foreach (var block in affectedSpecials)
+            try
             {
-                chainSchedular.MarkTriggered(block);
-                affected.Add(block);
+                chainSchedular.BeginEffect();
+
+                var affected = new HashSet<Block>();
+
+                foreach (var block in affectedSpecials)
+                {
+                    chainSchedular.MarkTriggered(block);
+                    affected.Add(block);
+                }
+
+                UpdateDiscoDiscoAffectedBlocks(context, affected);
+                ProcessAffected(context, affected);
+
+                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
             }
-
-            UpdateDiscoDiscoAffectedBlocks(context, affected);
-            ProcessAffected(context, affected);
-
-            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+            finally
+            {
+                chainSchedular.EndEffect();
+            }
         }
 
         private void UpdateDiscoDiscoAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)

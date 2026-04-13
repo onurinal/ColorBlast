@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -8,15 +9,15 @@ namespace ColorBlast.Gameplay
     /// </summary>
     public class EffectPipeline : IChainSchedular
     {
-        private readonly Stack<IBlockEffect> effectQueue = new();
         private readonly HashSet<Block> triggered = new();
-        private readonly List<UniTask> discoBallTasks = new List<UniTask>();
 
         private GridRefill gridRefill;
         private GridSpawner gridSpawner;
         private GridChecker gridChecker;
         private EffectExecutionContext effectExecutionContext;
 
+        private int suspendCounter = 0;
+        private int activeEffectCount = 0;
         public bool IsProcessing { get; private set; }
 
         public void Initialize(GridRefill gridRefill, GridSpawner gridSpawner, GridChecker gridChecker,
@@ -30,26 +31,12 @@ namespace ColorBlast.Gameplay
 
         public void EnqueueFromPlayer(IBlockEffect effect)
         {
-            effectQueue.Clear();
             triggered.Clear();
-
-            effectQueue.Push(effect);
 
             if (!IsProcessing)
             {
-                ProcessExecute().Forget();
+                ProcessExecute(effect).Forget();
             }
-        }
-
-        public void EnqueueChained(IBlockEffect effect)
-        {
-            if (effect.Tapped != null && IsTriggered(effect.Tapped))
-            {
-                return;
-            }
-
-            MarkTriggered(effect.Tapped);
-            effectQueue.Push(effect);
         }
 
         public bool IsTriggered(Block block)
@@ -66,36 +53,13 @@ namespace ColorBlast.Gameplay
         }
 
         // ── Execution loop ─
-        private async UniTaskVoid ProcessExecute()
+        private async UniTaskVoid ProcessExecute(IBlockEffect effect)
         {
             IsProcessing = true;
 
             try
             {
-                while (effectQueue.Count > 0)
-                {
-                    var effect = effectQueue.Pop();
-
-                    if (effect is DiscoBallEffect)
-                    {
-                        FireDiscoBallEffect(effect);
-                    }
-                    else
-                    {
-                        await effect.Execute(effectExecutionContext, this);
-                        RunGravityAndRefill();
-                    }
-                }
-
-                // Await all parallel effects in this wave concurrently
-                if (discoBallTasks.Count > 0)
-                {
-                    await UniTask.WhenAll(discoBallTasks);
-                    discoBallTasks.Clear();
-                    RunGravityAndRefill();
-                }
-
-                gridChecker.CheckAllGrid();
+                await effect.Execute(effectExecutionContext, this);
             }
             finally
             {
@@ -104,24 +68,41 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        private void FireDiscoBallEffect(IBlockEffect effect)
+        public void BeginEffect()
         {
-            var task = RunDiscoBallAsync(effect);
-            discoBallTasks.Add(task);
+            activeEffectCount++;
         }
 
-        private async UniTask RunDiscoBallAsync(IBlockEffect effect)
+        public void EndEffect()
         {
-            await effect.Execute(effectExecutionContext, this);
+            activeEffectCount--;
+
+            if (activeEffectCount == 0)
+            {
+                RunGravityAndRefill();
+            }
+        }
+
+        public void SuspendGrid()
+        {
+            suspendCounter++;
+        }
+
+        public void ResumeGrid()
+        {
+            suspendCounter--;
         }
 
         public void RunGravityAndRefill()
         {
-            if (discoBallTasks.Count == 0)
+            if (suspendCounter > 0)
             {
-                gridRefill.ApplyGravity();
-                gridSpawner.SpawnNewCubeBlocks();
+                return;
             }
+
+            gridRefill.ApplyGravity();
+            gridSpawner.SpawnNewCubeBlocks();
+            gridChecker.CheckAllGrid();
         }
     }
 }

@@ -18,10 +18,7 @@ MonoBehaviour:
   matchThreshold: 2
   destroyDuration: 0.1
   fallDuration: 1
-  fallDelayBetweenBlocks: 0.05
-  spawnDuration: 2
   shuffleDuration: 2
   spawnDurationBetweenSpecials: 0.05
   discoBallAnimationDuration: 1
-  durationBetweenBombs: 0.2
-  durationBetweenRockets: 0.5
+  bombChainDelay: 0.1

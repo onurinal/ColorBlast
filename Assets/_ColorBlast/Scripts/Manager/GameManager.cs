@@ -15,7 +15,7 @@ namespace ColorBlast.Manager
 
         private void Start()
         {
-            // Application.targetFrameRate = 60;
+            Application.targetFrameRate = 60;
 
             StartGame();
         }

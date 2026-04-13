@@ -22,21 +22,30 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var concurrentChains = new List<UniTask>();
-            var affected = new HashSet<Block>();
-
-            foreach (var block in affectedSpecials)
+            try
             {
-                chainSchedular.MarkTriggered(block);
-                affected.Add(block);
+                chainSchedular.BeginEffect();
+
+                var concurrentChains = new List<UniTask>();
+                var affected = new HashSet<Block>();
+
+                foreach (var block in affectedSpecials)
+                {
+                    chainSchedular.MarkTriggered(block);
+                    affected.Add(block);
+                }
+
+                UpdateBombBombAffectedBlocks(context, affected);
+                ProcessAffected(context, chainSchedular, affected, concurrentChains);
+
+                if (concurrentChains.Count > 0)
+                {
+                    await UniTask.WhenAll(concurrentChains);
+                }
             }
-
-            UpdateBombBombAffectedBlocks(context, affected);
-            ProcessAffected(context, chainSchedular, affected, concurrentChains);
-
-            if (concurrentChains.Count > 0)
+            finally
             {
-                await UniTask.WhenAll(concurrentChains);
+                chainSchedular.EndEffect();
             }
         }
 

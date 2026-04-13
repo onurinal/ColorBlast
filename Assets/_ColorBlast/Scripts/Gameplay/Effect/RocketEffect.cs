@@ -1,4 +1,6 @@
+using System;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -18,23 +20,32 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            var rocket = (RocketBlock)Tapped;
-            chainSchedular.MarkTriggered(Tapped);
-
-            context.TryRemoveBlock(rocket);
-
-            RocketDirection rocketDirection;
-
-            if (directionOverride != null)
+            try
             {
-                rocketDirection = directionOverride.Value;
-            }
-            else
-            {
-                rocketDirection = rocket.Direction;
-            }
+                chainSchedular.BeginEffect();
 
-            await RocketFire.Execute(rocket.GridX, rocket.GridY, rocketDirection, rocket.RocketBlockData, context, chainSchedular, effectFactory);
+                var rocket = (RocketBlock)Tapped;
+                chainSchedular.MarkTriggered(Tapped);
+
+                context.TryRemoveBlock(rocket);
+
+                RocketDirection rocketDirection;
+
+                if (directionOverride != null)
+                {
+                    rocketDirection = directionOverride.Value;
+                }
+                else
+                {
+                    rocketDirection = rocket.Direction;
+                }
+
+                await RocketFire.Execute(rocket.GridX, rocket.GridY, rocketDirection, rocket.RocketBlockData, context, chainSchedular, effectFactory);
+            }
+            finally
+            {
+                chainSchedular.EndEffect();
+            }
         }
     }
 }
