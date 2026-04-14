@@ -16,8 +16,10 @@ namespace ColorBlast.Gameplay
         private GridChecker gridChecker;
         private EffectExecutionContext effectExecutionContext;
 
-        private int suspendCounter = 0;
-        private int activeEffectCount = 0;
+        private int suspendCounter = 0; // increase when any disco ball trigger
+        private int activeEffectCount = 0; // increase any effect trigger
+        private bool isApplyingGrid = false; // to understand gravity and refill is processing or not
+        private bool isGridUpdatePending = false;
         public bool IsProcessing { get; private set; }
 
         public void Initialize(GridRefill gridRefill, GridSpawner gridSpawner, GridChecker gridChecker,
@@ -29,14 +31,21 @@ namespace ColorBlast.Gameplay
             this.effectExecutionContext = effectExecutionContext;
         }
 
-        public void EnqueueFromPlayer(IBlockEffect effect)
+        public void TriggerEffectFromPlayer(IBlockEffect effect)
         {
-            triggered.Clear();
-
-            if (!IsProcessing)
+            if (effect == null || IsProcessing)
             {
-                ProcessExecute(effect).Forget();
+                return;
             }
+
+            triggered.Clear();
+            suspendCounter = 0;
+            activeEffectCount = 0;
+            isGridUpdatePending = false;
+            isApplyingGrid = false;
+            IsProcessing = true;
+
+            TriggerEffect(effect);
         }
 
         public bool IsTriggered(Block block)
@@ -46,26 +55,34 @@ namespace ColorBlast.Gameplay
 
         public void MarkTriggered(Block block)
         {
-            if (block != null)
+            if (block == null)
             {
-                triggered.Add(block);
+                return;
             }
+
+            triggered.Add(block);
         }
 
-        // ── Execution loop ─
-        private async UniTaskVoid ProcessExecute(IBlockEffect effect)
+        public void TriggerEffect(IBlockEffect effect)
         {
-            IsProcessing = true;
+            if (effect == null)
+            {
+                return;
+            }
 
-            try
+            IsProcessing = true;
+            ExecuteEffect(effect).Forget();
+        }
+
+        public async UniTask TriggerEffectAsync(IBlockEffect effect)
+        {
+            if (effect == null)
             {
-                await effect.Execute(effectExecutionContext, this);
+                return;
             }
-            finally
-            {
-                IsProcessing = false;
-                triggered.Clear();
-            }
+
+            IsProcessing = true;
+            await effect.Execute(effectExecutionContext, this);
         }
 
         public void BeginEffect()
@@ -75,12 +92,9 @@ namespace ColorBlast.Gameplay
 
         public void EndEffect()
         {
-            activeEffectCount--;
-
-            if (activeEffectCount == 0)
-            {
-                RunGravityAndRefill();
-            }
+            activeEffectCount = Mathf.Max(0, activeEffectCount - 1);
+            isGridUpdatePending = true;
+            TryRunPendingUpdateGrid();
         }
 
         public void SuspendGrid()
@@ -90,19 +104,102 @@ namespace ColorBlast.Gameplay
 
         public void ResumeGrid()
         {
-            suspendCounter--;
+            suspendCounter = Mathf.Max(0, suspendCounter - 1);
+            TryRunPendingUpdateGrid();
         }
 
-        public void RunGravityAndRefill()
+        // Forces gravity + refill immediately, regardless of activeEffectCount.
+        // Waits if a grid cycle is already in progress.
+        public async UniTask ForceGridUpdate()
         {
-            if (suspendCounter > 0)
+            if (isApplyingGrid)
+            {
+                await UniTask.WaitUntil(() => !isApplyingGrid);
+                return;
+            }
+
+            isApplyingGrid = true;
+            try
+            {
+                gridRefill.ApplyGravity();
+                gridSpawner.SpawnNewCubeBlocks();
+                gridChecker.CheckAllGrid();
+                await UniTask.Yield();
+            }
+            finally
+            {
+                isApplyingGrid = false;
+            }
+        }
+
+        // ── Execution loop ─
+        private async UniTaskVoid ExecuteEffect(IBlockEffect effect)
+        {
+            try
+            {
+                BeginEffect();
+                await effect.Execute(effectExecutionContext, this);
+            }
+            finally
+            {
+                EndEffect();
+                TryCompleteRun();
+            }
+        }
+
+        private void TryRunPendingUpdateGrid()
+        {
+            if (!isGridUpdatePending || isApplyingGrid || activeEffectCount > 0 || suspendCounter > 0)
             {
                 return;
             }
 
-            gridRefill.ApplyGravity();
-            gridSpawner.SpawnNewCubeBlocks();
-            gridChecker.CheckAllGrid();
+            RunGravityAndRefill().Forget();
+        }
+
+        private async UniTaskVoid RunGravityAndRefill()
+        {
+            if (isApplyingGrid)
+            {
+                return;
+            }
+
+            isApplyingGrid = true;
+
+            try
+            {
+                if (isGridUpdatePending && suspendCounter == 0)
+                {
+                    isGridUpdatePending = false;
+
+                    gridRefill.ApplyGravity();
+                    gridSpawner.SpawnNewCubeBlocks();
+                    gridChecker.CheckAllGrid();
+
+                    await UniTask.Yield();
+                }
+            }
+            finally
+            {
+                isApplyingGrid = false;
+
+                if (isGridUpdatePending)
+                {
+                    TryRunPendingUpdateGrid();
+                }
+
+                TryCompleteRun();
+            }
+        }
+
+        private void TryCompleteRun()
+        {
+            if (activeEffectCount > 0 || suspendCounter > 0 || isApplyingGrid || isGridUpdatePending)
+            {
+                return;
+            }
+
+            IsProcessing = false;
         }
     }
 }

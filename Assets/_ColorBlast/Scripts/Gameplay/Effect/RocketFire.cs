@@ -21,9 +21,8 @@ namespace ColorBlast.Gameplay
         {
             var durationPerCell = 1f / rocketData.ProjectileSpeed;
             var spawnPos = new Vector3(originRow, originCol) * context.Config.CellUnitSize;
-            var concurrentChains = new List<UniTask>();
 
-            void OnHit(Block b) => HandleHit(b, context, chainSchedular, effectFactory, concurrentChains);
+            void OnHit(Block b) => HandleHit(b, context, chainSchedular, effectFactory);
 
             List<(Vector3, Block)> targets1, targets2;
             RocketProjectile projectile1, projectile2;
@@ -48,12 +47,6 @@ namespace ColorBlast.Gameplay
                 projectile2.Launch(targets2, durationPerCell, OnHit)
             );
 
-            // Wait for any specials that were triggered mid-flight
-            if (concurrentChains.Count > 0)
-            {
-                await UniTask.WhenAll(concurrentChains);
-            }
-
             ParticlePoolManager.Instance.ReturnParticle(rocketData.BlockType, projectile1);
             ParticlePoolManager.Instance.ReturnParticle(rocketData.BlockType, projectile2);
         }
@@ -62,8 +55,7 @@ namespace ColorBlast.Gameplay
         /// Special blocks fire immediately as concurrent tasks (chain reaction).
         /// Normal blocks are destroyed in place.
         /// </summary>
-        private static void HandleHit(Block block, EffectExecutionContext context, IChainSchedular chainSchedular, BlockEffectFactory effectFactory,
-            List<UniTask> concurrentChains)
+        private static void HandleHit(Block block, EffectExecutionContext context, IChainSchedular chainSchedular, BlockEffectFactory effectFactory)
         {
             if (block == null)
             {
@@ -73,7 +65,7 @@ namespace ColorBlast.Gameplay
             if (block is IActivatable && !chainSchedular.IsTriggered(block))
             {
                 chainSchedular.MarkTriggered(block);
-                concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
+                chainSchedular.TriggerEffect(effectFactory.CreateEffect(block));
             }
             else
             {

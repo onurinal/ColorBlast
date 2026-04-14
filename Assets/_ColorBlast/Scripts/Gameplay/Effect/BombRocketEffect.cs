@@ -26,8 +26,6 @@ namespace ColorBlast.Gameplay
         {
             try
             {
-                chainSchedular.BeginEffect();
-
                 foreach (var block in affectedSpecials)
                 {
                     chainSchedular.MarkTriggered(block);
@@ -68,7 +66,7 @@ namespace ColorBlast.Gameplay
             }
             finally
             {
-                chainSchedular.EndEffect();
+                await UniTask.CompletedTask;
             }
         }
     }

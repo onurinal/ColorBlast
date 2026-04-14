@@ -1,6 +1,4 @@
-using System;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
@@ -22,8 +20,6 @@ namespace ColorBlast.Gameplay
         {
             try
             {
-                chainSchedular.BeginEffect();
-
                 var rocket = (RocketBlock)Tapped;
                 chainSchedular.MarkTriggered(Tapped);
 
@@ -44,7 +40,7 @@ namespace ColorBlast.Gameplay
             }
             finally
             {
-                chainSchedular.EndEffect();
+                await UniTask.CompletedTask;
             }
         }
     }

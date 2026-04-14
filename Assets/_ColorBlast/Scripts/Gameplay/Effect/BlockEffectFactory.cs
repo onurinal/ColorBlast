@@ -24,7 +24,7 @@ namespace ColorBlast.Gameplay
         /// Creates an effect for a player-tapped block.
         /// Checks for combos first; falls back to single effect.
         /// </summary>
-        public IBlockEffect CreateFromPlayerTap(Block block)
+        public IBlockEffect CreateEffectFromPlayerTap(Block block)
         {
             if (block is IActivatable && comboDetector.TryDetect(block, out var combo))
             {

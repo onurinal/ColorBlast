@@ -20,8 +20,6 @@ namespace ColorBlast.Gameplay
         {
             try
             {
-                chainSchedular.BeginEffect();
-
                 var affected = new HashSet<Block>();
 
                 foreach (var block in affectedSpecials)
@@ -37,7 +35,7 @@ namespace ColorBlast.Gameplay
             }
             finally
             {
-                chainSchedular.EndEffect();
+                await UniTask.CompletedTask;
             }
         }
 
@@ -60,7 +58,6 @@ namespace ColorBlast.Gameplay
         {
             foreach (var block in affectedBlocks)
             {
-                // Debug.Log($"blockType = {block.BlockType} is not IActivatable");
                 context.TryDestroyBlock(block);
             }
         }

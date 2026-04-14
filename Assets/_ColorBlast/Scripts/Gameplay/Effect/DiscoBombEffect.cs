@@ -25,22 +25,37 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            await UpdateDiscoBombAffectedBlocks(context);
-
-            foreach (var block in affectedList)
+            try
             {
-                if (block == null || chainSchedular.IsTriggered(block))
+                chainSchedular.MarkTriggered(Tapped);
+
+                await UpdateDiscoBombAffectedBlocks(context);
+
+                foreach (var block in affectedList)
                 {
-                    continue;
+                    if (block == null || chainSchedular.IsTriggered(block))
+                    {
+                        continue;
+                    }
+
+                    chainSchedular.MarkTriggered(block);
                 }
 
-                chainSchedular.MarkTriggered(block);
-            }
+                foreach (var block in affectedList)
+                {
+                    if (block == null)
+                    {
+                        continue;
+                    }
 
-            for (int i = 0; i < affectedList.Count; i++)
+                    await chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block));
+                    await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
+                    await chainSchedular.ForceGridUpdate();
+                }
+            }
+            finally
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
-                effectFactory.CreateEffect(affectedList[i]).Execute(context, chainSchedular).Forget();
+                await UniTask.CompletedTask;
             }
         }
 
@@ -60,48 +75,55 @@ namespace ColorBlast.Gameplay
         private async UniTask TransformByDisco(EffectExecutionContext context, BlockData bombBlock,
             DiscoBlock discoBlock)
         {
-            var targetCube = discoBlock.TargetCubeData;
-
-            if (targetCube == null)
+            try
             {
-                return;
-            }
+                var targetCube = discoBlock.TargetCubeData;
 
-            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
-            {
-                for (int row = 0; row < context.LevelProperties.RowCount; row++)
+                if (targetCube == null)
                 {
-                    var block = context.BlockGrid[row, col];
+                    return;
+                }
 
-                    if (block != null && block.BlockData == targetCube)
+                for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+                {
+                    for (int row = 0; row < context.LevelProperties.RowCount; row++)
                     {
-                        context.TryRemoveBlock(block);
-                        var newBlock = context.SpawnBlockAt(bombBlock, row, col);
-                        await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
+                        var block = context.BlockGrid[row, col];
+
+                        if (block != null && block.BlockData == targetCube)
+                        {
+                            context.TryRemoveBlock(block);
+                            var newBlock = context.SpawnBlockAt(bombBlock, row, col);
+                            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
+                        }
+                    }
+                }
+
+                foreach (var block in affectedSpecials)
+                {
+                    var row = block.GridX;
+                    var col = block.GridY;
+
+                    context.TryRemoveBlock(block);
+                    var newBlock = context.SpawnBlockAt(bombBlock, row, col);
+                    await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
+                }
+
+                for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
+                {
+                    for (int row = 0; row < context.LevelProperties.RowCount; row++)
+                    {
+                        var block = context.BlockGrid[row, col];
+                        if (block.BlockData == bombBlock)
+                        {
+                            affectedList.Add(block);
+                        }
                     }
                 }
             }
-
-            foreach (var block in affectedSpecials)
+            finally
             {
-                var row = block.GridX;
-                var col = block.GridY;
-
-                context.TryRemoveBlock(block);
-                var newBlock = context.SpawnBlockAt(bombBlock, row, col);
-                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
-            }
-
-            for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
-            {
-                for (int row = 0; row < context.LevelProperties.RowCount; row++)
-                {
-                    var block = context.BlockGrid[row, col];
-                    if (block.BlockData == bombBlock)
-                    {
-                        affectedList.Add(block);
-                    }
-                }
+                await UniTask.CompletedTask;
             }
         }
     }

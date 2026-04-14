@@ -21,7 +21,6 @@ namespace ColorBlast.Gameplay
         {
             try
             {
-                chainSchedular.BeginEffect();
                 chainSchedular.SuspendGrid();
 
                 var discoBall = (DiscoBlock)Tapped;
@@ -70,7 +69,6 @@ namespace ColorBlast.Gameplay
             finally
             {
                 chainSchedular.ResumeGrid();
-                chainSchedular.EndEffect();
             }
         }
 

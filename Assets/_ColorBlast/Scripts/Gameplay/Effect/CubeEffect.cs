@@ -22,8 +22,6 @@ namespace ColorBlast.Gameplay
         {
             try
             {
-                chainSchedular.BeginEffect();
-
                 var group = gridChecker.GetGroupAt(Tapped.GridX, Tapped.GridY);
 
                 if (group == null || group.Count < config.MatchThreshold)
@@ -53,7 +51,7 @@ namespace ColorBlast.Gameplay
             }
             finally
             {
-                chainSchedular.EndEffect();
+                await UniTask.CompletedTask;
             }
         }
 

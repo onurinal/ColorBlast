@@ -71,8 +71,8 @@ namespace ColorBlast.Manager
                 return;
             }
 
-            var effect = effectFactory.CreateFromPlayerTap(block);
-            effectPipeline.EnqueueFromPlayer(effect);
+            var effect = effectFactory.CreateEffectFromPlayerTap(block);
+            effectPipeline.TriggerEffectFromPlayer(effect);
         }
 
         private void InitializeSystems()

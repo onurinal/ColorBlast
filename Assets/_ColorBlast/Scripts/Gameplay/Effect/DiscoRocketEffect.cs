@@ -27,15 +27,16 @@ namespace ColorBlast.Gameplay
         {
             await UpdateDiscoRocketAffectedBlocks(context);
 
-            for (int i = 0; i < affectedList.Count; i++)
+            foreach (var block in affectedList)
             {
-                if (affectedList[i] == null || chainSchedular.IsTriggered(affectedList[i]))
+                if (block == null || chainSchedular.IsTriggered(block))
                 {
                     continue;
                 }
 
-                chainSchedular.MarkTriggered(affectedList[i]);
-                await effectFactory.CreateEffect(affectedList[i]).Execute(context, chainSchedular);
+                chainSchedular.MarkTriggered(block);
+                await chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block));
+                await chainSchedular.ForceGridUpdate();
             }
         }
 

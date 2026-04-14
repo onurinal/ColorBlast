@@ -19,26 +19,17 @@ namespace ColorBlast.Gameplay
         {
             try
             {
-                chainSchedular.BeginEffect();
-
                 var bombData = (BombBlockData)Tapped.BlockData;
                 var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
 
                 chainSchedular.MarkTriggered(Tapped);
                 context.ParticleService.PlayBombEffect(Tapped);
 
-                var concurrentChains = new List<UniTask>();
-
-                ProcessAffected(context, chainSchedular, affected, concurrentChains);
-
-                if (concurrentChains.Count > 0)
-                {
-                    await UniTask.WhenAll(concurrentChains);
-                }
+                ProcessAffected(context, chainSchedular, affected);
             }
             finally
             {
-                chainSchedular.EndEffect();
+                await UniTask.CompletedTask;
             }
         }
 
@@ -64,15 +55,14 @@ namespace ColorBlast.Gameplay
         /// Normal blocks → destroy.
         /// Special blocks (not yet triggered) → enqueue chain their effect.
         /// </summary>
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> affected,
-            List<UniTask> concurrentChains)
+        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> affected)
         {
             foreach (var block in affected)
             {
                 if (block is IActivatable && !chainSchedular.IsTriggered(block))
                 {
                     chainSchedular.MarkTriggered(block);
-                    concurrentChains.Add(effectFactory.CreateEffect(block).Execute(context, chainSchedular));
+                    chainSchedular.TriggerEffect(effectFactory.CreateEffect(block));
                 }
                 else
                 {
