@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -82,19 +83,7 @@ namespace ColorBlast.Gameplay
             }
 
             IsProcessing = true;
-            await effect.Execute(effectExecutionContext, this);
-        }
-
-        public void BeginEffect()
-        {
-            activeEffectCount++;
-        }
-
-        public void EndEffect()
-        {
-            activeEffectCount = Mathf.Max(0, activeEffectCount - 1);
-            isGridUpdatePending = true;
-            TryRunPendingUpdateGrid();
+            await ExecuteEffect(effect);
         }
 
         public void SuspendGrid()
@@ -112,19 +101,10 @@ namespace ColorBlast.Gameplay
         // Waits if a grid cycle is already in progress.
         public async UniTask ForceGridUpdate()
         {
-            if (isApplyingGrid)
-            {
-                await UniTask.WaitUntil(() => !isApplyingGrid);
-                return;
-            }
-
-            isApplyingGrid = true;
             try
             {
-                gridRefill.ApplyGravity();
-                gridSpawner.SpawnNewCubeBlocks();
-                gridChecker.CheckAllGrid();
-                await UniTask.Yield();
+                isApplyingGrid = true;
+                await UpdateGrid();
             }
             finally
             {
@@ -133,7 +113,7 @@ namespace ColorBlast.Gameplay
         }
 
         // ── Execution loop ─
-        private async UniTaskVoid ExecuteEffect(IBlockEffect effect)
+        private async UniTask ExecuteEffect(IBlockEffect effect)
         {
             try
             {
@@ -147,6 +127,18 @@ namespace ColorBlast.Gameplay
             }
         }
 
+        private void BeginEffect()
+        {
+            activeEffectCount++;
+        }
+
+        private void EndEffect()
+        {
+            activeEffectCount = Mathf.Max(0, activeEffectCount - 1);
+            isGridUpdatePending = true;
+            TryRunPendingUpdateGrid();
+        }
+
         private void TryRunPendingUpdateGrid()
         {
             if (!isGridUpdatePending || isApplyingGrid || activeEffectCount > 0 || suspendCounter > 0)
@@ -154,10 +146,10 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
-            RunGravityAndRefill().Forget();
+            RunGridUpdate().Forget();
         }
 
-        private async UniTaskVoid RunGravityAndRefill()
+        private async UniTaskVoid RunGridUpdate()
         {
             if (isApplyingGrid)
             {
@@ -172,24 +164,23 @@ namespace ColorBlast.Gameplay
                 {
                     isGridUpdatePending = false;
 
-                    gridRefill.ApplyGravity();
-                    gridSpawner.SpawnNewCubeBlocks();
-                    gridChecker.CheckAllGrid();
-
-                    await UniTask.Yield();
+                    await UpdateGrid();
                 }
             }
             finally
             {
                 isApplyingGrid = false;
-
-                if (isGridUpdatePending)
-                {
-                    TryRunPendingUpdateGrid();
-                }
-
                 TryCompleteRun();
             }
+        }
+
+        private async UniTask UpdateGrid()
+        {
+            gridRefill.ApplyGravity();
+            gridSpawner.SpawnNewCubeBlocks();
+            gridChecker.CheckAllGrid();
+
+            await UniTask.Yield();
         }
 
         private void TryCompleteRun()

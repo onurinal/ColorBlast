@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -17,19 +18,35 @@ namespace ColorBlast.Gameplay
 
         public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
         {
-            try
+            var bombData = (BombBlockData)Tapped.BlockData;
+            var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
+
+            chainSchedular.MarkTriggered(Tapped);
+            await context.ParticleService.PlayBombEffect(Tapped);
+
+            List<Block> specialBlocksToChain = new();
+
+            foreach (var block in affected)
             {
-                var bombData = (BombBlockData)Tapped.BlockData;
-                var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
-
-                chainSchedular.MarkTriggered(Tapped);
-                context.ParticleService.PlayBombEffect(Tapped);
-
-                ProcessAffected(context, chainSchedular, affected);
+                if (block is IActivatable && !chainSchedular.IsTriggered(block))
+                {
+                    chainSchedular.MarkTriggered(block);
+                    specialBlocksToChain.Add(block);
+                }
+                else
+                {
+                    context.TryDestroyBlock(block);
+                }
             }
-            finally
+
+            foreach (var block in specialBlocksToChain)
             {
-                await UniTask.CompletedTask;
+                // if (block.BlockType == BlockType.Bomb)
+                // {
+                //     await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
+                // }
+
+                chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block)).Forget();
             }
         }
 
@@ -49,26 +66,6 @@ namespace ColorBlast.Gameplay
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Normal blocks → destroy.
-        /// Special blocks (not yet triggered) → enqueue chain their effect.
-        /// </summary>
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular, List<Block> affected)
-        {
-            foreach (var block in affected)
-            {
-                if (block is IActivatable && !chainSchedular.IsTriggered(block))
-                {
-                    chainSchedular.MarkTriggered(block);
-                    chainSchedular.TriggerEffect(effectFactory.CreateEffect(block));
-                }
-                else
-                {
-                    context.TryDestroyBlock(block);
-                }
-            }
         }
     }
 }

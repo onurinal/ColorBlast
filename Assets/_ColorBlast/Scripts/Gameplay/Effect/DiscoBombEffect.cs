@@ -27,8 +27,6 @@ namespace ColorBlast.Gameplay
         {
             try
             {
-                chainSchedular.MarkTriggered(Tapped);
-
                 await UpdateDiscoBombAffectedBlocks(context);
 
                 foreach (var block in affectedList)
@@ -39,17 +37,8 @@ namespace ColorBlast.Gameplay
                     }
 
                     chainSchedular.MarkTriggered(block);
-                }
-
-                foreach (var block in affectedList)
-                {
-                    if (block == null)
-                    {
-                        continue;
-                    }
-
-                    await chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block));
                     await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
+                    await chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block));
                     await chainSchedular.ForceGridUpdate();
                 }
             }

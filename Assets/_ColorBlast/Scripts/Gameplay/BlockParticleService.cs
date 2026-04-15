@@ -15,11 +15,13 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        public void PlayBombEffect(Block block)
+        public async UniTask PlayBombEffect(Block block)
         {
             var particle = ParticlePoolManager.Instance.GetParticle(block.BlockData);
             var particleDuration = particle.GetParticleDuration();
             particle.transform.position = block.transform.position;
+
+            await UniTask.Delay(TimeSpan.FromSeconds(particleDuration / 6f));
 
             ReturnToPool(BlockType.Bomb, particle, particleDuration).Forget();
         }
