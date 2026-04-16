@@ -16,32 +16,25 @@ namespace ColorBlast.Gameplay
             this.directionOverride = directionOverride;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            try
+            var rocket = (RocketBlock)Tapped;
+            effectSchedular.MarkTriggered(Tapped);
+
+            context.TryRemoveBlock(rocket);
+
+            RocketDirection rocketDirection;
+
+            if (directionOverride != null)
             {
-                var rocket = (RocketBlock)Tapped;
-                chainSchedular.MarkTriggered(Tapped);
-
-                context.TryRemoveBlock(rocket);
-
-                RocketDirection rocketDirection;
-
-                if (directionOverride != null)
-                {
-                    rocketDirection = directionOverride.Value;
-                }
-                else
-                {
-                    rocketDirection = rocket.Direction;
-                }
-
-                await RocketFire.Execute(rocket.GridX, rocket.GridY, rocketDirection, rocket.RocketBlockData, context, chainSchedular, effectFactory);
+                rocketDirection = directionOverride.Value;
             }
-            finally
+            else
             {
-                await UniTask.CompletedTask;
+                rocketDirection = rocket.Direction;
             }
+
+            await RocketFire.Execute(rocket.GridX, rocket.GridY, rocketDirection, rocket.RocketBlockData, context, effectSchedular, effectFactory);
         }
     }
 }

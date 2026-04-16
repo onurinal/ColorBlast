@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -20,25 +19,20 @@ namespace ColorBlast.Gameplay
             this.effectFactory = effectFactory;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            try
-            {
-                var affected = new HashSet<Block>();
+            var affected = new HashSet<Block>();
 
-                foreach (var block in affectedSpecials)
-                {
-                    chainSchedular.MarkTriggered(block);
-                    affected.Add(block);
-                }
-
-                UpdateBombBombAffectedBlocks(context, affected);
-                ProcessAffected(context, chainSchedular, affected);
-            }
-            finally
+            foreach (var block in affectedSpecials)
             {
-                await UniTask.CompletedTask;
+                effectSchedular.MarkTriggered(block);
+                affected.Add(block);
             }
+
+            UpdateBombBombAffectedBlocks(context, affected);
+            ProcessAffected(context, effectSchedular, affected);
+
+            return UniTask.CompletedTask;
         }
 
         private void UpdateBombBombAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)
@@ -63,15 +57,15 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        private void ProcessAffected(EffectExecutionContext context, IChainSchedular chainSchedular,
+        private void ProcessAffected(EffectExecutionContext context, IEffectSchedular effectSchedular,
             HashSet<Block> affectedBlocks)
         {
             foreach (var block in affectedBlocks)
             {
-                if (block is IActivatable && !chainSchedular.IsTriggered(block))
+                if (block is IActivatable && !effectSchedular.IsTriggered(block))
                 {
-                    chainSchedular.MarkTriggered(block);
-                    chainSchedular.TriggerEffect(effectFactory.CreateEffect(block));
+                    effectSchedular.MarkTriggered(block);
+                    effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
                 }
                 else
                 {

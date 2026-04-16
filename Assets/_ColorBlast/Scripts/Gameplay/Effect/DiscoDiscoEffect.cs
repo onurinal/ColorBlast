@@ -16,27 +16,20 @@ namespace ColorBlast.Gameplay
             affectedSpecials = comboResult.AffectedSpecials;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            try
+            var affected = new HashSet<Block>();
+
+            foreach (var block in affectedSpecials)
             {
-                var affected = new HashSet<Block>();
-
-                foreach (var block in affectedSpecials)
-                {
-                    chainSchedular.MarkTriggered(block);
-                    affected.Add(block);
-                }
-
-                UpdateDiscoDiscoAffectedBlocks(context, affected);
-                ProcessAffected(context, affected);
-
-                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
+                effectSchedular.MarkTriggered(block);
+                affected.Add(block);
             }
-            finally
-            {
-                await UniTask.CompletedTask;
-            }
+
+            UpdateDiscoDiscoAffectedBlocks(context, affected);
+            ProcessAffected(context, affected);
+
+            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DestroyDuration));
         }
 
         private void UpdateDiscoDiscoAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)

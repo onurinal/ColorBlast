@@ -22,52 +22,45 @@ namespace ColorBlast.Gameplay
             this.effectFactory = effectFactory;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            try
+            foreach (var block in affectedSpecials)
             {
-                foreach (var block in affectedSpecials)
-                {
-                    chainSchedular.MarkTriggered(block);
-                    context.TryRemoveBlock(block);
-                }
-
-                var bombBlock = best.BlockType == BlockType.Bomb ? best : partner;
-                var rocketBlock = best.BlockType == BlockType.Rocket ? best : partner;
-                var bombData = (BombBlockData)bombBlock.BlockData;
-                var rocketData = (RocketBlockData)rocketBlock.BlockData;
-
-                var radius = bombData.Radius;
-                var centerRow = Tapped.GridX;
-                var centerCol = Tapped.GridY;
-                var tasks = new List<UniTask>();
-
-                for (int row = centerRow - radius; row <= centerRow + radius; row++)
-                {
-                    if (!context.IsInBounds(row, centerCol))
-                    {
-                        continue;
-                    }
-
-                    tasks.Add(RocketFire.Execute(row, centerCol, RocketDirection.Vertical, rocketData, context, chainSchedular, effectFactory));
-                }
-
-                for (int col = centerCol - radius; col <= centerCol + radius; col++)
-                {
-                    if (!context.IsInBounds(centerRow, col))
-                    {
-                        continue;
-                    }
-
-                    tasks.Add(RocketFire.Execute(centerRow, col, RocketDirection.Horizontal, rocketData, context, chainSchedular, effectFactory));
-                }
-
-                await UniTask.WhenAll(tasks);
+                effectSchedular.MarkTriggered(block);
+                context.TryRemoveBlock(block);
             }
-            finally
+
+            var bombBlock = best.BlockType == BlockType.Bomb ? best : partner;
+            var rocketBlock = best.BlockType == BlockType.Rocket ? best : partner;
+            var bombData = (BombBlockData)bombBlock.BlockData;
+            var rocketData = (RocketBlockData)rocketBlock.BlockData;
+
+            var radius = bombData.Radius;
+            var centerRow = Tapped.GridX;
+            var centerCol = Tapped.GridY;
+            var tasks = new List<UniTask>();
+
+            for (int row = centerRow - radius; row <= centerRow + radius; row++)
             {
-                await UniTask.CompletedTask;
+                if (!context.IsInBounds(row, centerCol))
+                {
+                    continue;
+                }
+
+                tasks.Add(RocketFire.Execute(row, centerCol, RocketDirection.Vertical, rocketData, context, effectSchedular, effectFactory));
             }
+
+            for (int col = centerCol - radius; col <= centerCol + radius; col++)
+            {
+                if (!context.IsInBounds(centerRow, col))
+                {
+                    continue;
+                }
+
+                tasks.Add(RocketFire.Execute(centerRow, col, RocketDirection.Horizontal, rocketData, context, effectSchedular, effectFactory));
+            }
+
+            await UniTask.WhenAll(tasks);
         }
     }
 }

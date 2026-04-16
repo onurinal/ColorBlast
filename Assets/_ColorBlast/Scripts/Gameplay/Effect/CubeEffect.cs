@@ -18,40 +18,33 @@ namespace ColorBlast.Gameplay
             this.config = config;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            try
+            var group = gridChecker.GetGroupAt(Tapped.GridX, Tapped.GridY);
+
+            if (group == null || group.Count < config.MatchThreshold)
             {
-                var group = gridChecker.GetGroupAt(Tapped.GridX, Tapped.GridY);
-
-                if (group == null || group.Count < config.MatchThreshold)
-                {
-                    return;
-                }
-
-                var cubeData = (CubeBlockData)Tapped.BlockData;
-                var rewardState = cubeData.GetRewardState(group.Count);
-
-                int rewardRow = Tapped.GridX;
-                int rewardCol = Tapped.GridY;
-
-                foreach (var block in group)
-                {
-                    context.TryDestroyBlock(block);
-                }
-
-                await UniTask.Delay(TimeSpan.FromSeconds(config.DestroyDuration));
-
-                if (rewardState?.RewardBlockData != null)
-                {
-                    var sprite = ResolveRewardSprite(cubeData, rewardState.RewardBlockData);
-                    context.SpawnBlockAt(rewardState.RewardBlockData, rewardRow, rewardCol,
-                        sprite, Tapped.BlockData);
-                }
+                return;
             }
-            finally
+
+            var cubeData = (CubeBlockData)Tapped.BlockData;
+            var rewardState = cubeData.GetRewardState(group.Count);
+
+            int rewardRow = Tapped.GridX;
+            int rewardCol = Tapped.GridY;
+
+            foreach (var block in group)
             {
-                await UniTask.CompletedTask;
+                context.TryDestroyBlock(block);
+            }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(config.DestroyDuration));
+
+            if (rewardState?.RewardBlockData != null)
+            {
+                var sprite = ResolveRewardSprite(cubeData, rewardState.RewardBlockData);
+                context.SpawnBlockAt(rewardState.RewardBlockData, rewardRow, rewardCol,
+                    sprite, Tapped.BlockData);
             }
         }
 

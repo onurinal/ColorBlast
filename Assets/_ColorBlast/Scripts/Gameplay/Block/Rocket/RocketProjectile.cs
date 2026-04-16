@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ColorBlast.Manager;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -10,14 +11,15 @@ namespace ColorBlast.Gameplay
     {
         [SerializeField] private SpriteRenderer spriteRenderer;
 
-        private Tween activeTween;
+        private BlockType blockType;
         private RocketProjectileDirection direction;
-        private readonly int maxCellDestination = 5;
+        private readonly int maxCellDestination = 10;
 
-        public void SetupVisual(Sprite sprite, RocketProjectileDirection direction)
+        public void SetupVisual(Sprite sprite, RocketProjectileDirection direction, BlockType blockType)
         {
             spriteRenderer.sprite = sprite;
             this.direction = direction;
+            this.blockType = blockType;
         }
 
         public async UniTask Launch(IReadOnlyList<(Vector3 worldPos, Block block)> steps, float durationPerCell,
@@ -25,24 +27,20 @@ namespace ColorBlast.Gameplay
         {
             foreach (var (worldPos, block) in steps)
             {
-                activeTween = transform.DOMove(worldPos, durationPerCell).SetEase(Ease.Linear);
+                var activeTween = transform.DOMove(worldPos, durationPerCell).SetEase(Ease.Linear);
                 await activeTween.ToUniTask();
                 onArriveAtCell?.Invoke(block);
             }
 
-            for (int i = 0; i < maxCellDestination; i++)
-            {
-                var targetPos = GetTargetPosition(transform.position);
-                activeTween = transform.DOMove(targetPos, durationPerCell).SetEase(Ease.Linear);
-                await activeTween.ToUniTask();
-            }
+            FlyOffScreenAndReturn(durationPerCell).Forget();
         }
 
         public override void OnDespawn()
         {
             base.OnDespawn();
-            transform.position = new Vector3(0, 0, 0);
-            activeTween?.Kill();
+
+            DOTween.Kill(transform);
+            transform.position = Vector3.zero;
         }
 
         private Vector3 GetTargetPosition(Vector3 worldPos)
@@ -55,6 +53,22 @@ namespace ColorBlast.Gameplay
                 RocketProjectileDirection.Down => worldPos + (Vector3.down),
                 _ => throw new ArgumentOutOfRangeException()
             };
+        }
+
+        /// <summary>
+        /// Continues flying off-screen then returns itself to the pool.
+        /// Call as fire-and-forget after LaunchImpact completes.
+        /// </summary>
+        private async UniTaskVoid FlyOffScreenAndReturn(float durationPerCell)
+        {
+            for (int i = 0; i < maxCellDestination; i++)
+            {
+                var targetPos = GetTargetPosition(transform.position);
+                var activeTween = transform.DOMove(targetPos, durationPerCell).SetEase(Ease.Linear);
+                await activeTween.ToUniTask();
+            }
+
+            ParticlePoolManager.Instance.ReturnParticle(blockType, this);
         }
     }
 }

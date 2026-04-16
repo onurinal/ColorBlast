@@ -7,6 +7,6 @@ namespace ColorBlast.Gameplay
     /// </summary>
     public interface IBlockEffect
     {
-        UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular);
+        UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular);
     }
 }

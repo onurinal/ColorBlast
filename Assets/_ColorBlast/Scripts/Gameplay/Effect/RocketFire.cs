@@ -16,13 +16,13 @@ namespace ColorBlast.Gameplay
             RocketDirection direction,
             RocketBlockData rocketData,
             EffectExecutionContext context,
-            IChainSchedular chainSchedular,
+            IEffectSchedular effectSchedular,
             BlockEffectFactory effectFactory)
         {
             var durationPerCell = 1f / rocketData.ProjectileSpeed;
             var spawnPos = new Vector3(originRow, originCol) * context.Config.CellUnitSize;
 
-            void OnHit(Block b) => HandleHit(b, context, chainSchedular, effectFactory);
+            void OnHit(Block b) => HandleHit(b, context, effectSchedular, effectFactory);
 
             List<(Vector3, Block)> targets1, targets2;
             RocketProjectile projectile1, projectile2;
@@ -47,25 +47,25 @@ namespace ColorBlast.Gameplay
                 projectile2.Launch(targets2, durationPerCell, OnHit)
             );
 
-            ParticlePoolManager.Instance.ReturnParticle(rocketData.BlockType, projectile1);
-            ParticlePoolManager.Instance.ReturnParticle(rocketData.BlockType, projectile2);
+            // projectile1.FlyOffScreenAndReturn(durationPerCell, rocketData.BlockType).Forget();
+            // projectile2.FlyOffScreenAndReturn(durationPerCell, rocketData.BlockType).Forget();
         }
 
         /// <summary>
         /// Special blocks fire immediately as concurrent tasks (chain reaction).
         /// Normal blocks are destroyed in place.
         /// </summary>
-        private static void HandleHit(Block block, EffectExecutionContext context, IChainSchedular chainSchedular, BlockEffectFactory effectFactory)
+        private static void HandleHit(Block block, EffectExecutionContext context, IEffectSchedular effectSchedular, BlockEffectFactory effectFactory)
         {
             if (block == null)
             {
                 return;
             }
 
-            if (block is IActivatable && !chainSchedular.IsTriggered(block))
+            if (block is IActivatable && !effectSchedular.IsTriggered(block))
             {
-                chainSchedular.MarkTriggered(block);
-                chainSchedular.TriggerEffect(effectFactory.CreateEffect(block));
+                effectSchedular.MarkTriggered(block);
+                effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
             }
             else
             {
@@ -87,10 +87,7 @@ namespace ColorBlast.Gameplay
             {
                 var block = context.BlockGrid[row, col];
 
-                if (block != null)
-                {
-                    result.Add((new Vector3(row, col) * cellSize, block));
-                }
+                result.Add((new Vector3(row, col) * cellSize, block));
 
                 row += offRow;
                 col += offCol;
@@ -109,7 +106,7 @@ namespace ColorBlast.Gameplay
             }
 
             projectile.transform.position = position;
-            projectile.SetupVisual(sprite, direction);
+            projectile.SetupVisual(sprite, direction, data.BlockType);
             return projectile;
         }
     }

@@ -21,4 +21,4 @@ MonoBehaviour:
   shuffleDuration: 2
   spawnDurationBetweenSpecials: 0.05
   discoBallAnimationDuration: 1
-  bombChainDelay: 1
+  bombChainDelay: 0.15

@@ -16,7 +16,7 @@ namespace ColorBlast.Gameplay
             this.effectFactory = effectFactory;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
             foreach (var block in affectedSpecials)
             {
@@ -24,8 +24,8 @@ namespace ColorBlast.Gameplay
             }
 
             await UniTask.WhenAll(
-                new RocketEffect(Tapped, effectFactory, RocketDirection.Horizontal).Execute(context, chainSchedular),
-                new RocketEffect(Tapped, effectFactory, RocketDirection.Vertical).Execute(context, chainSchedular)
+                new RocketEffect(Tapped, effectFactory, RocketDirection.Horizontal).Execute(context, effectSchedular),
+                new RocketEffect(Tapped, effectFactory, RocketDirection.Vertical).Execute(context, effectSchedular)
             );
         }
     }

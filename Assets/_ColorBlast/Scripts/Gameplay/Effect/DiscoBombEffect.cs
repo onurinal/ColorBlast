@@ -11,7 +11,7 @@ namespace ColorBlast.Gameplay
         private readonly Block best;
         private readonly Block partner;
         private readonly HashSet<Block> affectedSpecials;
-        private readonly List<Block> affectedList = new(); // for execution order
+        private readonly List<Block> orderedBombs = new(); // for execution order
         private readonly BlockEffectFactory effectFactory;
 
         public DiscoBombEffect(ComboResult comboResult, BlockEffectFactory effectFactory)
@@ -23,28 +23,19 @@ namespace ColorBlast.Gameplay
             this.effectFactory = effectFactory;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            try
-            {
-                await UpdateDiscoBombAffectedBlocks(context);
+            await UpdateDiscoBombAffectedBlocks(context);
 
-                foreach (var block in affectedList)
+            foreach (var block in orderedBombs)
+            {
+                if (block == null || effectSchedular.IsTriggered(block))
                 {
-                    if (block == null || chainSchedular.IsTriggered(block))
-                    {
-                        continue;
-                    }
-
-                    chainSchedular.MarkTriggered(block);
-                    await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
-                    await chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block));
-                    await chainSchedular.ForceGridUpdate();
+                    continue;
                 }
-            }
-            finally
-            {
-                await UniTask.CompletedTask;
+
+                effectSchedular.MarkTriggered(block);
+                await effectSchedular.TriggerSequential(effectFactory.CreateEffect(block));
             }
         }
 
@@ -105,7 +96,7 @@ namespace ColorBlast.Gameplay
                         var block = context.BlockGrid[row, col];
                         if (block.BlockData == bombBlock)
                         {
-                            affectedList.Add(block);
+                            orderedBombs.Add(block);
                         }
                     }
                 }

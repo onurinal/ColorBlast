@@ -8,30 +8,31 @@ namespace ColorBlast.Gameplay
     /// <summary>
     /// Handles chain reactions, deduplication and post-effect grid operations.
     /// </summary>
-    public class EffectPipeline : IChainSchedular
+    public class EffectPipeline : IEffectSchedular
     {
         private readonly HashSet<Block> triggered = new();
 
         private GridRefill gridRefill;
         private GridSpawner gridSpawner;
         private GridChecker gridChecker;
-        private EffectExecutionContext effectExecutionContext;
+        private EffectExecutionContext context;
 
-        private int suspendCounter = 0; // increase when any disco ball trigger
-        private int activeEffectCount = 0; // increase any effect trigger
-        private bool isApplyingGrid = false; // to understand gravity and refill is processing or not
-        private bool isGridUpdatePending = false;
-        public bool IsProcessing { get; private set; }
+        private int activeEffectCount; // increase any effect trigger
+        private int pendingGridUpdates;
+        private bool isUpdatingGrid; // to understand gravity and refill is processing or not
+
+        public bool IsProcessing => activeEffectCount > 0 || pendingGridUpdates > 0 || isUpdatingGrid;
 
         public void Initialize(GridRefill gridRefill, GridSpawner gridSpawner, GridChecker gridChecker,
-            EffectExecutionContext effectExecutionContext)
+            EffectExecutionContext context)
         {
             this.gridRefill = gridRefill;
             this.gridSpawner = gridSpawner;
             this.gridChecker = gridChecker;
-            this.effectExecutionContext = effectExecutionContext;
+            this.context = context;
         }
 
+        // ─ Player entry point ─
         public void TriggerEffectFromPlayer(IBlockEffect effect)
         {
             if (effect == null || IsProcessing)
@@ -40,15 +41,14 @@ namespace ColorBlast.Gameplay
             }
 
             triggered.Clear();
-            suspendCounter = 0;
             activeEffectCount = 0;
-            isGridUpdatePending = false;
-            isApplyingGrid = false;
-            IsProcessing = true;
+            pendingGridUpdates = 0;
+            isUpdatingGrid = false;
 
-            TriggerEffect(effect);
+            ExecuteEffect(effect).Forget();
         }
 
+        // ── IEffectScheduler ───
         public bool IsTriggered(Block block)
         {
             return block != null && triggered.Contains(block);
@@ -64,113 +64,73 @@ namespace ColorBlast.Gameplay
             triggered.Add(block);
         }
 
-        public void TriggerEffect(IBlockEffect effect)
+        public void TriggerConcurrent(IBlockEffect effect)
         {
             if (effect == null)
             {
                 return;
             }
 
-            IsProcessing = true;
             ExecuteEffect(effect).Forget();
         }
 
-        public async UniTask TriggerEffectAsync(IBlockEffect effect)
+        public async UniTask TriggerSequential(IBlockEffect effect)
         {
             if (effect == null)
             {
                 return;
             }
 
-            IsProcessing = true;
             await ExecuteEffect(effect);
-        }
-
-        public void SuspendGrid()
-        {
-            suspendCounter++;
-        }
-
-        public void ResumeGrid()
-        {
-            suspendCounter = Mathf.Max(0, suspendCounter - 1);
-            TryRunPendingUpdateGrid();
-        }
-
-        // Forces gravity + refill immediately, regardless of activeEffectCount.
-        // Waits if a grid cycle is already in progress.
-        public async UniTask ForceGridUpdate()
-        {
-            try
-            {
-                isApplyingGrid = true;
-                await UpdateGrid();
-            }
-            finally
-            {
-                isApplyingGrid = false;
-            }
+            await WaitForGridIdle();
         }
 
         // ── Execution loop ─
         private async UniTask ExecuteEffect(IBlockEffect effect)
         {
+            activeEffectCount++;
+
             try
             {
-                BeginEffect();
-                await effect.Execute(effectExecutionContext, this);
+                await effect.Execute(context, this);
+            }
+            catch (Exception a)
+            {
+                Debug.LogError($"[EffectPipeline] {effect.GetType().Name} threw: {a}");
             }
             finally
             {
-                EndEffect();
-                TryCompleteRun();
+                activeEffectCount--;
+                TryGridUpdate();
             }
         }
 
-        private void BeginEffect()
+        private void TryGridUpdate()
         {
-            activeEffectCount++;
-        }
+            pendingGridUpdates++;
 
-        private void EndEffect()
-        {
-            activeEffectCount = Mathf.Max(0, activeEffectCount - 1);
-            isGridUpdatePending = true;
-            TryRunPendingUpdateGrid();
-        }
-
-        private void TryRunPendingUpdateGrid()
-        {
-            if (!isGridUpdatePending || isApplyingGrid || activeEffectCount > 0 || suspendCounter > 0)
+            if (isUpdatingGrid)
             {
                 return;
             }
 
+            isUpdatingGrid = true;
             RunGridUpdate().Forget();
         }
 
         private async UniTaskVoid RunGridUpdate()
         {
-            if (isApplyingGrid)
-            {
-                return;
-            }
-
-            isApplyingGrid = true;
-
             try
             {
-                if (isGridUpdatePending && suspendCounter == 0)
+                while (pendingGridUpdates > 0)
                 {
-                    isGridUpdatePending = false;
-
+                    pendingGridUpdates = 0;
                     await UpdateGrid();
                 }
             }
             finally
             {
-                isApplyingGrid = false;
-                TryCompleteRun();
+                isUpdatingGrid = false;
             }
         }
 
@@ -183,14 +143,12 @@ namespace ColorBlast.Gameplay
             await UniTask.Yield();
         }
 
-        private void TryCompleteRun()
+        private async UniTask WaitForGridIdle()
         {
-            if (activeEffectCount > 0 || suspendCounter > 0 || isApplyingGrid || isGridUpdatePending)
+            while (isUpdatingGrid || pendingGridUpdates > 0)
             {
-                return;
+                await UniTask.Yield();
             }
-
-            IsProcessing = false;
         }
     }
 }

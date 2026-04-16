@@ -16,37 +16,25 @@ namespace ColorBlast.Gameplay
             this.effectFactory = effectFactory;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
             var bombData = (BombBlockData)Tapped.BlockData;
             var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
 
-            chainSchedular.MarkTriggered(Tapped);
+            effectSchedular.MarkTriggered(Tapped);
             await context.ParticleService.PlayBombEffect(Tapped);
-
-            List<Block> specialBlocksToChain = new();
 
             foreach (var block in affected)
             {
-                if (block is IActivatable && !chainSchedular.IsTriggered(block))
+                if (block is IActivatable && !effectSchedular.IsTriggered(block))
                 {
-                    chainSchedular.MarkTriggered(block);
-                    specialBlocksToChain.Add(block);
+                    effectSchedular.MarkTriggered(block);
+                    effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
                 }
                 else
                 {
                     context.TryDestroyBlock(block);
                 }
-            }
-
-            foreach (var block in specialBlocksToChain)
-            {
-                // if (block.BlockType == BlockType.Bomb)
-                // {
-                //     await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
-                // }
-
-                chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block)).Forget();
             }
         }
 

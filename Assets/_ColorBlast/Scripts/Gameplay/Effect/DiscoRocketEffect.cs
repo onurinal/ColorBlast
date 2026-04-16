@@ -23,20 +23,19 @@ namespace ColorBlast.Gameplay
             this.effectFactory = effectFactory;
         }
 
-        public async UniTask Execute(EffectExecutionContext context, IChainSchedular chainSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
             await UpdateDiscoRocketAffectedBlocks(context);
 
             foreach (var block in affectedList)
             {
-                if (block == null || chainSchedular.IsTriggered(block))
+                if (block == null || effectSchedular.IsTriggered(block))
                 {
                     continue;
                 }
 
-                chainSchedular.MarkTriggered(block);
-                await chainSchedular.TriggerEffectAsync(effectFactory.CreateEffect(block));
-                await chainSchedular.ForceGridUpdate();
+                effectSchedular.MarkTriggered(block);
+                await effectSchedular.TriggerSequential(effectFactory.CreateEffect(block));
             }
         }
 

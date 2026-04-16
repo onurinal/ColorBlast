@@ -21,7 +21,7 @@ namespace ColorBlast.Gameplay
             var particleDuration = particle.GetParticleDuration();
             particle.transform.position = block.transform.position;
 
-            await UniTask.Delay(TimeSpan.FromSeconds(particleDuration / 6f));
+            await UniTask.Delay(TimeSpan.FromSeconds(particleDuration / 8f));
 
             ReturnToPool(BlockType.Bomb, particle, particleDuration).Forget();
         }
