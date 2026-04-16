@@ -67,7 +67,7 @@ namespace ColorBlast.Gameplay
                 effectSchedular.MarkTriggered(block);
                 effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
             }
-            else
+            else if(block is not IActivatable)
             {
                 context.TryDestroyBlock(block);
             }

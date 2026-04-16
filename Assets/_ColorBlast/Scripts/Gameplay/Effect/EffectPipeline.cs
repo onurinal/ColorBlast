@@ -18,13 +18,13 @@ namespace ColorBlast.Gameplay
         private EffectExecutionContext context;
 
         private int activeEffectCount; // increase any effect trigger
+        private int suspendCount; // increase any disco ball trigger
         private int pendingGridUpdates;
         private bool isUpdatingGrid; // to understand gravity and refill is processing or not
 
         public bool IsProcessing => activeEffectCount > 0 || pendingGridUpdates > 0 || isUpdatingGrid;
 
-        public void Initialize(GridRefill gridRefill, GridSpawner gridSpawner, GridChecker gridChecker,
-            EffectExecutionContext context)
+        public void Initialize(GridRefill gridRefill, GridSpawner gridSpawner, GridChecker gridChecker, EffectExecutionContext context)
         {
             this.gridRefill = gridRefill;
             this.gridSpawner = gridSpawner;
@@ -42,6 +42,7 @@ namespace ColorBlast.Gameplay
 
             triggered.Clear();
             activeEffectCount = 0;
+            suspendCount = 0;
             pendingGridUpdates = 0;
             isUpdatingGrid = false;
 
@@ -74,15 +75,14 @@ namespace ColorBlast.Gameplay
             ExecuteEffect(effect).Forget();
         }
 
-        public async UniTask TriggerSequential(IBlockEffect effect)
+        public void SuspendGridUpdates()
         {
-            if (effect == null)
-            {
-                return;
-            }
+            suspendCount++;
+        }
 
-            await ExecuteEffect(effect);
-            await WaitForGridIdle();
+        public void ResumeGridUpdates()
+        {
+            suspendCount = Mathf.Max(0, suspendCount - 1);
         }
 
         // ── Execution loop ─
@@ -124,6 +124,16 @@ namespace ColorBlast.Gameplay
             {
                 while (pendingGridUpdates > 0)
                 {
+                    while (suspendCount > 0)
+                    {
+                        await UniTask.Yield();
+                    }
+
+                    if (pendingGridUpdates <= 0)
+                    {
+                        break;
+                    }
+
                     pendingGridUpdates = 0;
                     await UpdateGrid();
                 }
@@ -141,14 +151,6 @@ namespace ColorBlast.Gameplay
             gridChecker.CheckAllGrid();
 
             await UniTask.Yield();
-        }
-
-        private async UniTask WaitForGridIdle()
-        {
-            while (isUpdatingGrid || pendingGridUpdates > 0)
-            {
-                await UniTask.Yield();
-            }
         }
     }
 }

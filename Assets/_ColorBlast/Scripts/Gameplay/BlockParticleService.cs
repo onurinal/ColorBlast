@@ -1,7 +1,6 @@
 using System;
 using ColorBlast.Manager;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {

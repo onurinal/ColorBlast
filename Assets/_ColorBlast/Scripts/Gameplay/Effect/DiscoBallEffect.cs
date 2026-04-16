@@ -26,29 +26,38 @@ namespace ColorBlast.Gameplay
                 return;
             }
 
-            var affected = CollectTargetColor(context, discoBall.TargetCubeData);
+            effectSchedular.SuspendGridUpdates();
 
-            var lines = new List<GameObject>();
-            foreach (var block in affected)
+            try
             {
-                var line = CreateLine(discoBall.transform.position, block.transform.position);
-                lines.Add(line);
-                AnimateLine(line.GetComponent<LineRenderer>(), discoBall.transform.position, block.transform.position).Forget();
-                await UniTask.Delay(TimeSpan.FromSeconds(0.1f));
+                var affected = CollectTargetColor(context, discoBall.TargetCubeData);
+
+                var lines = new List<GameObject>();
+                foreach (var block in affected)
+                {
+                    var line = CreateLine(discoBall.transform.position, block.transform.position);
+                    lines.Add(line);
+                    AnimateLine(line.GetComponent<LineRenderer>(), discoBall.transform.position, block.transform.position).Forget();
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.1f));
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DiscoBallAnimationDuration));
+
+                foreach (var line in lines)
+                {
+                    Object.Destroy(line);
+                }
+
+                affected.Add(discoBall);
+
+                foreach (var block in affected)
+                {
+                    context.TryDestroyBlock(block);
+                }
             }
-
-            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DiscoBallAnimationDuration));
-
-            foreach (var line in lines)
+            finally
             {
-                Object.Destroy(line);
-            }
-
-            affected.Add(discoBall);
-
-            foreach (var block in affected)
-            {
-                context.TryDestroyBlock(block);
+                effectSchedular.ResumeGridUpdates();
             }
         }
 
@@ -70,7 +79,7 @@ namespace ColorBlast.Gameplay
 
         private async UniTaskVoid AnimateLine(LineRenderer lr, Vector3 from, Vector3 to)
         {
-            float duration = 0.2f;
+            float duration = 0.01f;
             float elapsed = 0f;
             lr.SetPosition(0, from);
 

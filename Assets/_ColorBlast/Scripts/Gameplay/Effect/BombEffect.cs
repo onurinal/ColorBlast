@@ -23,6 +23,7 @@ namespace ColorBlast.Gameplay
 
             effectSchedular.MarkTriggered(Tapped);
             await context.ParticleService.PlayBombEffect(Tapped);
+            context.TryRemoveBlock(Tapped);
 
             foreach (var block in affected)
             {
@@ -31,7 +32,7 @@ namespace ColorBlast.Gameplay
                     effectSchedular.MarkTriggered(block);
                     effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
                 }
-                else
+                else if (block is not IActivatable)
                 {
                     context.TryDestroyBlock(block);
                 }

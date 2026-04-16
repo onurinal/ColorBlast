@@ -35,7 +35,8 @@ namespace ColorBlast.Gameplay
                 }
 
                 effectSchedular.MarkTriggered(block);
-                await effectSchedular.TriggerSequential(effectFactory.CreateEffect(block));
+                effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
+                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
             }
         }
 
