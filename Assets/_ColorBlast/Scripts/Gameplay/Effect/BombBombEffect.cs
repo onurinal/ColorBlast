@@ -25,8 +25,7 @@ namespace ColorBlast.Gameplay
 
             foreach (var block in affectedSpecials)
             {
-                effectSchedular.MarkTriggered(block);
-                affected.Add(block);
+                context.TryRemoveBlock(block);
             }
 
             UpdateBombBombAffectedBlocks(context, affected);
