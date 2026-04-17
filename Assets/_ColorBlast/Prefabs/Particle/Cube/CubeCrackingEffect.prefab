@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5775816036439046004}
+  - component: {fileID: -5839514592386451143}
   - component: {fileID: 5775816036439046007}
   - component: {fileID: 5775816036439046006}
-  - component: {fileID: -5839514592386451143}
   m_Layer: 0
   m_Name: CubeCrackingEffect
   m_TagString: Untagged
@@ -34,6 +34,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5839514592386451143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5775816036439046001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a246ab2a51c4b34a12832d51c60cbca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast._ColorBlast.Scripts.Gameplay.PoolableParticle
+  particle: {fileID: 0}
 --- !u!198 &5775816036439046007
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -4895,15 +4908,3 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
---- !u!114 &-5839514592386451143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5775816036439046001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a246ab2a51c4b34a12832d51c60cbca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ColorBlast._ColorBlast.Scripts.Gameplay.PoolableParticle

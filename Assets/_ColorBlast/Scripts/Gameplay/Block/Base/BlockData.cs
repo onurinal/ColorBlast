@@ -6,9 +6,9 @@ namespace ColorBlast.Gameplay
     {
         [Header("Block Settings")]
         [SerializeField] private Block prefab;
-        [SerializeField] private PoolableParticle particlePrefab;
+        [SerializeField] private PoolableVFX particlePrefab;
         public Block Prefab => prefab;
-        public PoolableParticle ParticlePrefab => particlePrefab;
+        public PoolableVFX ParticlePrefab => particlePrefab;
         public abstract BlockType BlockType { get; }
     }
 }

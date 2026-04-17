@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: SO_DiscoBlockData
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.DiscoBlockData
   prefab: {fileID: 173419991819821490, guid: b54183cd191c31a4a8c1afd2f1a9982a, type: 3}
-  defaultSprite: {fileID: 4679887694197373205, guid: dc95e654a8e93d44590cb71ca616bc19, type: 3}
+  particlePrefab: {fileID: 5476460821433406554, guid: d6a6c7c31e7f74e48a44df301acd8839, type: 3}
+  lineAnimateDuration: 0.1
   rewardStates:
   - targetCubeData: {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}
     sprite: {fileID: 3549173321799013919, guid: 4c594182b6fdab747a1c016e6f047fdf, type: 3}

@@ -1,9 +1,8 @@
-using ColorBlast.Core;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
-    public class PoolableParticle : MonoBehaviour, IPoolable
+    public class PoolableParticle : PoolableVFX
     {
         [SerializeField] private ParticleSystem particle;
 
@@ -15,20 +14,14 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        public void OnSpawn()
+        protected override void Play()
         {
-            if (particle != null)
-            {
-                particle.Play();
-            }
+            particle?.Play();
         }
 
-        public virtual void OnDespawn()
+        protected override void Stop()
         {
-            if (particle != null)
-            {
-                particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            }
+            particle?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
         public void SetColor(Color color)

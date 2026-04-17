@@ -16,25 +16,32 @@ namespace ColorBlast.Gameplay
 
         public async UniTask PlayBombEffect(Block block)
         {
-            var particle = ParticlePoolManager.Instance.GetParticle(block.BlockData);
-            var particleDuration = particle.GetParticleDuration();
-            particle.transform.position = block.transform.position;
+            var vfx = ParticlePoolManager.Instance.GetParticle(block.BlockData);
 
-            await UniTask.Delay(TimeSpan.FromSeconds(particleDuration / 8f));
+            if (vfx is PoolableParticle particle)
+            {
+                var particleDuration = particle.GetParticleDuration();
+                particle.transform.position = block.transform.position;
+                await UniTask.Delay(TimeSpan.FromSeconds(particleDuration / 8f));
 
-            ReturnToPool(BlockType.Bomb, particle, particleDuration).Forget();
+                ReturnToPool(BlockType.Bomb, particle, particleDuration).Forget();
+            }
         }
 
         private void PlayCubeEffect(Block block)
         {
-            var particle = ParticlePoolManager.Instance.GetParticle(block.BlockData);
-            var particleDuration = particle.GetParticleDuration();
-            particle.transform.position = block.transform.position;
+            var vfx = ParticlePoolManager.Instance.GetParticle(block.BlockData);
 
-            var cubeBlockData = (CubeBlockData)block.BlockData;
-            particle.SetColor(cubeBlockData.ParticleColor);
+            if (vfx is PoolableParticle particle)
+            {
+                var particleDuration = particle.GetParticleDuration();
+                particle.transform.position = block.transform.position;
 
-            ReturnToPool(BlockType.Cube, particle, particleDuration).Forget();
+                var cubeBlockData = (CubeBlockData)block.BlockData;
+                particle.SetColor(cubeBlockData.ParticleColor);
+
+                ReturnToPool(BlockType.Cube, particle, particleDuration).Forget();
+            }
         }
 
         private async UniTask ReturnToPool(BlockType blockType, PoolableParticle particle, float duration)

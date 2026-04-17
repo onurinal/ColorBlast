@@ -9,7 +9,10 @@ namespace ColorBlast.Gameplay
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Transform modelTransform;
 
+        private readonly float moveOverShootValue = 0.6f;
         private Tween activeTween;
+
+        public bool IsAnimating => activeTween != null && activeTween.IsActive();
 
         private void OnDestroy()
         {
@@ -19,14 +22,13 @@ namespace ColorBlast.Gameplay
         public void MoveToPosition(Vector2 targetPosition, float duration)
         {
             activeTween?.Kill();
-            activeTween = transform.DOMove(targetPosition, duration).SetEase(Ease.OutBack, 0.6f);
+            activeTween = transform.DOMove(targetPosition, duration).SetEase(Ease.OutBack, moveOverShootValue);
         }
 
         public void HandleDestroy(float duration, Action onComplete)
         {
             activeTween?.Kill();
-            activeTween = transform.DOScale(Vector2.zero, duration).SetEase(Ease.InOutBounce)
-                .OnComplete(() => onComplete?.Invoke());
+            activeTween = transform.DOScale(Vector2.zero, duration).SetEase(Ease.InOutBounce).OnComplete(() => onComplete?.Invoke());
         }
 
         public void UpdateSortingOrder(int gridY)

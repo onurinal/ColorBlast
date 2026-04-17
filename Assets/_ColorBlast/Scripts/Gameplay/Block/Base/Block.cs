@@ -15,10 +15,14 @@ namespace ColorBlast.Gameplay
         [SerializeField] private GameplayConfig gameplayConfig;
         [SerializeField] protected BlockView blockView;
 
+        private bool isDestroying;
+
         public abstract BlockData BlockData { get; protected set; }
         public BlockType BlockType => BlockData.BlockType;
         public int GridX { get; private set; }
         public int GridY { get; private set; }
+
+        public bool IsBusy => isDestroying || blockView.IsAnimating;
 
         public abstract void Initialize(int gridX, int gridY, BlockData blockData);
 
@@ -26,11 +30,18 @@ namespace ColorBlast.Gameplay
 
         public virtual void OnDespawn()
         {
+            isDestroying = false;
             blockView.ResetView();
         }
 
         public virtual void DestroyBlock()
         {
+            if (isDestroying)
+            {
+                return;
+            }
+
+            isDestroying = true;
             blockView.HandleDestroy(gameplayConfig.DestroyDuration, ReturnToPool);
         }
 

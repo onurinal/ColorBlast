@@ -13,7 +13,7 @@ namespace ColorBlast.Manager
         [SerializeField] private ParticlePoolEntry[] particlePoolEntry;
         [SerializeField] private int poolMultiplier = 2;
 
-        private readonly Dictionary<BlockType, PoolableObject<PoolableParticle>> particlePool = new();
+        private readonly Dictionary<BlockType, PoolableObject<PoolableVFX>> particlePool = new();
         private bool isInitialized;
 
         private void Awake()
@@ -46,13 +46,13 @@ namespace ColorBlast.Manager
                 var blockType = entry.data.BlockType;
                 var size = blockType == BlockType.Cube ? baseSize * poolMultiplier : entry.initialSize;
                 particlePool[blockType] =
-                    new PoolableObject<PoolableParticle>(entry.data.ParticlePrefab, size, entry.parent);
+                    new PoolableObject<PoolableVFX>(entry.data.ParticlePrefab, size, entry.parent);
             }
 
             isInitialized = true;
         }
 
-        public PoolableParticle GetParticle(BlockData data)
+        public PoolableVFX GetParticle(BlockData data)
         {
             if (!isInitialized || !particlePool.TryGetValue(data.BlockType, out var pool))
             {
@@ -63,7 +63,7 @@ namespace ColorBlast.Manager
             return pool.Get();
         }
 
-        public void ReturnParticle(BlockType blockType, PoolableParticle particle)
+        public void ReturnParticle(BlockType blockType, PoolableVFX particle)
         {
             if (!isInitialized || !particlePool.TryGetValue(blockType, out var pool))
             {

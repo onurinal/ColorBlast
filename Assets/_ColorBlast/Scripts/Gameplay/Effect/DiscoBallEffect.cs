@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
+using ColorBlast.Manager;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace ColorBlast.Gameplay
 {
@@ -20,40 +20,24 @@ namespace ColorBlast.Gameplay
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
             var discoBall = (DiscoBlock)Tapped;
-
-            if (discoBall.TargetCubeData == null)
-            {
-                return;
-            }
+            var discoData = (DiscoBlockData)discoBall.BlockData;
 
             effectSchedular.SuspendGridUpdates();
+            discoBall.PlayParticle();
+
+            var (shakeTween, scaleTween) = AnimateShakeAndScale(discoBall);
+            var activeBeams = new List<DiscoBallBeam>();
 
             try
             {
                 var affected = CollectTargetColor(context, discoBall.TargetCubeData);
 
-                var lines = new List<GameObject>();
-                foreach (var block in affected)
-                {
-                    var line = CreateLine(discoBall.transform.position, block.transform.position);
-                    lines.Add(line);
-                    AnimateLine(line.GetComponent<LineRenderer>(), discoBall.transform.position, block.transform.position).Forget();
-                    await UniTask.Delay(TimeSpan.FromSeconds(0.1f));
-                }
+                await AnimateDiscoBeam(affected, discoBall, activeBeams, discoData);
 
-                await UniTask.Delay(TimeSpan.FromSeconds(context.Config.DiscoBallAnimationDuration));
+                shakeTween.Kill();
+                scaleTween.Kill();
 
-                foreach (var line in lines)
-                {
-                    Object.Destroy(line);
-                }
-
-                affected.Add(discoBall);
-
-                foreach (var block in affected)
-                {
-                    context.TryDestroyBlock(block);
-                }
+                TryDestroyAffected(context, affected, discoBall);
             }
             finally
             {
@@ -61,41 +45,19 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        private static GameObject CreateLine(Vector3 from, Vector3 to)
+        private static (Tweener shakeTween, Tweener scaleTween) AnimateShakeAndScale(DiscoBlock discoBall)
         {
-            var go = new GameObject("DiscoLine");
-            var lr = go.AddComponent<LineRenderer>();
-            lr.positionCount = 2;
-            lr.sortingLayerName = "Particle";
-            lr.startWidth = 0.1f;
-            lr.endWidth = 0.05f;
-            lr.material = new Material(Shader.Find("Sprites/Default"));
-            lr.startColor = Color.cyan;
-            lr.endColor = Color.white;
-            lr.SetPosition(0, from);
-            lr.SetPosition(1, to);
-            return go;
+            var shakeTween = discoBall.transform.DOShakePosition(1f, strength: 0.1f, vibrato: 5, randomness: 90)
+                .SetLoops(-1);
+
+            var scaleTween =
+                discoBall.transform.DOScale(discoBall.transform.localScale + Vector3.one * 0.2f, 0.2f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+            return (shakeTween, scaleTween);
         }
 
-        private async UniTaskVoid AnimateLine(LineRenderer lr, Vector3 from, Vector3 to)
+        private static List<Block> CollectTargetColor(EffectExecutionContext context, BlockData targetData)
         {
-            float duration = 0.01f;
-            float elapsed = 0f;
-            lr.SetPosition(0, from);
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                lr.SetPosition(1, Vector3.Lerp(from, to, elapsed / duration));
-                await UniTask.Yield();
-            }
-
-            lr.SetPosition(1, to);
-        }
-
-        private List<Block> CollectTargetColor(EffectExecutionContext context, BlockData targetData)
-        {
-            var result = new List<Block>();
+            var affected = new List<Block>();
 
             for (int row = 0; row < context.LevelProperties.RowCount; row++)
             {
@@ -103,12 +65,44 @@ namespace ColorBlast.Gameplay
                 {
                     if (context.BlockGrid[row, col] != null && context.BlockGrid[row, col].BlockData == targetData)
                     {
-                        result.Add(context.BlockGrid[row, col]);
+                        affected.Add(context.BlockGrid[row, col]);
                     }
                 }
             }
 
-            return result;
+            return affected;
+        }
+
+        private static async UniTask AnimateDiscoBeam(List<Block> affected, DiscoBlock discoBall, List<DiscoBallBeam> activeBeams, DiscoBlockData discoData)
+        {
+            foreach (var block in affected)
+            {
+                if (block.IsBusy)
+                {
+                    continue;
+                }
+
+                var vfx = ParticlePoolManager.Instance.GetParticle(discoBall.BlockData);
+                if (vfx is DiscoBallBeam discoBeam)
+                {
+                    activeBeams.Add(discoBeam);
+                    await discoBeam.AnimateLine(discoBall.transform.position, block.transform.position, discoData.LineAnimateDuration);
+                }
+            }
+
+            foreach (var beam in activeBeams)
+            {
+                ParticlePoolManager.Instance.ReturnParticle(discoBall.BlockData.BlockType, beam);
+            }
+        }
+
+        private static void TryDestroyAffected(EffectExecutionContext context, List<Block> affected, DiscoBlock discoBall)
+        {
+            affected.Add(discoBall);
+            foreach (var block in affected)
+            {
+                context.TryDestroyBlock(block);
+            }
         }
     }
 }
