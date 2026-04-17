@@ -65,6 +65,11 @@ namespace ColorBlast.Gameplay
             blockView.UpdateSortingOrder(gridY);
         }
 
+        public void SetSortingOrder(int orderNumber)
+        {
+            blockView.UpdateSortingOrder(orderNumber);
+        }
+
         public void MoveToPosition(Vector2 targetPosition)
         {
             blockView.MoveToPosition(targetPosition, gameplayConfig.FallDuration);

@@ -18,6 +18,7 @@ namespace ColorBlast.Gameplay
         [SerializeField] private float destroyDuration = 0.15f;
         [SerializeField] private float fallDuration = 0.25f;
         [SerializeField] private float shuffleDuration = 2f;
+        [SerializeField] private float mergeDuration = 0.2f;
         [SerializeField] private float spawnDurationBetweenSpecials = 0.05f;
         [SerializeField] private float discoBallAnimationDuration = 2f;
         [SerializeField] private float rocketChainDelay = 0.15f;
@@ -30,6 +31,7 @@ namespace ColorBlast.Gameplay
         public float DestroyDuration => destroyDuration;
         public float FallDuration => fallDuration;
         public float ShuffleDuration => shuffleDuration;
+        public float MergeDuration => mergeDuration;
         public float SpawnDurationBetweenSpecials => spawnDurationBetweenSpecials;
         public float DiscoBallAnimationDuration => discoBallAnimationDuration;
         public float RocketChainDelay => rocketChainDelay;

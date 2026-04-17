@@ -33,6 +33,11 @@ namespace ColorBlast.Gameplay
             int rewardRow = Tapped.GridX;
             int rewardCol = Tapped.GridY;
 
+            if (rewardState != null)
+            {
+                await BlockAnimationHelper.PlayMergeAnimation(group, Tapped, config.MergeDuration);
+            }
+
             foreach (var block in group)
             {
                 context.TryDestroyBlock(block);
