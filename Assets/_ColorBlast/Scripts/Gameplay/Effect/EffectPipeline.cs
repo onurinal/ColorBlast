@@ -75,6 +75,16 @@ namespace ColorBlast.Gameplay
             ExecuteEffect(effect).Forget();
         }
 
+        public async UniTask TriggerAsync(IBlockEffect effect)
+        {
+            if (effect == null)
+            {
+                return;
+            }
+
+            await ExecuteEffect(effect);
+        }
+
         public void SuspendGridUpdates()
         {
             suspendCount++;

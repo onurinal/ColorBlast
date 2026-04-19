@@ -19,7 +19,7 @@ MonoBehaviour:
   destroyDuration: 0.1
   fallDuration: 1
   shuffleDuration: 2
-  mergeDuration: 0.35
+  mergeDuration: 0.25
   spawnDurationBetweenSpecials: 0.05
   discoBallAnimationDuration: 1
   rocketChainDelay: 0.2

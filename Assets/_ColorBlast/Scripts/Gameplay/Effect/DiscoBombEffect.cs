@@ -1,110 +1,88 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using UnityEngine;
 
 namespace ColorBlast.Gameplay
 {
+    /// <summary>
+    /// Disco + Bomb combo:
+    /// 1. Disco beam fires at every block matching TargetCubeData.
+    /// 2. Each hit block is replaced with a Bomb (with spawn delay).
+    /// 3. All spawned Bombs detonate sequentially.
+    /// </summary>
     public class DiscoBombEffect : IBlockEffect
     {
-        public Block Tapped { get; }
-
         private readonly Block best;
         private readonly Block partner;
-        private readonly HashSet<Block> affectedSpecials;
-        private readonly List<Block> orderedBombs = new(); // for execution order
         private readonly BlockEffectFactory effectFactory;
+
+        public Block Source { get; }
 
         public DiscoBombEffect(ComboResult comboResult, BlockEffectFactory effectFactory)
         {
-            Tapped = comboResult.Tapped;
+            Source = comboResult.Tapped;
             best = comboResult.Best;
             partner = comboResult.Partner;
-            affectedSpecials = comboResult.AffectedSpecials;
             this.effectFactory = effectFactory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            await UpdateDiscoBombAffectedBlocks(context);
+            var discoBall = (DiscoBlock)(best.BlockType == BlockType.DiscoBall ? best : partner);
+            var bombData = best.BlockType == BlockType.Bomb ? best.BlockData : partner.BlockData;
+            var discoData = (DiscoBlockData)discoBall.BlockData;
 
-            foreach (var block in orderedBombs)
+            var sourceRow = Source.GridX;
+            var sourceCol = Source.GridY;
+
+            effectSchedular.SuspendGridUpdates();
+            discoBall.PlayParticle();
+
+            var (shake, scale) = DiscoAnimationHelper.AnimateShakeAndScale(discoBall);
+            var spawnedBombs = new List<Block>();
+
+            try
             {
-                if (block == null || effectSchedular.IsTriggered(block))
+                var targetPositions = DiscoAnimationHelper.CollectPositions(context, discoBall.TargetCubeData, true);
+                targetPositions.Remove(new Vector2Int(Source.GridX, Source.GridY));
+
+                await DiscoAnimationHelper.AnimateBeams(context, targetPositions, discoBall, discoData,
+                    position =>
+                    {
+                        var row = position.x;
+                        var col = position.y;
+
+                        context.TryRemoveBlock(context.BlockGrid[row, col]);
+
+                        var bomb = context.SpawnBlockAt(bombData, row, col);
+                        spawnedBombs.Add(bomb);
+                    });
+
+                shake.Kill();
+                scale.Kill();
+
+                context.ReturnToPool(discoBall);
+                var bomb = context.SpawnBlockAt(bombData, sourceRow, sourceCol);
+                spawnedBombs.Add(bomb);
+            }
+            finally
+            {
+                effectSchedular.ResumeGridUpdates();
+            }
+
+            foreach (var bomb in spawnedBombs)
+            {
+                if (effectSchedular.IsTriggered(bomb))
                 {
                     continue;
                 }
 
-                effectSchedular.MarkTriggered(block);
-                effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
+                effectSchedular.MarkTriggered(bomb);
+                effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(bomb));
+
                 await UniTask.Delay(TimeSpan.FromSeconds(context.Config.BombChainDelay));
-            }
-        }
-
-        private async UniTask UpdateDiscoBombAffectedBlocks(EffectExecutionContext context)
-        {
-            var discoBall = best.BlockType == BlockType.DiscoBall ? best : partner;
-            var bombBlock = best.BlockType == BlockType.Bomb ? best : partner;
-
-            if (discoBall is not DiscoBlock discoBlock)
-            {
-                return;
-            }
-
-            await TransformByDisco(context, bombBlock.BlockData, discoBlock);
-        }
-
-        private async UniTask TransformByDisco(EffectExecutionContext context, BlockData bombBlock,
-            DiscoBlock discoBlock)
-        {
-            try
-            {
-                var targetCube = discoBlock.TargetCubeData;
-
-                if (targetCube == null)
-                {
-                    return;
-                }
-
-                for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
-                {
-                    for (int row = 0; row < context.LevelProperties.RowCount; row++)
-                    {
-                        var block = context.BlockGrid[row, col];
-
-                        if (block != null && block.BlockData == targetCube)
-                        {
-                            context.TryRemoveBlock(block);
-                            var newBlock = context.SpawnBlockAt(bombBlock, row, col);
-                            await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
-                        }
-                    }
-                }
-
-                foreach (var block in affectedSpecials)
-                {
-                    var row = block.GridX;
-                    var col = block.GridY;
-
-                    context.TryRemoveBlock(block);
-                    var newBlock = context.SpawnBlockAt(bombBlock, row, col);
-                    await UniTask.Delay(TimeSpan.FromSeconds(context.Config.SpawnDurationBetweenSpecials));
-                }
-
-                for (int col = context.LevelProperties.ColumnCount - 1; col >= 0; col--)
-                {
-                    for (int row = 0; row < context.LevelProperties.RowCount; row++)
-                    {
-                        var block = context.BlockGrid[row, col];
-                        if (block.BlockData == bombBlock)
-                        {
-                            orderedBombs.Add(block);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                await UniTask.CompletedTask;
             }
         }
     }

@@ -44,16 +44,14 @@ namespace ColorBlast.Gameplay
                 BlockType.Cube => new CubeEffect(block, gridChecker, config),
                 BlockType.Bomb => new BombEffect(block, this),
                 BlockType.Rocket => new RocketEffect(block, this),
-                BlockType.DiscoBall => new DiscoBallEffect(block, this),
+                BlockType.DiscoBall => new DiscoBallEffect(block),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
 
         private IBlockEffect CreateComboEffect(ComboResult comboResult)
         {
-            var comboType = comboResult.ComboType;
-
-            return comboType switch
+            IBlockEffect comboEffect = comboResult.ComboType switch
             {
                 ComboType.DiscoBallDiscoBall => new DiscoDiscoEffect(comboResult),
                 ComboType.DiscoBallBomb => new DiscoBombEffect(comboResult, this),
@@ -63,6 +61,8 @@ namespace ColorBlast.Gameplay
                 ComboType.RocketRocket => new RocketRocketEffect(comboResult, this),
                 _ => throw new ArgumentOutOfRangeException()
             };
+
+            return new ComboEffectWrapper(comboEffect, comboResult, config.MergeDuration);
         }
     }
 }

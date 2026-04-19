@@ -6,36 +6,33 @@ namespace ColorBlast.Gameplay
 {
     public class CubeEffect : IBlockEffect
     {
-        public Block Tapped { get; }
-
         private readonly GridChecker gridChecker;
         private readonly GameplayConfig config;
 
+        public Block Source { get; }
+
         public CubeEffect(Block source, GridChecker checker, GameplayConfig config)
         {
-            Tapped = source;
+            Source = source;
             gridChecker = checker;
             this.config = config;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            var group = gridChecker.GetGroupAt(Tapped.GridX, Tapped.GridY);
+            var group = gridChecker.GetGroupAt(Source.GridX, Source.GridY);
 
             if (group == null || group.Count < config.MatchThreshold)
             {
                 return;
             }
 
-            var cubeData = (CubeBlockData)Tapped.BlockData;
+            var cubeData = (CubeBlockData)Source.BlockData;
             var rewardState = cubeData.GetRewardState(group.Count);
-
-            int rewardRow = Tapped.GridX;
-            int rewardCol = Tapped.GridY;
 
             if (rewardState != null)
             {
-                await BlockAnimationHelper.PlayMergeAnimation(group, Tapped, config.MergeDuration);
+                await BlockAnimationHelper.PlayMergeAnimation(group, Source, config.MergeDuration);
             }
 
             foreach (var block in group)
@@ -48,8 +45,7 @@ namespace ColorBlast.Gameplay
             if (rewardState?.RewardBlockData != null)
             {
                 var sprite = ResolveRewardSprite(cubeData, rewardState.RewardBlockData);
-                context.SpawnBlockAt(rewardState.RewardBlockData, rewardRow, rewardCol,
-                    sprite, Tapped.BlockData);
+                context.SpawnBlockAt(rewardState.RewardBlockData, Source.GridX, Source.GridY, sprite, Source.BlockData);
             }
         }
 

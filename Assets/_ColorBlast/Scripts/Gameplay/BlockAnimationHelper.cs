@@ -23,8 +23,8 @@ namespace ColorBlast.Gameplay
 
                 if (block == targetBlock)
                 {
-                    sequence.Insert(0, block.transform.DOScale(1.1f, spreadDuration).SetEase(Ease.OutQuad));
-                    sequence.Insert(spreadDuration, block.transform.DOScale(1f, mergeDuration).SetEase(Ease.InQuad));
+                    _ = sequence.Insert(0, block.transform.DOScale(1.1f, spreadDuration).SetEase(Ease.OutQuad));
+                    _ = sequence.Insert(spreadDuration, block.transform.DOScale(1f, mergeDuration).SetEase(Ease.InQuad));
                     continue;
                 }
 
@@ -33,8 +33,8 @@ namespace ColorBlast.Gameplay
                 Vector3 direction = originalPosition - targetPosition;
                 Vector3 spreadPosition = originalPosition + (direction * SpreadDistance);
 
-                sequence.Insert(0, block.transform.DOMove(spreadPosition, spreadDuration).SetEase(Ease.OutQuad));
-                sequence.Insert(spreadDuration, block.transform.DOMove(targetPosition, mergeDuration).SetEase(Ease.InQuint));
+                _ = sequence.Insert(0, block.transform.DOMove(spreadPosition, spreadDuration).SetEase(Ease.OutQuad));
+                _ = sequence.Insert(spreadDuration, block.transform.DOMove(targetPosition, mergeDuration).SetEase(Ease.InQuint));
             }
 
             await sequence.Play().ToUniTask();

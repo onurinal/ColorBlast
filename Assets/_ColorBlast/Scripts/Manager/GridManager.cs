@@ -90,8 +90,7 @@ namespace ColorBlast.Manager
             gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);
 
             var particleService = new BlockParticleService();
-            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner,
-                particleService);
+            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner, this, particleService);
 
             effectPipeline = new EffectPipeline();
             effectPipeline.Initialize(gridRefill, gridSpawner, gridChecker, context);

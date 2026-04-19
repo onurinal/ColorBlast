@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -6,24 +5,23 @@ namespace ColorBlast.Gameplay
 {
     public class BombEffect : IBlockEffect
     {
-        public Block Tapped { get; }
-
         private readonly BlockEffectFactory effectFactory;
+        public Block Source { get; }
 
         public BombEffect(Block source, BlockEffectFactory effectFactory)
         {
-            Tapped = source;
+            Source = source;
             this.effectFactory = effectFactory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            var bombData = (BombBlockData)Tapped.BlockData;
-            var affected = CollectRadius(context, Tapped.GridX, Tapped.GridY, bombData.Radius);
+            var bombData = (BombBlockData)Source.BlockData;
+            var affected = CollectRadius(context, Source.GridX, Source.GridY, bombData.Radius);
 
-            effectSchedular.MarkTriggered(Tapped);
-            await context.ParticleService.PlayBombEffect(Tapped);
-            context.TryRemoveBlock(Tapped);
+            effectSchedular.MarkTriggered(Source);
+            await context.ParticleService.PlayBombEffect(Source);
+            context.TryRemoveBlock(Source);
 
             foreach (var block in affected)
             {

@@ -5,28 +5,23 @@ namespace ColorBlast.Gameplay
 {
     public class BombBombEffect : IBlockEffect
     {
-        public Block Tapped { get; }
-
         private readonly Block best;
-        private readonly HashSet<Block> affectedSpecials;
         private readonly BlockEffectFactory effectFactory;
+
+        public Block Source { get; }
 
         public BombBombEffect(ComboResult comboResult, BlockEffectFactory effectFactory)
         {
-            Tapped = comboResult.Tapped;
+            Source = comboResult.Tapped;
             best = comboResult.Best;
-            affectedSpecials = comboResult.AffectedSpecials;
             this.effectFactory = effectFactory;
         }
 
         public UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            var affected = new HashSet<Block>();
+            context.ReturnToPool(best);
 
-            foreach (var block in affectedSpecials)
-            {
-                context.TryRemoveBlock(block);
-            }
+            var affected = new HashSet<Block>();
 
             UpdateBombBombAffectedBlocks(context, affected);
             ProcessAffected(context, effectSchedular, affected);
@@ -38,7 +33,7 @@ namespace ColorBlast.Gameplay
         {
             var bombData = (BombBlockData)best.BlockData;
             var radius = bombData.Radius * bombData.DoubleBombMultiplier;
-            AddBlocksInRadius(context, affected, Tapped.GridX, Tapped.GridY, radius);
+            AddBlocksInRadius(context, affected, Source.GridX, Source.GridY, radius);
         }
 
         private void AddBlocksInRadius(EffectExecutionContext context, HashSet<Block> affected, int centerRow,

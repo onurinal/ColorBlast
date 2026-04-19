@@ -1,31 +1,28 @@
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
 {
     public class RocketRocketEffect : IBlockEffect
     {
-        public Block Tapped { get; }
-        private readonly HashSet<Block> affectedSpecials;
+        private readonly Block best;
         private readonly BlockEffectFactory effectFactory;
+
+        public Block Source { get; }
 
         public RocketRocketEffect(ComboResult comboResult, BlockEffectFactory effectFactory)
         {
-            Tapped = comboResult.Tapped;
-            affectedSpecials = comboResult.AffectedSpecials;
+            Source = comboResult.Tapped;
+            best = comboResult.Best;
             this.effectFactory = effectFactory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            foreach (var block in affectedSpecials)
-            {
-                context.TryRemoveBlock(block);
-            }
+            context.ReturnToPool(best);
 
             await UniTask.WhenAll(
-                new RocketEffect(Tapped, effectFactory, RocketDirection.Horizontal).Execute(context, effectSchedular),
-                new RocketEffect(Tapped, effectFactory, RocketDirection.Vertical).Execute(context, effectSchedular)
+                new RocketEffect(Source, effectFactory, RocketDirection.Horizontal).Execute(context, effectSchedular),
+                new RocketEffect(Source, effectFactory, RocketDirection.Vertical).Execute(context, effectSchedular)
             );
         }
     }

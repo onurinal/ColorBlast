@@ -4,22 +4,21 @@ namespace ColorBlast.Gameplay
 {
     public class RocketEffect : IBlockEffect
     {
-        public Block Tapped { get; }
-
         private readonly BlockEffectFactory effectFactory;
         private readonly RocketDirection? directionOverride;
+        public Block Source { get; }
 
         public RocketEffect(Block source, BlockEffectFactory effectFactory, RocketDirection? directionOverride = null)
         {
-            Tapped = source;
+            Source = source;
             this.effectFactory = effectFactory;
             this.directionOverride = directionOverride;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            var rocket = (RocketBlock)Tapped;
-            effectSchedular.MarkTriggered(Tapped);
+            var rocket = (RocketBlock)Source;
+            effectSchedular.MarkTriggered(Source);
 
             context.TryRemoveBlock(rocket);
 

@@ -6,25 +6,21 @@ namespace ColorBlast.Gameplay
 {
     public class DiscoDiscoEffect : IBlockEffect
     {
-        public Block Tapped { get; }
+        private readonly Block best;
 
-        private readonly HashSet<Block> affectedSpecials;
+        public Block Source { get; }
 
         public DiscoDiscoEffect(ComboResult comboResult)
         {
-            Tapped = comboResult.Tapped;
-            affectedSpecials = comboResult.AffectedSpecials;
+            Source = comboResult.Tapped;
+            best = comboResult.Best;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            var affected = new HashSet<Block>();
+            context.ReturnToPool(best);
 
-            foreach (var block in affectedSpecials)
-            {
-                effectSchedular.MarkTriggered(block);
-                affected.Add(block);
-            }
+            var affected = new HashSet<Block>();
 
             UpdateDiscoDiscoAffectedBlocks(context, affected);
             ProcessAffected(context, affected);
