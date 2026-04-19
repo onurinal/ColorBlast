@@ -17,16 +17,15 @@ namespace ColorBlast.Gameplay
             this.effectFactory = effectFactory;
         }
 
-        public UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
+        public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            context.ReturnToPool(best);
-
             var affected = new HashSet<Block>();
+
+            await BlockAnimationHelper.PlayExpandAnimation(best);
+            context.ReturnToPool(best);
 
             UpdateBombBombAffectedBlocks(context, affected);
             ProcessAffected(context, effectSchedular, affected);
-
-            return UniTask.CompletedTask;
         }
 
         private void UpdateBombBombAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)

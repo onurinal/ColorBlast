@@ -39,5 +39,23 @@ namespace ColorBlast.Gameplay
 
             await sequence.Play().ToUniTask();
         }
+
+        public static async UniTask PlayExpandAnimation(Block block, float scaleMultiplier = 4f, float duration = 1.5f)
+        {
+            if (block == null)
+            {
+                return;
+            }
+
+            block.SetSortingOrder(100);
+
+            Transform blockTransform = block.transform;
+            Vector3 initialScale = blockTransform.localScale;
+            Vector3 targetScale = initialScale * scaleMultiplier;
+
+            await DOTween.Sequence()
+                .Append(blockTransform.DOScale(targetScale, duration).SetEase(Ease.OutBack))
+                .ToUniTask();
+        }
     }
 }
