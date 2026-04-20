@@ -19,7 +19,6 @@ namespace ColorBlast.Gameplay
         {
             var rocket = (RocketBlock)Source;
             effectSchedular.MarkTriggered(Source);
-
             context.TryRemoveBlock(rocket);
 
             RocketDirection rocketDirection;

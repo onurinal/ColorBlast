@@ -7,6 +7,7 @@ namespace ColorBlast.Gameplay
     {
         private readonly Block best;
         private readonly Block partner;
+        private readonly HashSet<Block> affectedSpecials;
         private readonly BlockEffectFactory effectFactory;
         public Block Source { get; }
 
@@ -15,12 +16,25 @@ namespace ColorBlast.Gameplay
             Source = comboResult.Tapped;
             best = comboResult.Best;
             partner = comboResult.Partner;
+            affectedSpecials = comboResult.AffectedSpecials;
             this.effectFactory = effectFactory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            context.ReturnToPool(best);
+            var centerRow = Source.GridX;
+            var centerCol = Source.GridY;
+            var centerPosition = Source.transform.position;
+
+            foreach (var block in affectedSpecials)
+            {
+                if (block == best || block == partner)
+                {
+                    continue;
+                }
+
+                context.TryRemoveBlock(block);
+            }
 
             var bombBlock = best.BlockType == BlockType.Bomb ? best : partner;
             var rocketBlock = best.BlockType == BlockType.Rocket ? best : partner;
@@ -28,9 +42,11 @@ namespace ColorBlast.Gameplay
             var rocketData = (RocketBlockData)rocketBlock.BlockData;
 
             var radius = bombData.Radius;
-            var centerRow = Source.GridX;
-            var centerCol = Source.GridY;
             var tasks = new List<UniTask>();
+
+            await BlockAnimationHelper.PlayBombRocketComboAnimation(bombBlock, rocketBlock, centerPosition);
+            context.TryRemoveBlock(best);
+            context.TryRemoveBlock(partner);
 
             for (int row = centerRow - radius; row <= centerRow + radius; row++)
             {

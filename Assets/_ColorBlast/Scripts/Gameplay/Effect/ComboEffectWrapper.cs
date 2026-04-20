@@ -27,17 +27,6 @@ namespace ColorBlast.Gameplay
 
             await BlockAnimationHelper.PlayMergeAnimation(affectedSpecials, Source, mergeDuration);
 
-            foreach (var block in affectedSpecials)
-            {
-                if (block == bestBlock)
-                {
-                    context.UnlinkFromGrid(bestBlock);
-                    continue;
-                }
-
-                context.TryRemoveBlock(block);
-            }
-
             effectSchedular.ResumeGridUpdates();
             await comboEffect.Execute(context, effectSchedular);
         }

@@ -57,5 +57,56 @@ namespace ColorBlast.Gameplay
                 .Append(blockTransform.DOScale(targetScale, duration).SetEase(Ease.OutBack))
                 .ToUniTask();
         }
+
+        /// <summary>
+        /// Merges the bomb and rocket to the tapped center, then orbits them around a vertical axis.
+        /// Starts slow and accelerates.
+        /// </summary>
+        public static async UniTask PlayBombRocketComboAnimation(Block bomb, Block rocket, Vector3 center, float duration = 2f)
+        {
+            if (bomb == null || rocket == null) return;
+
+            bomb.SetSortingOrder(101);
+            rocket.SetSortingOrder(100);
+
+            const float startTiltDeg = 30f;
+            const float endTiltDeg = 0f;
+            const float orbitRadius = 0.45f;
+            const int totalSpins = 10;
+            const float depthScaleVariance = 0.12f;
+
+            float t = 0f;
+
+            // We use Ease.Linear to ensure the speed is constant from start to finish
+            await DOTween.To(() => t, x =>
+                {
+                    t = x;
+
+                    // 1. Calculate dynamic tilt
+                    float currentTiltRad = Mathf.Lerp(startTiltDeg, endTiltDeg, t) * Mathf.Deg2Rad;
+
+                    // 2. Calculate rotation angle (Now linear because t is linear)
+                    float currentAngle = t * totalSpins * Mathf.PI * 2f;
+
+                    // 3. Position Calculation
+                    float rawOffset = Mathf.Sin(currentAngle) * orbitRadius;
+                    float xPos = rawOffset * Mathf.Cos(currentTiltRad);
+                    float yPos = rawOffset * Mathf.Sin(currentTiltRad);
+
+                    Vector3 offsetVector = new Vector3(xPos, yPos, 0);
+
+                    bomb.transform.position = center + offsetVector;
+                    rocket.transform.position = center - offsetVector;
+
+                    // 4. Fake 3D Depth Scaling
+                    float bombDepth = Mathf.Cos(currentAngle);
+                    float rocketDepth = Mathf.Cos(currentAngle + Mathf.PI);
+
+                    bomb.transform.localScale = Vector3.one * (1f + (bombDepth * depthScaleVariance));
+                    rocket.transform.localScale = Vector3.one * (1f + (rocketDepth * depthScaleVariance));
+                }, 1f, duration)
+                .SetEase(Ease.Linear)
+                .ToUniTask();
+        }
     }
 }

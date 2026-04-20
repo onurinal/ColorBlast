@@ -7,6 +7,7 @@ namespace ColorBlast.Gameplay
     public class DiscoDiscoEffect : IBlockEffect
     {
         private readonly Block best;
+        private readonly HashSet<Block> affectedSpecials;
 
         public Block Source { get; }
 
@@ -14,11 +15,20 @@ namespace ColorBlast.Gameplay
         {
             Source = comboResult.Tapped;
             best = comboResult.Best;
+            affectedSpecials = comboResult.AffectedSpecials;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            context.ReturnToPool(best);
+            foreach (var block in affectedSpecials)
+            {
+                if (block == best)
+                {
+                    continue;
+                }
+
+                context.TryRemoveBlock(block);
+            }
 
             var affected = new HashSet<Block>();
 

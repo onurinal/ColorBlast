@@ -32,6 +32,7 @@ namespace ColorBlast.Gameplay
                 scale.Kill();
 
                 targetPositions.Add(new Vector2Int(discoBall.GridX, discoBall.GridY));
+
                 foreach (var position in targetPositions)
                 {
                     var block = context.BlockGrid[position.x, position.y];

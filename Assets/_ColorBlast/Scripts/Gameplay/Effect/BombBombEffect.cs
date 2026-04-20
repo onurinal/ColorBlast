@@ -6,6 +6,7 @@ namespace ColorBlast.Gameplay
     public class BombBombEffect : IBlockEffect
     {
         private readonly Block best;
+        private readonly HashSet<Block> affectedSpecials;
         private readonly BlockEffectFactory effectFactory;
 
         public Block Source { get; }
@@ -14,17 +15,28 @@ namespace ColorBlast.Gameplay
         {
             Source = comboResult.Tapped;
             best = comboResult.Best;
+            affectedSpecials = comboResult.AffectedSpecials;
             this.effectFactory = effectFactory;
         }
 
         public async UniTask Execute(EffectExecutionContext context, IEffectSchedular effectSchedular)
         {
-            var affected = new HashSet<Block>();
+            foreach (var block in affectedSpecials)
+            {
+                if (block == best)
+                {
+                    continue;
+                }
+
+                context.TryRemoveBlock(block);
+            }
 
             await BlockAnimationHelper.PlayExpandAnimation(best);
-            context.ReturnToPool(best);
 
+            var affected = new HashSet<Block>();
             UpdateBombBombAffectedBlocks(context, affected);
+            context.TryRemoveBlock(best);
+
             ProcessAffected(context, effectSchedular, affected);
         }
 
@@ -64,6 +76,19 @@ namespace ColorBlast.Gameplay
                 {
                     context.TryDestroyBlock(block);
                 }
+            }
+        }
+
+        public void RemoveAffectedSpecials(EffectExecutionContext context, HashSet<Block> affectedSpecials)
+        {
+            foreach (var block in affectedSpecials)
+            {
+                if (block == best)
+                {
+                    continue;
+                }
+
+                context.TryRemoveBlock(block);
             }
         }
     }

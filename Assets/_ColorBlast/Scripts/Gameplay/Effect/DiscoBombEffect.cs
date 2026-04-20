@@ -16,6 +16,7 @@ namespace ColorBlast.Gameplay
     {
         private readonly Block best;
         private readonly Block partner;
+        private readonly HashSet<Block> affectedSpecials;
         private readonly BlockEffectFactory effectFactory;
 
         public Block Source { get; }
@@ -25,6 +26,7 @@ namespace ColorBlast.Gameplay
             Source = comboResult.Tapped;
             best = comboResult.Best;
             partner = comboResult.Partner;
+            affectedSpecials = comboResult.AffectedSpecials;
             this.effectFactory = effectFactory;
         }
 
@@ -36,6 +38,17 @@ namespace ColorBlast.Gameplay
 
             var sourceRow = Source.GridX;
             var sourceCol = Source.GridY;
+
+            foreach (var block in affectedSpecials)
+            {
+                if (block == best)
+                {
+                    context.UnlinkFromGrid(best);
+                    continue;
+                }
+
+                context.TryRemoveBlock(block);
+            }
 
             effectSchedular.SuspendGridUpdates();
             discoBall.PlayParticle();
@@ -63,7 +76,7 @@ namespace ColorBlast.Gameplay
                 shake.Kill();
                 scale.Kill();
 
-                context.ReturnToPool(discoBall);
+                context.ReturnToPool(best);
                 var bomb = context.SpawnBlockAt(bombData, sourceRow, sourceCol);
                 spawnedBombs.Add(bomb);
             }
