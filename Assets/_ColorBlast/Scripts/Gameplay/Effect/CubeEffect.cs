@@ -44,19 +44,19 @@ namespace ColorBlast.Gameplay
 
             if (rewardState?.RewardBlockData != null)
             {
-                var sprite = ResolveRewardSprite(cubeData, rewardState.RewardBlockData);
-                context.SpawnBlockAt(rewardState.RewardBlockData, Source.GridX, Source.GridY, sprite, Source.BlockData);
+                // var sprite = ResolveRewardSprite(cubeData, rewardState.RewardBlockData);
+                context.SpawnBlockAt(rewardState.RewardBlockData, Source.GridX, Source.GridY, Source.BlockData);
             }
         }
 
-        private Sprite ResolveRewardSprite(BlockData cubeData, BlockData rewardData)
-        {
-            if (rewardData is DiscoBlockData discoData)
-            {
-                return discoData.GetRewardState(cubeData)?.GetSprite();
-            }
-
-            return null;
-        }
+        // private Sprite ResolveRewardSprite(BlockData cubeData, BlockData rewardData)
+        // {
+        //     if (rewardData is DiscoBlockData discoData)
+        //     {
+        //         return discoData.GetRewardState(cubeData)?.GetSprite();
+        //     }
+        //
+        //     return null;
+        // }
     }
 }

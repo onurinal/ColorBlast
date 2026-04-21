@@ -49,8 +49,7 @@ namespace ColorBlast.Gameplay
             return true;
         }
 
-        public Block SpawnBlockAt(BlockData blockData, int row, int col, Sprite sprite = null,
-            BlockData targetData = null)
+        public Block SpawnBlockAt(BlockData blockData, int row, int col, BlockData targetData = null)
         {
             var block = BlockGrid[row, col];
 
@@ -59,7 +58,7 @@ namespace ColorBlast.Gameplay
                 TryRemoveBlock(block);
             }
 
-            return gridSpawner.SpawnBlockAt(blockData, row, col, sprite, targetData);
+            return gridSpawner.SpawnBlockAt(blockData, row, col, targetData);
         }
 
         public Vector2 GetCellWorldPosition(int row, int col)

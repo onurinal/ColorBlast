@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ColorBlast.Gameplay
@@ -7,22 +6,24 @@ namespace ColorBlast.Gameplay
     public class DiscoBlockData : BlockData
     {
         [SerializeField] private float lineAnimateDuration = 0.1f;
-        [SerializeField] private List<DiscoRewardState> rewardStates;
+        [SerializeField] private DiscoColorEntry[] colorEntries;
+        [SerializeField] private Color[] cubeColorList;
 
         public override BlockType BlockType => BlockType.DiscoBall;
         public float LineAnimateDuration => lineAnimateDuration;
+        public Color[] CubeColorList => cubeColorList;
 
-        public DiscoRewardState GetRewardState(BlockData blockData)
+        public Color GetColorForCube(BlockData cubeBlockData)
         {
-            foreach (var rewardState in rewardStates)
+            foreach (var entry in colorEntries)
             {
-                if (blockData == rewardState.TargetCubeData)
+                if (entry.CubeData == cubeBlockData)
                 {
-                    return rewardState;
+                    return entry.Color;
                 }
             }
 
-            return null;
+            return Color.white;
         }
     }
 }

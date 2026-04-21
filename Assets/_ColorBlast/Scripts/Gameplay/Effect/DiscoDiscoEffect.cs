@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 namespace ColorBlast.Gameplay
 {
@@ -30,7 +31,14 @@ namespace ColorBlast.Gameplay
                 context.TryRemoveBlock(block);
             }
 
+            var discoBlock = (DiscoBlock)best;
+            var discoData = (DiscoBlockData)discoBlock.BlockData;
             var affected = new HashSet<Block>();
+
+            var (shake, scale) = DiscoAnimationHelper.AnimateShakeAndScale(discoBlock);
+            await DiscoAnimationHelper.CycleColors(discoBlock, discoData.CubeColorList, 3f, 0.2f);
+            shake.Kill();
+            scale.Kill();
 
             UpdateDiscoDiscoAffectedBlocks(context, affected);
             ProcessAffected(context, affected);

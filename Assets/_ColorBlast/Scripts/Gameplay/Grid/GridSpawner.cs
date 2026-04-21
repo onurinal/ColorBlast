@@ -51,8 +51,7 @@ namespace ColorBlast.Gameplay
             }
         }
 
-        public Block SpawnBlockAt(BlockData blockData, int row, int col,
-            Sprite sprite = null, BlockData targetCubeData = null)
+        public Block SpawnBlockAt(BlockData blockData, int row, int col, BlockData targetCubeData = null)
         {
             var block = BlockPoolManager.Instance.GetBlock(blockData);
             block.Initialize(row, col, blockData);
@@ -61,7 +60,7 @@ namespace ColorBlast.Gameplay
             switch (block)
             {
                 case DiscoBlock discoBlock:
-                    discoBlock.SetTargetCubeData(targetCubeData, sprite);
+                    discoBlock.SetTargetCubeData(targetCubeData);
                     break;
                 case RocketBlock rocketBlock:
                     rocketBlock.SetupDirection();

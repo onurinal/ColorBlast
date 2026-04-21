@@ -49,10 +49,21 @@ namespace ColorBlast.Gameplay
             modelTransform.transform.localScale = new Vector2(sizeX, sizeY);
         }
 
+        public void SetColor(Color color)
+        {
+            spriteRenderer.color = color;
+        }
+
+        public void ResetColor()
+        {
+            spriteRenderer.color = Color.white;
+        }
+
         public void ResetView()
         {
             activeTween?.Kill();
             transform.localScale = Vector3.one;
+            spriteRenderer.color = Color.white;
         }
     }
 }

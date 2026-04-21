@@ -15,16 +15,23 @@ MonoBehaviour:
   prefab: {fileID: 173419991819821490, guid: b54183cd191c31a4a8c1afd2f1a9982a, type: 3}
   particlePrefab: {fileID: 5476460821433406554, guid: d6a6c7c31e7f74e48a44df301acd8839, type: 3}
   lineAnimateDuration: 0.1
-  rewardStates:
-  - targetCubeData: {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}
-    sprite: {fileID: 3549173321799013919, guid: 4c594182b6fdab747a1c016e6f047fdf, type: 3}
-  - targetCubeData: {fileID: 11400000, guid: 180b7c875e3835b44bc213f1434ce084, type: 2}
-    sprite: {fileID: 8964478224468943313, guid: 7c920a4e10e78aa4e9202b202c04b909, type: 3}
-  - targetCubeData: {fileID: 11400000, guid: 8333c7eb57970d84791a4e20b0bea5ec, type: 2}
-    sprite: {fileID: -4654155631810019197, guid: 34ab8177e24b0f54993722944b5c516f, type: 3}
-  - targetCubeData: {fileID: 11400000, guid: a19f1b3d2a93d9b4290104a1bde47b91, type: 2}
-    sprite: {fileID: -6301315179577516585, guid: c22a75a08dbfde14696ffc11933c1168, type: 3}
-  - targetCubeData: {fileID: 11400000, guid: c4db9b491532dd3429dce983b7840476, type: 2}
-    sprite: {fileID: -3890935758511578124, guid: 8d5602d9a3458ce43b6376b7f420da28, type: 3}
-  - targetCubeData: {fileID: 11400000, guid: e2ab46df46de2f54897e3a45f59da281, type: 2}
-    sprite: {fileID: 4679887694197373205, guid: dc95e654a8e93d44590cb71ca616bc19, type: 3}
+  colorEntries:
+  - cubeData: {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}
+    color: {r: 0.3019608, g: 0.83137256, b: 0.9529412, a: 1}
+  - cubeData: {fileID: 11400000, guid: 180b7c875e3835b44bc213f1434ce084, type: 2}
+    color: {r: 0.7411765, g: 0.89411765, b: 0.16862746, a: 1}
+  - cubeData: {fileID: 11400000, guid: 8333c7eb57970d84791a4e20b0bea5ec, type: 2}
+    color: {r: 0.99607843, g: 0.3882353, b: 0.8666667, a: 1}
+  - cubeData: {fileID: 11400000, guid: a19f1b3d2a93d9b4290104a1bde47b91, type: 2}
+    color: {r: 0.8, g: 0.22745098, b: 0.99607843, a: 1}
+  - cubeData: {fileID: 11400000, guid: c4db9b491532dd3429dce983b7840476, type: 2}
+    color: {r: 0.92941177, g: 0.10980392, b: 0.14117648, a: 1}
+  - cubeData: {fileID: 11400000, guid: e2ab46df46de2f54897e3a45f59da281, type: 2}
+    color: {r: 1, g: 0.81960785, b: 0, a: 1}
+  cubeColorList:
+  - {r: 0, g: 0.68, b: 0.94, a: 1}
+  - {r: 0.55, g: 0.78, b: 0.25, a: 1}
+  - {r: 0.94, g: 0.31, b: 0.71, a: 1}
+  - {r: 0.56, g: 0, b: 0.78, a: 1}
+  - {r: 0.93, g: 0.11, b: 0.14, a: 1}
+  - {r: 1, g: 0.82, b: 0, a: 1}

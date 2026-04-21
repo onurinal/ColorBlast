@@ -51,7 +51,6 @@ namespace ColorBlast.Gameplay
             }
 
             effectSchedular.SuspendGridUpdates();
-            discoBall.PlayParticle();
 
             var (shake, scale) = DiscoAnimationHelper.AnimateShakeAndScale(discoBall);
             var spawnedBombs = new List<Block>();

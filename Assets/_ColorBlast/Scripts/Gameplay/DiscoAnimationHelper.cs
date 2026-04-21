@@ -14,16 +14,44 @@ namespace ColorBlast.Gameplay
     {
         public static (Tweener shake, Tweener scale) AnimateShakeAndScale(DiscoBlock discoBall)
         {
+            discoBall.PlayParticle();
+
             var shake = discoBall.transform
-                .DOShakePosition(1f, strength: 0.1f, vibrato: 5, randomness: 90)
+                .DOShakePosition(1f, strength: 0.15f, vibrato: 10, randomness: 90)
                 .SetLoops(-1);
 
             var scale = discoBall.transform
-                .DOScale(discoBall.transform.localScale + Vector3.one * 0.2f, 0.2f)
+                .DOScale(discoBall.transform.localScale + Vector3.one * 0.3f, 0.2f)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetEase(Ease.InOutSine);
 
             return (shake, scale);
+        }
+
+        public static async UniTask CycleColors(DiscoBlock discoBall, Color[] colors, float duration, float interval)
+        {
+            if (discoBall == null || colors == null || colors.Length == 0)
+            {
+                return;
+            }
+
+            var sequence = DOTween.Sequence();
+            var elapsed = 0f;
+            var colorIndex = 0;
+
+            while (elapsed < duration)
+            {
+                Color targetColor = colors[colorIndex % colors.Length];
+
+                sequence.AppendCallback(() => discoBall.SetViewColor(targetColor));
+
+                sequence.AppendInterval(interval);
+
+                elapsed += interval;
+                colorIndex++;
+            }
+
+            await sequence.SetEase(Ease.Linear).OnKill(discoBall.ResetViewColor).ToUniTask();
         }
 
         public static List<Vector2Int> CollectPositions(EffectExecutionContext context, BlockData targetData, bool isCombo = false)

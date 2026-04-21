@@ -6,6 +6,8 @@ namespace ColorBlast.Gameplay
     public class DiscoBlock : Block, IActivatable, IInteractable
     {
         [SerializeField] private ParticleSystem particle;
+
+        private DiscoBlockData DiscoBlockData => (DiscoBlockData)BlockData;
         public override BlockData BlockData { get; protected set; }
 
         public BlockData TargetCubeData { get; private set; }
@@ -16,15 +18,19 @@ namespace ColorBlast.Gameplay
             BlockData = blockData;
         }
 
-        public void SetTargetCubeData(BlockData targetCubeData, Sprite sprite)
+        public void SetTargetCubeData(BlockData targetCubeData)
         {
-            if (targetCubeData == null || sprite == null)
+            if (targetCubeData == null)
             {
                 Debug.LogWarning($"DiscoBlock cannot set targetCubeData or sprite");
             }
 
             TargetCubeData = targetCubeData;
-            blockView.UpdateVisual(sprite);
+
+            if (targetCubeData is CubeBlockData cubeData)
+            {
+                blockView.SetColor(DiscoBlockData.GetColorForCube(cubeData));
+            }
         }
 
         public void Interact()
@@ -49,5 +55,8 @@ namespace ColorBlast.Gameplay
 
             base.OnDespawn();
         }
+
+        public void SetViewColor(Color color) => blockView.SetColor(color);
+        public void ResetViewColor() => blockView.ResetColor();
     }
 }
