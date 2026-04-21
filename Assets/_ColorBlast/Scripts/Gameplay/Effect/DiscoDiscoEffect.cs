@@ -36,7 +36,7 @@ namespace ColorBlast.Gameplay
             var affected = new HashSet<Block>();
 
             var (shake, scale) = DiscoAnimationHelper.AnimateShakeAndScale(discoBlock);
-            await DiscoAnimationHelper.CycleColors(discoBlock, discoData.CubeColorList, 3f, 0.2f);
+            await DiscoAnimationHelper.CycleColors(discoBlock, discoData.GetAllColors(), 1.5f, 0.05f);
             shake.Kill();
             scale.Kill();
 

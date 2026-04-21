@@ -11,7 +11,6 @@ namespace ColorBlast.Gameplay
 
         public override BlockType BlockType => BlockType.DiscoBall;
         public float LineAnimateDuration => lineAnimateDuration;
-        public Color[] CubeColorList => cubeColorList;
 
         public Color GetColorForCube(BlockData cubeBlockData)
         {
@@ -24,6 +23,18 @@ namespace ColorBlast.Gameplay
             }
 
             return Color.white;
+        }
+
+        public Color[] GetAllColors()
+        {
+            var colors = new Color[colorEntries.Length];
+
+            for (int i = 0; i < colorEntries.Length; i++)
+            {
+                colors[i] = colorEntries[i].Color;
+            }
+
+            return colors;
         }
     }
 }

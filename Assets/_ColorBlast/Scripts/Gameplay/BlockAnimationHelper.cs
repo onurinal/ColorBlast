@@ -62,7 +62,7 @@ namespace ColorBlast.Gameplay
         /// Merges the bomb and rocket to the tapped center, then orbits them around a vertical axis.
         /// Starts slow and accelerates.
         /// </summary>
-        public static async UniTask PlayBombRocketComboAnimation(Block bomb, Block rocket, Vector3 center, float duration = 2f)
+        public static async UniTask PlayBombRocketComboAnimation(Block bomb, Block rocket, Vector3 center, float duration = 1.5f)
         {
             if (bomb == null || rocket == null) return;
 

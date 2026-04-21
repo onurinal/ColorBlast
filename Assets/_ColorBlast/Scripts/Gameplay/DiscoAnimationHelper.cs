@@ -43,9 +43,9 @@ namespace ColorBlast.Gameplay
             {
                 Color targetColor = colors[colorIndex % colors.Length];
 
-                sequence.AppendCallback(() => discoBall.SetViewColor(targetColor));
+                _ = sequence.AppendCallback(() => discoBall.SetViewColor(targetColor));
 
-                sequence.AppendInterval(interval);
+                _ = sequence.AppendInterval(interval);
 
                 elapsed += interval;
                 colorIndex++;
