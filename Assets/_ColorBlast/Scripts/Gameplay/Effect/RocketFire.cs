@@ -46,9 +46,6 @@ namespace ColorBlast.Gameplay
                 projectile1.Launch(targets1, durationPerCell, OnHit),
                 projectile2.Launch(targets2, durationPerCell, OnHit)
             );
-
-            // projectile1.FlyOffScreenAndReturn(durationPerCell, rocketData.BlockType).Forget();
-            // projectile2.FlyOffScreenAndReturn(durationPerCell, rocketData.BlockType).Forget();
         }
 
         /// <summary>
@@ -67,7 +64,7 @@ namespace ColorBlast.Gameplay
                 effectSchedular.MarkTriggered(block);
                 effectSchedular.TriggerConcurrent(effectFactory.CreateEffect(block));
             }
-            else if(block is not IActivatable)
+            else if (block is not IActivatable)
             {
                 context.TryDestroyBlock(block);
             }
