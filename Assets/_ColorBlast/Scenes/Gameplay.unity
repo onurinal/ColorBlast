@@ -889,7 +889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a0855d8dc4f4f808cafd98ba54d8836, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.ParticlePoolManager
-  particlePoolEntry:
+  entries:
   - data: {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}
     parent: {fileID: 990888903}
     initialSize: 0
@@ -898,10 +898,10 @@ MonoBehaviour:
     initialSize: 50
   - data: {fileID: 11400000, guid: e030ebde843be8c48997979d35580f35, type: 2}
     parent: {fileID: 1950094693}
-    initialSize: 25
+    initialSize: 30
   - data: {fileID: 11400000, guid: 2a87a4fe7a29f89488fd614fe96ca482, type: 2}
     parent: {fileID: 2058332594}
-    initialSize: 60
+    initialSize: 10
   poolMultiplier: 2
 --- !u!1 &712210977
 GameObject:
@@ -1059,19 +1059,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1259375cd424ac8a6a1f7c5e64bf115, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Manager.ObjectPoolManager
-  blockPoolEntry:
+  entries:
   - data: {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}
     parent: {fileID: 364066798}
     initialSize: 0
   - data: {fileID: 11400000, guid: fac3af2329e1b97488dd09b3acc7e259, type: 2}
     parent: {fileID: 1470416718}
-    initialSize: 20
+    initialSize: 30
   - data: {fileID: 11400000, guid: e030ebde843be8c48997979d35580f35, type: 2}
     parent: {fileID: 343812675}
-    initialSize: 20
+    initialSize: 30
   - data: {fileID: 11400000, guid: 2a87a4fe7a29f89488fd614fe96ca482, type: 2}
     parent: {fileID: 920504157}
-    initialSize: 20
+    initialSize: 10
   poolMultiplier: 2
 --- !u!4 &826034686
 Transform:

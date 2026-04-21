@@ -3,43 +3,37 @@ using UnityEngine;
 using System.Threading;
 using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
-using ColorBlast.Gameplay;
+using ColorBlast.Features;
 
 namespace ColorBlast.Manager
 {
     /// <summary>
-    /// Handles grid-related systems such as spawning, gravity, matching and shuffling
+    /// Orchestrates grid systems: initialization, event handling, and game flow.
     /// </summary>
     public class GridManager : MonoBehaviour
     {
         [Header("Configurations")]
-        [SerializeField] private GameplayConfig gameplayConfig;
+        [SerializeField] private GameConfig gameplayConfig;
         [SerializeField] private CubeColorDatabase cubeColorDatabase;
 
         [Header("References")]
         [SerializeField] private CameraController cameraController;
 
-        private GridSpawner gridSpawner;
-        private GridChecker gridChecker;
-        private GridRefill gridRefill;
-        private GridShuffler gridShuffler;
-        private EffectPipeline effectPipeline;
-        private BlockEffectFactory effectFactory;
-
+        private GridSystems gridSystems;
         private LevelProperties levelProperties;
         private UIManager uiManager;
-        private IHapticService hapticService;
 
-        private Block[,] blockGrid;
+        private Block[,] grid;
 
         public void Initialize(LevelProperties levelProperties, UIManager uiManager, IHapticService hapticService)
         {
             this.levelProperties = levelProperties;
             this.uiManager = uiManager;
-            this.hapticService = hapticService;
-            blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
+            grid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
 
-            InitializeSystems();
+            gridSystems = new GridSystems();
+            gridSystems.Build(grid, levelProperties, gameplayConfig, this, hapticService);
+            gridSystems.Spawner.SetColorDatabase(cubeColorDatabase); //  // GridSpawner needs the color database
             InitializeCamera();
         }
 
@@ -62,46 +56,30 @@ namespace ColorBlast.Manager
         {
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            gridSpawner.SpawnNewCubeBlocks();
-            gridChecker.CheckAllGrid();
+            gridSystems.Spawner.SpawnNewCubeBlocks();
+            gridSystems.Checker.CheckAllGrid();
             await CheckAndHandleDeadlock(cancellationToken);
         }
 
         private void HandleBlockInteract(Block block)
         {
-            if (effectPipeline.IsProcessing)
+            if (gridSystems.EffectPipeline.IsProcessing)
             {
                 return;
             }
 
-            var effect = effectFactory.CreateEffectFromPlayerTap(block);
-            effectPipeline.TriggerEffectFromPlayer(effect);
+            var effect = gridSystems.EffectFactory.CreateEffectFromPlayerTap(block);
+            gridSystems.EffectPipeline.TriggerEffectFromPlayer(effect);
         }
 
-        private void InitializeSystems()
+        private async UniTask CheckAndHandleDeadlock(CancellationToken ct)
         {
-            gridSpawner = new GridSpawner();
-            gridSpawner.Initialize(blockGrid, this, levelProperties, cubeColorDatabase, gameplayConfig);
-
-            gridChecker = new GridChecker();
-            gridChecker.Initialize(blockGrid, levelProperties, gameplayConfig);
-
-            gridRefill = new GridRefill();
-            gridRefill.Initialize(blockGrid, this, levelProperties, gameplayConfig);
-
-            gridShuffler = new GridShuffler();
-            gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);
-
-            var particleService = new BlockParticleService();
-            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner, this, particleService, hapticService);
-
-            effectPipeline = new EffectPipeline();
-            effectPipeline.Initialize(gridRefill, gridSpawner, gridChecker, context);
-
-            var comboDetector = new ComboDetector();
-            comboDetector.Initialize(blockGrid, levelProperties);
-
-            effectFactory = new BlockEffectFactory(gridChecker, gameplayConfig, comboDetector);
+            if (gridSystems.Checker.IsDeadlocked())
+            {
+                uiManager.ShowShuffleUI(gameplayConfig.ShuffleDuration);
+                await UniTask.Delay(TimeSpan.FromSeconds(gameplayConfig.ShuffleDuration), cancellationToken: ct);
+                gridSystems.Shuffler.Shuffle();
+            }
         }
 
         private void InitializeCamera()
@@ -114,17 +92,6 @@ namespace ColorBlast.Manager
             Vector2 gridCenterWorldPosition = (bottomLeft + topRight) / 2f;
 
             cameraController.Initialize(gridCenterWorldPosition, gridWorldSize);
-        }
-
-        // after adding some levels, you can make an event and when deadlock occurs then it should call this
-        private async UniTask CheckAndHandleDeadlock(CancellationToken ct)
-        {
-            if (gridChecker.IsDeadlocked())
-            {
-                uiManager.ShowShuffleUI(gameplayConfig.ShuffleDuration);
-                await UniTask.Delay(TimeSpan.FromSeconds(gameplayConfig.ShuffleDuration), cancellationToken: ct);
-                gridShuffler.Shuffle();
-            }
         }
     }
 }

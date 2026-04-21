@@ -184,7 +184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d53ad628ea4473ea3302be9e42278e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.CubeBlock
-  gameplayConfig: {fileID: 11400000, guid: 4a738b1d4aedaf44f9839c9714e26715, type: 2}
+  gameConfig: {fileID: 11400000, guid: 4a738b1d4aedaf44f9839c9714e26715, type: 2}
   blockView: {fileID: 3938420840022789303}
 --- !u!114 &3938420840022789303
 MonoBehaviour:

@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
-using ColorBlast.Gameplay;
+using ColorBlast.Features;
 using ColorBlast.Core;
 
 namespace ColorBlast.Manager
 {
-    public class BlockPoolManager : MonoBehaviour
+    public class BlockPoolManager : PoolManager<BlockType, Block>
     {
         public static BlockPoolManager Instance { get; private set; }
 
-        [SerializeField] private BlockPoolEntry[] blockPoolEntry;
+        [SerializeField] private BlockPoolEntry[] entries;
         [SerializeField] private int poolMultiplier = 2;
-
-        private readonly Dictionary<BlockType, PoolableObject<Block>> blockPool = new();
-        private bool isInitialized;
 
         private void Awake()
         {
@@ -34,45 +30,25 @@ namespace ColorBlast.Manager
 
         public void InitializePool(LevelProperties levelProperties)
         {
-            if (isInitialized)
+            if (IsInitialized)
             {
                 return;
             }
 
             var baseSize = levelProperties.RowCount * levelProperties.ColumnCount;
 
-            foreach (var entry in blockPoolEntry)
+            foreach (var entry in entries)
             {
-                var blockType = entry.data.BlockType;
-                var size = blockType == BlockType.Cube ? baseSize * poolMultiplier : entry.initialSize;
-                blockPool[blockType] =
-                    new PoolableObject<Block>(entry.data.Prefab, size, entry.parent,
-                        block => block.SetupVisual());
+                var size = entry.data.BlockType == BlockType.Cube ? baseSize * poolMultiplier : entry.initialSize;
+                CreatePool(entry.data.BlockType, entry.data.Prefab, size, entry.parent,
+                    block => block.SetupVisual());
             }
 
-            isInitialized = true;
+            IsInitialized = true;
         }
 
-        public Block GetBlock(BlockData data)
-        {
-            if (!isInitialized || !blockPool.TryGetValue(data.BlockType, out var pool))
-            {
-                Debug.LogError($"No pool for: {data.BlockType}");
-                return null;
-            }
-
-            return pool.Get();
-        }
-
-        public void ReturnBlock(Block block)
-        {
-            if (!isInitialized || !blockPool.TryGetValue(block.BlockType, out var pool))
-            {
-                return;
-            }
-
-            pool.Return(block);
-        }
+        public Block GetBlock(BlockData data) => Get(data.BlockType);
+        public void ReturnBlock(Block block) => Return(block.BlockType, block);
     }
 
     [Serializable]

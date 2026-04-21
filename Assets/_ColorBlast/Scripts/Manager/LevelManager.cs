@@ -1,4 +1,4 @@
-﻿using ColorBlast.Gameplay;
+﻿using ColorBlast.Features;
 using UnityEngine;
 
 namespace ColorBlast.Manager

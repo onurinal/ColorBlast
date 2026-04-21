@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using ColorBlast.Player;
+using ColorBlast.Input;
 using ColorBlast.Core;
 
 namespace ColorBlast.Manager

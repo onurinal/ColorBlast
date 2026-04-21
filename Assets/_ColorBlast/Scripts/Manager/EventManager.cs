@@ -1,5 +1,5 @@
 ﻿using System;
-using ColorBlast.Gameplay;
+using ColorBlast.Features;
 
 namespace ColorBlast.Manager
 {

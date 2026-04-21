@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8ad02375c474c76886b43a4da13e2cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.DiscoBlock
-  gameplayConfig: {fileID: 11400000, guid: 4a738b1d4aedaf44f9839c9714e26715, type: 2}
+  gameConfig: {fileID: 11400000, guid: 4a738b1d4aedaf44f9839c9714e26715, type: 2}
   blockView: {fileID: 3938420840022789303}
   particle: {fileID: 2343950487013219665}
 --- !u!114 &3938420840022789303
