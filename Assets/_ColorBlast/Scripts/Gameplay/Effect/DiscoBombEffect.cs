@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -52,6 +53,7 @@ namespace ColorBlast.Gameplay
 
             effectSchedular.SuspendGridUpdates();
 
+            context.HapticService.PlayImpact(HapticManagement.HapticTypes.MediumImpact);
             var (shake, scale) = DiscoAnimationHelper.AnimateShakeAndScale(discoBall);
             var spawnedBombs = new List<Block>();
 

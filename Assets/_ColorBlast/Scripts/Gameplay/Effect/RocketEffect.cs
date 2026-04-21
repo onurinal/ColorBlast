@@ -1,3 +1,4 @@
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
@@ -32,6 +33,7 @@ namespace ColorBlast.Gameplay
                 rocketDirection = rocket.Direction;
             }
 
+            context.HapticService.PlayImpact(HapticManagement.HapticTypes.MediumImpact);
             await RocketFire.Execute(rocket.GridX, rocket.GridY, rocketDirection, rocket.RocketBlockData, context, effectSchedular, effectFactory);
         }
     }

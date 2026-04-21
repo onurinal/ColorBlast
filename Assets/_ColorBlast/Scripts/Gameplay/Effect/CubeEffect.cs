@@ -29,6 +29,8 @@ namespace ColorBlast.Gameplay
             var cubeData = (CubeBlockData)Source.BlockData;
             var rewardState = cubeData.GetRewardState(group.Count);
 
+            context.HapticService.PlaySelection();
+
             if (rewardState != null)
             {
                 await BlockAnimationHelper.PlayMergeAnimation(group, Source, config.MergeDuration);

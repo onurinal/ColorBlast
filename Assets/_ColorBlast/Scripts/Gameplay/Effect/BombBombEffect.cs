@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
@@ -38,6 +39,7 @@ namespace ColorBlast.Gameplay
             context.TryRemoveBlock(best);
 
             ProcessAffected(context, effectSchedular, affected);
+            context.HapticService.PlayImpact(HapticManagement.HapticTypes.HeavyImpact);
         }
 
         private void UpdateBombBombAffectedBlocks(EffectExecutionContext context, HashSet<Block> affected)

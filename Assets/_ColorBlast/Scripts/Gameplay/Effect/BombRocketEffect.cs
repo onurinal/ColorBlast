@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
@@ -44,6 +45,7 @@ namespace ColorBlast.Gameplay
             var radius = bombData.Radius;
             var tasks = new List<UniTask>();
 
+            context.HapticService.PlayImpact(HapticManagement.HapticTypes.HeavyImpact);
             await BlockAnimationHelper.PlayBombRocketComboAnimation(bombBlock, rocketBlock, centerPosition);
             context.TryRemoveBlock(best);
             context.TryRemoveBlock(partner);

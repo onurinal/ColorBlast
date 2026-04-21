@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Threading;
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 using ColorBlast.Gameplay;
 
@@ -27,13 +28,15 @@ namespace ColorBlast.Manager
 
         private LevelProperties levelProperties;
         private UIManager uiManager;
+        private IHapticService hapticService;
 
         private Block[,] blockGrid;
 
-        public void Initialize(LevelProperties levelProperties, UIManager uiManager)
+        public void Initialize(LevelProperties levelProperties, UIManager uiManager, IHapticService hapticService)
         {
             this.levelProperties = levelProperties;
             this.uiManager = uiManager;
+            this.hapticService = hapticService;
             blockGrid = new Block[levelProperties.RowCount, levelProperties.ColumnCount];
 
             InitializeSystems();
@@ -90,7 +93,7 @@ namespace ColorBlast.Manager
             gridShuffler.Initialize(blockGrid, levelProperties, this, gameplayConfig);
 
             var particleService = new BlockParticleService();
-            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner, this, particleService);
+            var context = new EffectExecutionContext(blockGrid, levelProperties, gameplayConfig, gridSpawner, this, particleService, hapticService);
 
             effectPipeline = new EffectPipeline();
             effectPipeline.Initialize(gridRefill, gridSpawner, gridChecker, context);

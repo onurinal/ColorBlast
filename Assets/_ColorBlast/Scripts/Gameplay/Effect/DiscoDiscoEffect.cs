@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 
@@ -35,6 +36,7 @@ namespace ColorBlast.Gameplay
             var discoData = (DiscoBlockData)discoBlock.BlockData;
             var affected = new HashSet<Block>();
 
+            context.HapticService.PlayImpact(HapticManagement.HapticTypes.HeavyImpact);
             var (shake, scale) = DiscoAnimationHelper.AnimateShakeAndScale(discoBlock);
             await DiscoAnimationHelper.CycleColors(discoBlock, discoData.GetAllColors(), 1.5f, 0.05f);
             shake.Kill();

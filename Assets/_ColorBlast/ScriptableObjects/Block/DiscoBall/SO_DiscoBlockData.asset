@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ColorBlast.Gameplay.DiscoBlockData
   prefab: {fileID: 173419991819821490, guid: b54183cd191c31a4a8c1afd2f1a9982a, type: 3}
   particlePrefab: {fileID: 5476460821433406554, guid: d6a6c7c31e7f74e48a44df301acd8839, type: 3}
-  lineAnimateDuration: 0.1
+  lineAnimateDuration: 0.08
   colorEntries:
   - cubeData: {fileID: 11400000, guid: ae20971043795e141a77002492ac5baf, type: 2}
     color: {r: 0.3019608, g: 0.83137256, b: 0.9529412, a: 1}

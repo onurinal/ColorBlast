@@ -1,3 +1,4 @@
+using ColorBlast.Core;
 using ColorBlast.Manager;
 using UnityEngine;
 
@@ -9,12 +10,13 @@ namespace ColorBlast.Gameplay
         public LevelProperties LevelProperties { get; }
         public GameplayConfig Config { get; }
         public IBlockParticleService ParticleService { get; }
+        public IHapticService HapticService { get; }
 
         private readonly GridSpawner gridSpawner;
         private readonly GridManager gridManager;
 
         public EffectExecutionContext(Block[,] blockGrid, LevelProperties levelProperties, GameplayConfig config,
-            GridSpawner gridSpawner, GridManager gridManager, IBlockParticleService particleService)
+            GridSpawner gridSpawner, GridManager gridManager, IBlockParticleService particleService, IHapticService hapticService)
         {
             BlockGrid = blockGrid;
             LevelProperties = levelProperties;
@@ -22,6 +24,7 @@ namespace ColorBlast.Gameplay
             this.gridSpawner = gridSpawner;
             this.gridManager = gridManager;
             ParticleService = particleService;
+            HapticService = hapticService;
         }
 
         public bool TryDestroyBlock(Block block)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
@@ -22,6 +23,7 @@ namespace ColorBlast.Gameplay
             effectSchedular.MarkTriggered(Source);
             await context.ParticleService.PlayBombEffect(Source);
             context.TryRemoveBlock(Source);
+            context.HapticService.PlayImpact(HapticManagement.HapticTypes.LightImpact);
 
             foreach (var block in affected)
             {

@@ -13,6 +13,8 @@ namespace ColorBlast.Manager
         [SerializeField] private PlayerController playerController;
         [SerializeField] private UIManager uiManager;
 
+        private HapticService hapticService;
+
         private void Start()
         {
             Application.targetFrameRate = 60;
@@ -34,10 +36,12 @@ namespace ColorBlast.Manager
                 return;
             }
 
+            hapticService = new HapticService();
+
             uiManager.Initialize();
             blockPoolManager.InitializePool(levelManager.CurrentLevel);
             particlePoolManager.InitializePool(levelManager.CurrentLevel);
-            gridManager.Initialize(levelManager.CurrentLevel, uiManager);
+            gridManager.Initialize(levelManager.CurrentLevel, uiManager, hapticService);
             playerController.Initialize();
 
             gridManager.OnGameStart().Forget();

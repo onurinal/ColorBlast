@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ColorBlast.Core;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlast.Gameplay
@@ -24,6 +25,7 @@ namespace ColorBlast.Gameplay
                 context.TryRemoveBlock(block);
             }
 
+            context.HapticService.PlayImpact(HapticManagement.HapticTypes.MediumImpact);
             await UniTask.WhenAll(
                 new RocketEffect(Source, effectFactory, RocketDirection.Horizontal).Execute(context, effectSchedular),
                 new RocketEffect(Source, effectFactory, RocketDirection.Vertical).Execute(context, effectSchedular)
