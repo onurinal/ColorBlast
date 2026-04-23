@@ -14,6 +14,7 @@ namespace ColorBlast.Features
     {
         public static (Tweener shake, Tweener scale) AnimateShakeAndScale(DiscoBlock discoBall)
         {
+            discoBall.SetSortingOrder(100);
             discoBall.PlayParticle();
 
             var shake = discoBall.transform
